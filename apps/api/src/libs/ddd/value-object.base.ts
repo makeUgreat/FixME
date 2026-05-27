@@ -41,7 +41,7 @@ export abstract class ValueObject<T> {
   private isDomainPrimitive(
     obj: unknown,
   ): obj is DomainPrimitive<T & (Primitives | Date)> {
-    return Object.prototype.hasOwnProperty.call(obj, 'value');
+    return Boolean(Object.prototype.hasOwnProperty.call(obj, 'value'));
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

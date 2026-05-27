@@ -25,4 +25,4 @@ Question feedback: Your sentence is understandable, but a little vague. A more n
 
 ## Project Conventions
 
-- Follow the [test convention](docs/test-convention.md) when writing or reviewing tests.
+- Follow the [API test convention](apps/api/docs/test-convention.md) when writing or reviewing tests for the API app.

@@ -1,11 +1,11 @@
 # Test Convention
 
-This project uses Vitest and separates unit tests from E2E tests. Prefer unit tests first based on execution speed and verification scope. Write E2E tests only when the test must verify Nest application bootstrap, routing, module wiring, and actual HTTP responses.
+The API app uses Vitest and separates unit tests from E2E tests. Prefer unit tests first based on execution speed and verification scope. Write E2E tests only when the test must verify Nest application bootstrap, routing, module wiring, and actual HTTP responses.
 
 ## Common Rules
 
-- Place test files under `test/`.
-- Use a subdirectory close to the target being tested. Example: `test/metrics/metrics.service.spec.ts`
+- Place app-level test files under that app's `test/` directory. For the API app, use `apps/api/test/`.
+- Use a subdirectory close to the target being tested. Example: `apps/api/test/metrics/metrics.service.spec.ts`
 - Use the target name in `describe()`.
 - Write `it()` test case names in Korean, and make each sentence clearly describe the condition and expected result.
 - Each `it()` should call one unit of work and verify one specific endpoint of behavior.
@@ -18,7 +18,7 @@ This project uses Vitest and separates unit tests from E2E tests. Prefer unit te
 ## Unit Tests
 
 - Use the `*.spec.ts` file name pattern.
-- Run unit tests with `pnpm test`.
+- Run unit tests with `pnpm api:test`.
 - Target pure services, functions, and small units of business logic.
 - Do not use an HTTP server, actual Nest application bootstrap, or external I/O.
 - Create required dependencies directly or replace them with lightweight mocks/stubs.
@@ -45,7 +45,7 @@ Structure checklist:
 ## E2E Tests
 
 - Use the `*.e2e-spec.ts` file name pattern.
-- Run E2E tests with `pnpm test:e2e`.
+- Run E2E tests with `pnpm api:test:e2e`.
 - Start the full Nest application and verify routing, module wiring, and controller responses.
 - If a test uses hard-to-control elements such as an actual network, REST API, system time, file system, or database, separate it as an E2E or integration test instead of a unit test.
 - Use E2E tests to verify system interactions that unit tests cannot cover.
@@ -70,10 +70,10 @@ Structure checklist:
 ## Commands
 
 ```bash
-pnpm test        # Unit tests
-pnpm test:e2e    # E2E tests
-pnpm test:watch  # Unit test watch mode
-pnpm test:cov    # Unit test coverage
+pnpm api:test        # Unit tests
+pnpm api:test:e2e    # E2E tests
+pnpm api:test:watch  # Unit test watch mode
+pnpm api:test:cov    # Unit test coverage
 ```
 
-Before opening a PR, run the tests that match the scope of the change. If only services or functions changed, run `pnpm test`. If routes, module configuration, or application bootstrap flow changed, also run `pnpm test:e2e`.
+Before opening a PR, run the tests that match the scope of the change. If only services or functions changed, run `pnpm api:test`. If routes, module configuration, or application bootstrap flow changed, also run `pnpm api:test:e2e`.
