@@ -22,6 +22,9 @@ cleanup.
 - Write PR titles and descriptions in English.
 - Use `cm` before PR finalization when the working tree contains uncommitted
   changes or the PR boundary is unclear.
+- Treat an explicit `pr` request with uncommitted changes as approval to prepare
+  the necessary commits first. Do not stop only to ask whether to commit when the
+  diff is a clear, commit-ready PR unit.
 - Never fabricate verification. Clearly report tests that were run, skipped, or
   could not be run.
 - Never revert, overwrite, or discard user changes unless explicitly instructed.
@@ -83,6 +86,9 @@ step.
 
 - If there are uncommitted changes, inspect the diff and use `cm` rules to form
   atomic commit candidates before drafting the PR.
+- When those candidates are clear and belong to the requested PR, create the
+  commits before drafting the PR without asking for another approval. The `pr`
+  request is the approval to perform this commit-preparation step.
 - The PR unit is not automatically the same as one commit. A PR can contain
   multiple atomic commits when they form one squash-merge history event.
 - Use each commit's `Why:` body as input for the PR-level `Why`, but do not
@@ -170,14 +176,19 @@ Do not include:
 
 1. Inspect `git status --short`, recent commits, and the relevant diff or branch
    comparison.
-2. If the working tree is not already commit-ready, apply `cm` rules first to
+2. If the working tree has uncommitted changes, apply `cm` rules first to
    identify atomic commit candidates.
-3. Decide whether the change belongs in one PR or multiple PRs using the PR unit
+3. If the commit candidates are clear, commit-ready, and belong to the requested
+   PR, stage and commit them before drafting the PR.
+4. Ask the user before committing only when the diff appears unfinished, includes
+   unrelated user work, has unclear commit boundaries, or should likely split
+   into multiple PRs.
+5. Decide whether the change belongs in one PR or multiple PRs using the PR unit
    checklist.
-4. Draft the PR title as the future squash-merge commit subject.
-5. Draft the PR body using the default sections, emphasizing durable `Why`
+6. Draft the PR title as the future squash-merge commit subject.
+7. Draft the PR body using the default sections, emphasizing durable `Why`
    context.
-6. Report any verification gaps separately if they need user attention before the
+8. Report any verification gaps separately if they need user attention before the
    PR is opened.
-7. If the user asks to open or update the PR with a tool, confirm the exact title
+9. If the user asks to open or update the PR with a tool, confirm the exact title
    and body first unless they already approved them.

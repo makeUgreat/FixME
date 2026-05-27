@@ -12,7 +12,10 @@ drafting, commit splitting, or help preparing commits.
 
 ## Core Behavior
 
-- Propose commits first; do not run `git add` or `git commit` before user approval.
+- Treat an explicit `cm` request as approval to stage and commit clear,
+  commit-ready working tree changes.
+- Do not stop only to ask for approval after forming commit messages. Commit the
+  accepted atomic candidates immediately and report which commits were created.
 - Write commit messages in English using Conventional Commits.
 - Split changes by atomic commit boundaries, not by file count or diff size.
 - Include a `Why:` body in every commit message.
@@ -62,11 +65,13 @@ Split by default:
 - Dependency upgrades and features that start using the upgraded dependency.
 - Changes that should be independently revertible.
 
-Ask the user before proposing commits when:
+Ask the user before committing when:
 
 - A change naturally spans multiple commit types.
 - Revert boundaries and review boundaries conflict.
 - Part of the diff appears to be unfinished user work.
+- The working tree contains unrelated changes whose commit boundaries are not
+  clear from the diff.
 
 ## Commit Message Rules
 
@@ -131,9 +136,12 @@ exposing a database constraint failure.
 1. Inspect `git status --short` and the relevant diffs.
 2. Split the working tree changes into atomic commit candidates.
 3. Apply the atomic checklist to each candidate.
-4. For each candidate, propose the included files, split rationale, atomic
-   checklist rationale, commit subject, and `Why:` body.
-5. Report verification separately under `Verification`.
-6. Wait for user approval before staging or committing.
-7. After approval, stage and commit exactly according to the accepted proposal.
-8. If the diff changes after approval, re-check the split before committing.
+4. If the candidates are clear and commit-ready, stage and commit each candidate
+   immediately with its Conventional Commit subject and `Why:` body.
+5. Ask the user before committing only when the diff appears unfinished, includes
+   unrelated user work, or has unclear atomic boundaries.
+6. After committing, report which commits were created, including each subject
+   and the files included.
+7. Report verification separately under `Verification`.
+8. If the diff changes while preparing commits, re-check the split before
+   committing.
