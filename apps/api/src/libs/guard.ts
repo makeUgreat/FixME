@@ -19,7 +19,7 @@ export class Guard {
     return false;
   }
 
-  static lengthIsBetween(value: string, min: number, max: number): boolean {
+  static isLengthBetween(value: string, min: number, max: number): boolean {
     return value.length >= min && value.length <= max;
   }
 }
