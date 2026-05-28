@@ -16,10 +16,10 @@ export interface CreateEntityParams<T> {
 }
 
 export abstract class Entity<EntityProps> {
-  protected readonly _id: EntityId;
+  protected readonly entityId: EntityId;
   protected readonly props: EntityProps;
-  private readonly _createdAt: Date;
-  private readonly _updatedAt: Date;
+  private readonly createdAtValue: Date;
+  private readonly updatedAtValue: Date;
 
   protected constructor(params: CreateEntityParams<EntityProps>) {
     this.validateProps(params.props);
@@ -32,27 +32,27 @@ export abstract class Entity<EntityProps> {
       throw new Error('updatedAt cannot be earlier than createdAt');
     }
 
-    this._id = params.id;
+    this.entityId = params.id;
     this.props = params.props;
-    this._createdAt = new Date(createdAt.getTime());
-    this._updatedAt = new Date(updatedAt.getTime());
+    this.createdAtValue = new Date(createdAt.getTime());
+    this.updatedAtValue = new Date(updatedAt.getTime());
   }
 
   get id(): EntityId {
-    return this._id;
+    return this.entityId;
   }
 
   get createdAt(): Date {
-    return new Date(this._createdAt.getTime());
+    return new Date(this.createdAtValue.getTime());
   }
 
   get updatedAt(): Date {
-    return new Date(this._updatedAt.getTime());
+    return new Date(this.updatedAtValue.getTime());
   }
 
   getProps(): EntityProps & BaseEntityProps {
     return Object.freeze({
-      id: this._id,
+      id: this.entityId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       ...this.props,
