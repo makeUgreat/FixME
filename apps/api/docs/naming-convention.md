@@ -17,7 +17,7 @@ File names follow `{name}.{role}.ts`. Class names usually use the file role suff
 
 ## Domain Models
 
-- Use singular domain terms for aggregates, entities, and value objects: `CorrectionRecord`, `Post`, `PostTitle`.
+- Use singular domain terms for aggregates, entities, and value objects: `Post`, `PostTitle`, `UserEmail`.
 - Do not add technical suffixes to domain model names: use `Post`, not `PostAggregate`; use `UserEmail`, not `UserEmailVo`.
 - Use `Props` for internal state, `CreateXProps` for creation input, `RehydrateXProps` for persisted reconstruction input, and `XPrimitives` for plain serializable values.
 - Use `create` for new domain objects and `rehydrate` for reconstructing persisted objects with identity and timestamps.
@@ -95,7 +95,7 @@ export const TOKEN_PROVIDER = Symbol('token_provider');
 
 Follow the API test convention for test files and test case names.
 
-- Fixture factories: `createXFixture`, such as `createCorrectionRecordFixture`.
+- Fixture factories: `createXFixture`, such as `createPostFixture`.
 - Mocks: `mockX`, such as `mockTokenProvider`.
 - Stubs: `stubX`, such as `stubPasswordHasher`.
 - Scenario-specific data should describe the case when useful: `expiredRefreshToken`, `postWithoutTitle`.
