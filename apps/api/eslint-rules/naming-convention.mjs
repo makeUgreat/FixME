@@ -19,10 +19,6 @@ const TECHNICAL_SUFFIX_ROLES = new Set([
   'response.dto',
 ]);
 
-const TECHNICAL_ROLE_SUFFIX_OVERRIDES = new Map([
-  ['repository.port', 'Repository'],
-]);
-
 const NO_TECHNICAL_SUFFIX_ROLES = new Set([
   'aggregate',
   'entity',
@@ -77,12 +73,6 @@ function isIgnoredHelperDeclaration(name) {
 function getTechnicalRoleSuffix(role) {
   if (NO_TECHNICAL_SUFFIX_ROLES.has(role)) {
     return '';
-  }
-
-  const suffixOverride = TECHNICAL_ROLE_SUFFIX_OVERRIDES.get(role);
-
-  if (suffixOverride !== undefined) {
-    return suffixOverride;
   }
 
   if (TECHNICAL_SUFFIX_ROLES.has(role) || role.endsWith('.controller')) {
