@@ -21,6 +21,9 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 
+# Generated dependency graphs
+/apps/api/dependency-graph.mmd
+
 # IDEs and editors
 /.idea
 .project

@@ -13,11 +13,20 @@
     "api:start:debug": "pnpm --filter @fixme/api start:debug",
     "api:start:prod": "pnpm --filter @fixme/api start:prod",
     "api:lint": "pnpm --filter @fixme/api lint",
+    "api:lint:check": "pnpm --filter @fixme/api lint:check",
     "api:typecheck": "pnpm --filter @fixme/api typecheck",
     "api:test": "pnpm --filter @fixme/api test",
+    "api:test:unit": "pnpm --filter @fixme/api test:unit",
     "api:test:watch": "pnpm --filter @fixme/api test:watch",
     "api:test:cov": "pnpm --filter @fixme/api test:cov",
     "api:test:debug": "pnpm --filter @fixme/api test:debug",
-    "api:test:e2e": "pnpm --filter @fixme/api test:e2e"
+    "api:test:e2e": "pnpm --filter @fixme/api test:e2e",
+    "api:deps:check": "pnpm --filter @fixme/api deps:check",
+    "api:harness:local": "pnpm --filter @fixme/api harness:local",
+    "api:harness:pr": "pnpm --filter @fixme/api harness:pr",
+    "api:deps:graph": "pnpm --filter @fixme/api deps:graph"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "^17.4.2"
   }
 }

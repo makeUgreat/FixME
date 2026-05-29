@@ -13,12 +13,18 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
+    "lint:check": "eslint \"{src,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude \"test/**/*.spec.ts\" --exclude \"test/**/*.e2e-spec.ts\"",
+    "test:e2e": "vitest run test/app.e2e-spec.ts",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "vitest run test/app.e2e-spec.ts"
+    "deps:check": "depcruise src --config .dependency-cruiser.cjs",
+    "deps:graph": "depcruise src --config .dependency-cruiser.cjs --output-type mermaid --output-to dependency-graph.mmd",
+    "harness:local": "pnpm typecheck && pnpm lint:check && pnpm test:unit && pnpm deps:check",
+    "harness:pr": "pnpm harness:local && pnpm test:e2e && pnpm build"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

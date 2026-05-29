@@ -18,7 +18,7 @@ The API app uses Vitest and separates unit tests from E2E tests. Prefer unit tes
 ## Unit Tests
 
 - Use the `*.spec.ts` file name pattern.
-- Run unit tests with `pnpm api:test`.
+- Run unit tests with `pnpm api:test:unit`.
 - Target pure services, functions, and small units of business logic.
 - Do not use an HTTP server, actual Nest application bootstrap, or external I/O.
 - Create required dependencies directly or replace them with lightweight mocks/stubs.
@@ -70,10 +70,11 @@ Structure checklist:
 ## Commands
 
 ```bash
-pnpm api:test        # Unit tests
+pnpm api:test:unit   # Unit tests
+pnpm api:test        # All Vitest tests
 pnpm api:test:e2e    # E2E tests
 pnpm api:test:watch  # Unit test watch mode
 pnpm api:test:cov    # Unit test coverage
 ```
 
-Before opening a PR, run the tests that match the scope of the change. If only services or functions changed, run `pnpm api:test`. If routes, module configuration, or application bootstrap flow changed, also run `pnpm api:test:e2e`.
+Before opening a PR, run the tests that match the scope of the change. If only services or functions changed, run `pnpm api:test:unit`. If routes, module configuration, or application bootstrap flow changed, also run `pnpm api:test:e2e`.
