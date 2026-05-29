@@ -88,7 +88,6 @@ export default tseslint.config(
       'check-file': checkFile,
     },
     rules: {
-      'naming-convention/controller-protocol-name': 'error',
       'naming-convention/file-role-type-suffix': 'error',
       'check-file/filename-naming-convention': [
         'error',

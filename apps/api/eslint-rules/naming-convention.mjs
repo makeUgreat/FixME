@@ -1,25 +1,27 @@
 import path from 'node:path';
 
-const ROLE_SUFFIXES = new Map([
-  ['use-case', 'UseCase'],
-  ['command', 'Command'],
-  ['query', 'Query'],
-  ['service', 'Service'],
-  ['mapper', 'Mapper'],
-  ['factory', 'Factory'],
-  ['model', 'Model'],
-  ['exception', 'Exception'],
-  ['strategy', 'Strategy'],
-  ['filter', 'Filter'],
-  ['module', 'Module'],
-  ['tokens', 'Tokens'],
+const ROLE_SEGMENT_COUNTS = [2, 1];
+
+const TECHNICAL_SUFFIX_ROLES = new Set([
+  'command',
+  'query',
+  'use-case',
+  'service',
+  'mapper',
+  'factory',
+  'model',
+  'exception',
+  'strategy',
+  'filter',
+  'module',
+  'tokens',
+  'request.dto',
+  'response.dto',
 ]);
 
-const MULTI_ROLE_SUFFIXES = [
-  { parts: ['request', 'dto'], suffix: 'RequestDto' },
-  { parts: ['response', 'dto'], suffix: 'ResponseDto' },
-  { parts: ['repository', 'port'], suffix: 'Repository' },
-];
+const TECHNICAL_ROLE_SUFFIX_OVERRIDES = new Map([
+  ['repository.port', 'Repository'],
+]);
 
 const NO_TECHNICAL_SUFFIX_ROLES = new Set([
   'aggregate',
@@ -72,54 +74,44 @@ function isIgnoredHelperDeclaration(name) {
   return IGNORED_TYPE_SUFFIXES.some((suffix) => name.endsWith(suffix));
 }
 
-function getExpectedRoleTypeName(filename) {
-  const basename = basenameWithoutExtension(filename);
-  const parts = basename.split('.');
-
-  for (const { parts: roleParts, suffix } of MULTI_ROLE_SUFFIXES) {
-    if (parts.length <= roleParts.length) {
-      continue;
-    }
-
-    const tail = parts.slice(-roleParts.length);
-    if (tail.join('.') !== roleParts.join('.')) {
-      continue;
-    }
-
-    return toPascalCase(parts.slice(0, -roleParts.length).join('.')) + suffix;
-  }
-
-  if (parts.length < 2) {
-    return undefined;
-  }
-
-  const role = parts.at(-1);
-  const name = parts.slice(0, -1).join('.');
-  const roleSuffix = ROLE_SUFFIXES.get(role);
-
-  if (roleSuffix) {
-    return toPascalCase(name) + roleSuffix;
-  }
-
+function getTechnicalRoleSuffix(role) {
   if (NO_TECHNICAL_SUFFIX_ROLES.has(role)) {
-    return toPascalCase(name);
+    return '';
+  }
+
+  const suffixOverride = TECHNICAL_ROLE_SUFFIX_OVERRIDES.get(role);
+
+  if (suffixOverride !== undefined) {
+    return suffixOverride;
+  }
+
+  if (TECHNICAL_SUFFIX_ROLES.has(role) || role.endsWith('.controller')) {
+    return toPascalCase(role);
   }
 
   return undefined;
 }
 
-function getExpectedControllerTypeName(filename) {
+function getExpectedTypeName(filename) {
   const basename = basenameWithoutExtension(filename);
   const parts = basename.split('.');
 
-  if (parts.length < 3 || parts.at(-1) !== 'controller') {
-    return undefined;
+  for (const roleSegmentCount of ROLE_SEGMENT_COUNTS) {
+    if (parts.length <= roleSegmentCount) {
+      continue;
+    }
+
+    const role = parts.slice(-roleSegmentCount).join('.');
+    const suffix = getTechnicalRoleSuffix(role);
+
+    if (suffix === undefined) {
+      continue;
+    }
+
+    return toPascalCase(parts.slice(0, -roleSegmentCount).join('.')) + suffix;
   }
 
-  const protocol = parts.at(-2);
-  const name = parts.slice(0, -2).join('.');
-
-  return `${toPascalCase(name)}${toPascalCase(protocol)}Controller`;
+  return undefined;
 }
 
 function getRelevantDeclarations(programNode) {
@@ -152,7 +144,7 @@ function createExpectedTypeRule({ getExpectedName, messageId }) {
     meta: {
       type: 'problem',
       docs: {
-        description: 'Require API type names to match file naming roles.',
+        description: 'Require type names to match file naming roles.',
       },
       messages: {
         [messageId]: 'Expected this file to export {{ expectedName }}.',
@@ -199,12 +191,8 @@ const namingConventionPlugin = {
   },
   rules: {
     'file-role-type-suffix': createExpectedTypeRule({
-      getExpectedName: getExpectedRoleTypeName,
+      getExpectedName: getExpectedTypeName,
       messageId: 'expectedRoleTypeName',
-    }),
-    'controller-protocol-name': createExpectedTypeRule({
-      getExpectedName: getExpectedControllerTypeName,
-      messageId: 'expectedControllerTypeName',
     }),
   },
 };
