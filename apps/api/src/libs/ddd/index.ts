@@ -13,7 +13,7 @@ export {
 } from './value-object.base';
 export type { Mapper } from './mapper.interface';
 export type { Repository } from './repository.port';
-export type { UseCase } from './usecase.base';
+export type { UseCase } from './use-case.base';
 export { generateId } from './generate-id.util';
 export type {
   DomainError,

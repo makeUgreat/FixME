@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 const ROLE_SUFFIXES = new Map([
-  ['usecase', 'UseCase'],
+  ['use-case', 'UseCase'],
   ['command', 'Command'],
   ['query', 'Query'],
   ['service', 'Service'],
@@ -38,8 +38,6 @@ const IGNORED_TYPE_SUFFIXES = [
   'Result',
 ];
 
-const PASCAL_CASE_OVERRIDES = new Map([['usecase', 'UseCase']]);
-
 function basenameWithoutExtension(filename) {
   return path.basename(filename).replace(/\.ts$/, '');
 }
@@ -48,11 +46,7 @@ function toPascalCase(value) {
   return value
     .split(/[-.]/)
     .filter(Boolean)
-    .map(
-      (part) =>
-        PASCAL_CASE_OVERRIDES.get(part) ??
-        part.charAt(0).toUpperCase() + part.slice(1),
-    )
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('');
 }
 
