@@ -3,26 +3,16 @@ import path from 'node:path';
 const ROLE_SEGMENT_COUNTS = [2, 1];
 
 const TECHNICAL_SUFFIX_ROLES = new Set([
-  'command',
-  'query',
-  'use-case',
-  'service',
-  'mapper',
-  'factory',
-  'model',
-  'exception',
-  'strategy',
-  'filter',
   'module',
-  'tokens',
-  'request.dto',
-  'response.dto',
 ]);
 
-const NO_TECHNICAL_SUFFIX_ROLES = new Set([
+const DOMAIN_MODEL_ROLES = new Set([
   'aggregate',
   'entity',
   'vo',
+]);
+
+const SUFFIXLESS_INFRASTRUCTURE_ROLES = new Set([
   'base',
   'interface',
   'port',
@@ -71,7 +61,10 @@ function isIgnoredHelperDeclaration(name) {
 }
 
 function getTechnicalRoleSuffix(role) {
-  if (NO_TECHNICAL_SUFFIX_ROLES.has(role)) {
+  if (
+    DOMAIN_MODEL_ROLES.has(role) ||
+    SUFFIXLESS_INFRASTRUCTURE_ROLES.has(role)
+  ) {
     return '';
   }
 
