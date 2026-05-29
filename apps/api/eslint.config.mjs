@@ -4,7 +4,7 @@ import checkFile from 'eslint-plugin-check-file';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import apiNaming from './eslint-rules/api-naming.mjs';
+import namingConvention from './eslint-rules/naming-convention.mjs';
 
 const noTypeScriptEnum = {
   selector: 'TSEnumDeclaration',
@@ -84,12 +84,12 @@ export default tseslint.config(
       'src/libs/ddd/result.ts',
     ],
     plugins: {
-      'api-naming': apiNaming,
+      'naming-convention': namingConvention,
       'check-file': checkFile,
     },
     rules: {
-      'api-naming/controller-protocol-name': 'error',
-      'api-naming/file-role-type-suffix': 'error',
+      'naming-convention/controller-protocol-name': 'error',
+      'naming-convention/file-role-type-suffix': 'error',
       'check-file/filename-naming-convention': [
         'error',
         {

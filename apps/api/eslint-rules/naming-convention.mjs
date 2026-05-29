@@ -199,9 +199,9 @@ function createExpectedTypeRule({ getExpectedName, messageId }) {
   };
 }
 
-const apiNamingPlugin = {
+const namingConventionPlugin = {
   meta: {
-    name: 'eslint-plugin-api-naming',
+    name: 'eslint-plugin-naming-convention',
   },
   rules: {
     'file-role-type-suffix': createExpectedTypeRule({
@@ -215,4 +215,4 @@ const apiNamingPlugin = {
   },
 };
 
-export default apiNamingPlugin;
+export default namingConventionPlugin;
