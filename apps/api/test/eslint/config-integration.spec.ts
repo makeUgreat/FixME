@@ -68,7 +68,7 @@ describe('eslint.config.mjs', () => {
     expect(getConfiguredRule(config, 'domain/no-direct-new')).toEqual([2]);
   });
 
-  it('aggregate와 entity 파일에는 constructor와 factory 이름 제한을 적용한다', async () => {
+  it('aggregate와 entity 파일에는 public constructor 금지 규칙을 적용한다', async () => {
     const config = await calculateConfigForFile('src/sample.entity.ts');
     const rule = getConfiguredRule(config, 'no-restricted-syntax');
 
@@ -80,6 +80,16 @@ describe('eslint.config.mjs', () => {
           message:
             'Concrete domain model constructors must be private by default. Use protected only when subclassing is intentional.',
         }),
+      ]),
+    );
+  });
+
+  it('aggregate와 entity 파일에는 public static factory 이름을 create 또는 restore로 제한한다', async () => {
+    const config = await calculateConfigForFile('src/sample.entity.ts');
+    const rule = getConfiguredRule(config, 'no-restricted-syntax');
+
+    expect(rule).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
           selector:
             "MethodDefinition[static=true][kind='method']:not([accessibility='private']):not([accessibility='protected'])[key.name!=/^(create|restore)$/]",
