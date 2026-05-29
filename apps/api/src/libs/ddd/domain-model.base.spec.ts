@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { err, ok, type Result } from 'neverthrow';
 import { AggregateRoot } from './aggregate-root.base';
 import { type CreateEntityParams } from './entity.base';
 import { type DomainError } from './domain-error';
-import { err, isErr, isOk, ok, type Result } from './result';
 import { ValueObject, type DomainPrimitive } from './value-object.base';
 
 const sampleEmptyError: DomainError = {
@@ -13,11 +13,11 @@ const sampleEmptyError: DomainError = {
 
 class SampleName extends ValueObject<string> {
   static of(value: string): Result<SampleName, DomainError> {
-    return super.construct(
-      { value: value.trim() },
-      (props) => SampleName.validateProps(props),
-      (props) => new SampleName(props),
-    );
+    return super.construct({
+      props: { value: value.trim() },
+      validate: (props) => SampleName.validateProps(props),
+      instantiate: (props) => new SampleName(props),
+    });
   }
 
   private constructor(props: DomainPrimitive<string>) {
@@ -48,12 +48,12 @@ class SampleAggregate extends AggregateRoot<SampleProps> {
   }): Result<SampleAggregate, DomainError> {
     const nameResult = SampleName.of(params.name);
 
-    if (isErr(nameResult)) {
-      return nameResult;
+    if (nameResult.isErr()) {
+      return err(nameResult.error);
     }
 
-    return super.construct(
-      {
+    return super.construct({
+      params: {
         id: params.id,
         props: {
           name: nameResult.value,
@@ -61,19 +61,19 @@ class SampleAggregate extends AggregateRoot<SampleProps> {
         createdAt: params.createdAt,
         updatedAt: params.updatedAt,
       },
-      (entityParams) => ok(entityParams),
-      (entityParams) => new SampleAggregate(entityParams),
-    );
+      validate: (entityParams) => ok(entityParams),
+      instantiate: (entityParams) => new SampleAggregate(entityParams),
+    });
   }
 
   static restore(
     params: CreateEntityParams<SampleProps>,
   ): Result<SampleAggregate, DomainError> {
-    return super.construct(
+    return super.construct({
       params,
-      (entityParams) => ok(entityParams),
-      (entityParams) => new SampleAggregate(entityParams),
-    );
+      validate: (entityParams) => ok(entityParams),
+      instantiate: (entityParams) => new SampleAggregate(entityParams),
+    });
   }
 }
 
@@ -82,9 +82,9 @@ describe('Domain model base', () => {
     it('검증에 성공하면 성공 Result와 값 객체를 반환한다', () => {
       const result = SampleName.of('  spring  ');
 
-      expect(isOk(result)).toBe(true);
+      expect(result.isOk()).toBe(true);
 
-      if (isOk(result)) {
+      if (result.isOk()) {
         expect(result.value.value).toBe('spring');
       }
     });
@@ -92,9 +92,9 @@ describe('Domain model base', () => {
     it('검증에 실패하면 예외를 던지지 않고 실패 Result를 반환한다', () => {
       const result = SampleName.of(' ');
 
-      expect(isErr(result)).toBe(true);
+      expect(result.isErr()).toBe(true);
 
-      if (isErr(result)) {
+      if (result.isErr()) {
         expect(result.error).toBe(sampleEmptyError);
       }
     });
@@ -107,9 +107,9 @@ describe('Domain model base', () => {
         name: 'spring',
       });
 
-      expect(isOk(result)).toBe(true);
+      expect(result.isOk()).toBe(true);
 
-      if (isOk(result)) {
+      if (result.isOk()) {
         expect(result.value.id).toBe('sample-1');
         expect(result.value.getProps().name.value).toBe('spring');
       }
@@ -125,9 +125,9 @@ describe('Domain model base', () => {
         updatedAt,
       });
 
-      expect(isErr(result)).toBe(true);
+      expect(result.isErr()).toBe(true);
 
-      if (isErr(result)) {
+      if (result.isErr()) {
         expect(result.error.code).toBe('entity.updated_at_before_created_at');
       }
     });
@@ -135,9 +135,9 @@ describe('Domain model base', () => {
     it('복원할 때도 성공 Result와 엔티티를 반환한다', () => {
       const nameResult = SampleName.of('spring');
 
-      expect(isOk(nameResult)).toBe(true);
+      expect(nameResult.isOk()).toBe(true);
 
-      if (!isOk(nameResult)) {
+      if (nameResult.isErr()) {
         return;
       }
 
@@ -152,9 +152,9 @@ describe('Domain model base', () => {
         updatedAt,
       });
 
-      expect(isOk(result)).toBe(true);
+      expect(result.isOk()).toBe(true);
 
-      if (isOk(result)) {
+      if (result.isOk()) {
         expect(result.value.createdAt).toEqual(createdAt);
         expect(result.value.updatedAt).toEqual(updatedAt);
       }

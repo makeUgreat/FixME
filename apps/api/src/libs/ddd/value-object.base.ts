@@ -1,4 +1,4 @@
-import { map, type Result } from './result';
+import { type Result } from 'neverthrow';
 
 export type Primitives = string | number | boolean;
 
@@ -9,6 +9,18 @@ export interface DomainPrimitive<T extends Primitives | Date> {
 export type ValueObjectProps<T> = T extends Primitives | Date
   ? DomainPrimitive<T>
   : T;
+
+export interface ConstructValueObjectOptions<
+  TValue,
+  TError,
+  TInstance extends ValueObject<TValue>,
+> {
+  props: ValueObjectProps<TValue>;
+  validate: (
+    props: ValueObjectProps<TValue>,
+  ) => Result<ValueObjectProps<TValue>, TError>;
+  instantiate: (props: ValueObjectProps<TValue>) => TInstance;
+}
 
 export abstract class ValueObject<T> {
   protected readonly props: Readonly<ValueObjectProps<T>>;
@@ -24,13 +36,9 @@ export abstract class ValueObject<T> {
     TError,
     TInstance extends ValueObject<TValue>,
   >(
-    props: ValueObjectProps<TValue>,
-    validate: (
-      props: ValueObjectProps<TValue>,
-    ) => Result<ValueObjectProps<TValue>, TError>,
-    instantiate: (props: ValueObjectProps<TValue>) => TInstance,
+    options: ConstructValueObjectOptions<TValue, TError, TInstance>,
   ): Result<TInstance, TError> {
-    return map(validate(props), instantiate);
+    return options.validate(options.props).map(options.instantiate);
   }
 
   static isValueObject(obj: unknown): obj is ValueObject<unknown> {
