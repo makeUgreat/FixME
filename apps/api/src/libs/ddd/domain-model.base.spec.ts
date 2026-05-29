@@ -1,16 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AggregateRoot,
-  err,
-  isErr,
-  isOk,
-  ok,
-  ValueObject,
-  type CreateEntityParams,
-  type DomainError,
-  type DomainPrimitive,
-  type Result,
-} from '.';
+import { AggregateRoot } from './aggregate-root.base';
+import { type CreateEntityParams } from './entity.base';
+import { type DomainError } from './domain-error';
+import { err, isErr, isOk, ok, type Result } from './result';
+import { ValueObject, type DomainPrimitive } from './value-object.base';
 
 const sampleEmptyError: DomainError = {
   kind: 'invariant_violation',
@@ -22,7 +15,7 @@ class SampleName extends ValueObject<string> {
   static from(value: string): Result<SampleName, DomainError> {
     return super.create(
       { value: value.trim() },
-      SampleName.validateProps,
+      (props) => SampleName.validateProps(props),
       (props) => new SampleName(props),
     );
   }

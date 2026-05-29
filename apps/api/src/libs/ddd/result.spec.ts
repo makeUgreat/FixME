@@ -9,9 +9,9 @@ import {
   map,
   mapErr,
   ok,
-  type DomainError,
   type Result,
-} from '.';
+} from './result';
+import { type DomainError } from './domain-error';
 
 describe('Result', () => {
   describe('ok', () => {
