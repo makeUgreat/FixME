@@ -1,22 +1,37 @@
+import { map, type Result } from './result';
+
 export type Primitives = string | number | boolean;
 
 export interface DomainPrimitive<T extends Primitives | Date> {
   value: T;
 }
 
-type ValueObjectProps<T> = T extends Primitives | Date ? DomainPrimitive<T> : T;
+export type ValueObjectProps<T> = T extends Primitives | Date
+  ? DomainPrimitive<T>
+  : T;
 
 export abstract class ValueObject<T> {
   protected readonly props: Readonly<ValueObjectProps<T>>;
 
   protected constructor(props: ValueObjectProps<T>) {
-    this.validate(props);
     this.props = this.isDomainPrimitive(props)
       ? Object.freeze(props)
       : this.deepFreeze(structuredClone(props));
   }
 
-  protected abstract validate(props: ValueObjectProps<T>): void;
+  protected static create<
+    TValue,
+    TError,
+    TInstance extends ValueObject<TValue>,
+  >(
+    props: ValueObjectProps<TValue>,
+    validate: (
+      props: ValueObjectProps<TValue>,
+    ) => Result<ValueObjectProps<TValue>, TError>,
+    instantiate: (props: ValueObjectProps<TValue>) => TInstance,
+  ): Result<TInstance, TError> {
+    return map(validate(props), instantiate);
+  }
 
   static isValueObject(obj: unknown): obj is ValueObject<unknown> {
     return obj instanceof ValueObject;
