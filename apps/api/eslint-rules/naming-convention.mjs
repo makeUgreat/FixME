@@ -2,21 +2,22 @@ import path from 'node:path';
 
 const ROLE_SEGMENT_COUNTS = [2, 1];
 
-const TECHNICAL_SUFFIX_ROLES = new Set([
-  'module',
-]);
-
-const DOMAIN_MODEL_ROLES = new Set([
-  'aggregate',
-  'entity',
-  'vo',
-]);
-
-const SUFFIXLESS_INFRASTRUCTURE_ROLES = new Set([
-  'base',
-  'interface',
-  'port',
-]);
+const FILE_ROLE_RULES = [
+  { role: 'use-case', typeSuffix: 'UseCase' },
+  { role: 'service', typeSuffix: 'Service' },
+  { role: 'mapper', typeSuffix: 'Mapper' },
+  { role: 'module', typeSuffix: 'Module' },
+  { role: 'aggregate', typeSuffix: '' },
+  { role: 'entity', typeSuffix: '' },
+  { role: 'vo', typeSuffix: '' },
+  { role: 'base', typeSuffix: '' },
+  { role: 'interface', typeSuffix: '' },
+  { role: 'port', typeSuffix: '' },
+  {
+    matches: (role) => role.endsWith('.controller'),
+    getTypeSuffix: (role) => toPascalCase(role),
+  },
+];
 
 const IGNORED_TYPE_SUFFIXES = [
   'Params',
@@ -60,19 +61,16 @@ function isIgnoredHelperDeclaration(name) {
   return IGNORED_TYPE_SUFFIXES.some((suffix) => name.endsWith(suffix));
 }
 
-function getTechnicalRoleSuffix(role) {
-  if (
-    DOMAIN_MODEL_ROLES.has(role) ||
-    SUFFIXLESS_INFRASTRUCTURE_ROLES.has(role)
-  ) {
-    return '';
-  }
+function matchesFileRole(rule, role) {
+  return rule.role === role || rule.matches?.(role) === true;
+}
 
-  if (TECHNICAL_SUFFIX_ROLES.has(role) || role.endsWith('.controller')) {
-    return toPascalCase(role);
-  }
+function getTypeSuffix(rule, role) {
+  return rule.getTypeSuffix?.(role) ?? rule.typeSuffix;
+}
 
-  return undefined;
+function findFileRoleRule(role) {
+  return FILE_ROLE_RULES.find((rule) => matchesFileRole(rule, role));
 }
 
 function getExpectedTypeName(filename) {
@@ -85,11 +83,13 @@ function getExpectedTypeName(filename) {
     }
 
     const role = parts.slice(-roleSegmentCount).join('.');
-    const suffix = getTechnicalRoleSuffix(role);
+    const rule = findFileRoleRule(role);
 
-    if (suffix === undefined) {
+    if (!rule) {
       continue;
     }
+
+    const suffix = getTypeSuffix(rule, role);
 
     return toPascalCase(parts.slice(0, -roleSegmentCount).join('.')) + suffix;
   }
