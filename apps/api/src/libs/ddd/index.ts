@@ -2,11 +2,13 @@ export { AggregateRoot } from './aggregate-root.base';
 export {
   Entity,
   type BaseEntityProps,
+  type ConstructEntityOptions,
   type CreateEntityParams,
   type EntityId,
 } from './entity.base';
 export {
   ValueObject,
+  type ConstructValueObjectOptions,
   type DomainPrimitive,
   type Primitives,
   type ValueObjectProps,
@@ -22,17 +24,3 @@ export type {
   DomainOperationNotAllowedError,
   DomainStateConflictError,
 } from './domain-error';
-export {
-  all,
-  andThen,
-  ensure,
-  err,
-  isErr,
-  isOk,
-  map,
-  mapErr,
-  ok,
-  type Err,
-  type Ok,
-  type Result,
-} from './result';

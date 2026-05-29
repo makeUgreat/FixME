@@ -5,9 +5,7 @@ Use concise, role-based names. Avoid meta names such as `Impl`, `Adapter`, `Port
 ## Domain Models
 
 - Use singular domain terms for aggregates, entities, and value objects: `Post`, `PostTitle`, `UserEmail`.
-- Do not add technical suffixes to domain model names: use `Post`, not `PostAggregate`; use `UserEmail`, not `UserEmailVo`.
 - Use `Props` for internal state and `CreateXProps` for creation input.
-- Public domain model factories must return `Result`.
 - DDD framework primitives may keep reusable `protected static construct` helpers.
 - Keep persistence/API conversion concerns in mappers instead of adding default serialization methods to domain models.
 - DDD framework primitives may use framework names such as `Entity`, `AggregateRoot`, and `ValueObject`.

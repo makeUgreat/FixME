@@ -1,5 +1,5 @@
+import { err, ok, type Result } from 'neverthrow';
 import { Guard } from '../guard';
-import { all, andThen, ensure, map, type Result } from './result';
 import { type DomainError } from './domain-error';
 
 export type EntityId = string;
@@ -15,6 +15,18 @@ export interface CreateEntityParams<T> {
   props: T;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface ConstructEntityOptions<
+  EntityProps,
+  TError extends DomainError,
+  TInstance extends Entity<EntityProps>,
+> {
+  params: CreateEntityParams<EntityProps>;
+  validate: (
+    params: CreateEntityParams<EntityProps>,
+  ) => Result<CreateEntityParams<EntityProps>, TError>;
+  instantiate: (params: CreateEntityParams<EntityProps>) => TInstance;
 }
 
 export abstract class Entity<EntityProps> {
@@ -39,16 +51,11 @@ export abstract class Entity<EntityProps> {
     TError extends DomainError,
     TInstance extends Entity<EntityProps>,
   >(
-    params: CreateEntityParams<EntityProps>,
-    validate: (
-      params: CreateEntityParams<EntityProps>,
-    ) => Result<CreateEntityParams<EntityProps>, TError>,
-    instantiate: (params: CreateEntityParams<EntityProps>) => TInstance,
+    options: ConstructEntityOptions<EntityProps, TError, TInstance>,
   ): Result<TInstance, DomainError | TError> {
-    return map(
-      andThen(Entity.validateBaseParams(params), validate),
-      instantiate,
-    );
+    return Entity.validateBaseParams(options.params)
+      .andThen(options.validate)
+      .map(options.instantiate);
   }
 
   get id(): EntityId {
@@ -79,43 +86,40 @@ export abstract class Entity<EntityProps> {
     const createdAt = params.createdAt;
     const updatedAt = params.updatedAt;
 
-    return map(
-      all([
-        () =>
-          ensure(!Guard.isEmpty(params.props), {
-            kind: 'invariant_violation',
-            code: 'entity.props_empty',
-            message: 'Entity props cannot be empty',
-          }),
-        () =>
-          ensure(typeof params.props === 'object', {
-            kind: 'invariant_violation',
-            code: 'entity.props_not_object',
-            message: 'Entity props must be an object',
-          }),
-        () =>
-          ensure(
-            Object.keys(params.props as Record<string, unknown>).length <=
-              maxProps,
-            {
-              kind: 'invariant_violation',
-              code: 'entity.props_too_many',
-              message: `Entity props cannot exceed ${maxProps} properties`,
-            },
-          ),
-        () =>
-          ensure(
-            !createdAt ||
-              !updatedAt ||
-              updatedAt.getTime() >= createdAt.getTime(),
-            {
-              kind: 'invariant_violation',
-              code: 'entity.updated_at_before_created_at',
-              message: 'updatedAt cannot be earlier than createdAt',
-            },
-          ),
-      ]),
-      () => params,
-    );
+    if (Guard.isEmpty(params.props)) {
+      return err({
+        kind: 'invariant_violation',
+        code: 'entity.props_empty',
+        message: 'Entity props cannot be empty',
+      });
+    }
+
+    if (typeof params.props !== 'object') {
+      return err({
+        kind: 'invariant_violation',
+        code: 'entity.props_not_object',
+        message: 'Entity props must be an object',
+      });
+    }
+
+    if (
+      Object.keys(params.props as Record<string, unknown>).length > maxProps
+    ) {
+      return err({
+        kind: 'invariant_violation',
+        code: 'entity.props_too_many',
+        message: `Entity props cannot exceed ${maxProps} properties`,
+      });
+    }
+
+    if (createdAt && updatedAt && updatedAt.getTime() < createdAt.getTime()) {
+      return err({
+        kind: 'invariant_violation',
+        code: 'entity.updated_at_before_created_at',
+        message: 'updatedAt cannot be earlier than createdAt',
+      });
+    }
+
+    return ok(params);
   }
 }
