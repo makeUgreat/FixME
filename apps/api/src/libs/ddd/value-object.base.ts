@@ -19,7 +19,7 @@ export abstract class ValueObject<T> {
       : this.deepFreeze(structuredClone(props));
   }
 
-  protected static create<
+  protected static construct<
     TValue,
     TError,
     TInstance extends ValueObject<TValue>,

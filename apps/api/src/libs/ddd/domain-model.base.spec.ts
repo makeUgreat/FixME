@@ -12,8 +12,8 @@ const sampleEmptyError: DomainError = {
 };
 
 class SampleName extends ValueObject<string> {
-  static from(value: string): Result<SampleName, DomainError> {
-    return super.create(
+  static of(value: string): Result<SampleName, DomainError> {
+    return super.construct(
       { value: value.trim() },
       (props) => SampleName.validateProps(props),
       (props) => new SampleName(props),
@@ -40,19 +40,19 @@ interface SampleProps {
 }
 
 class SampleAggregate extends AggregateRoot<SampleProps> {
-  static from(params: {
+  static create(params: {
     id: string;
     name: string;
     createdAt?: Date;
     updatedAt?: Date;
   }): Result<SampleAggregate, DomainError> {
-    const nameResult = SampleName.from(params.name);
+    const nameResult = SampleName.of(params.name);
 
     if (isErr(nameResult)) {
       return nameResult;
     }
 
-    return super.create(
+    return super.construct(
       {
         id: params.id,
         props: {
@@ -69,7 +69,7 @@ class SampleAggregate extends AggregateRoot<SampleProps> {
   static restore(
     params: CreateEntityParams<SampleProps>,
   ): Result<SampleAggregate, DomainError> {
-    return super.create(
+    return super.construct(
       params,
       (entityParams) => ok(entityParams),
       (entityParams) => new SampleAggregate(entityParams),
@@ -80,7 +80,7 @@ class SampleAggregate extends AggregateRoot<SampleProps> {
 describe('Domain model base', () => {
   describe('ValueObject', () => {
     it('검증에 성공하면 성공 Result와 값 객체를 반환한다', () => {
-      const result = SampleName.from('  spring  ');
+      const result = SampleName.of('  spring  ');
 
       expect(isOk(result)).toBe(true);
 
@@ -90,7 +90,7 @@ describe('Domain model base', () => {
     });
 
     it('검증에 실패하면 예외를 던지지 않고 실패 Result를 반환한다', () => {
-      const result = SampleName.from(' ');
+      const result = SampleName.of(' ');
 
       expect(isErr(result)).toBe(true);
 
@@ -102,7 +102,7 @@ describe('Domain model base', () => {
 
   describe('Entity', () => {
     it('검증에 성공하면 성공 Result와 엔티티를 반환한다', () => {
-      const result = SampleAggregate.from({
+      const result = SampleAggregate.create({
         id: 'sample-1',
         name: 'spring',
       });
@@ -118,7 +118,7 @@ describe('Domain model base', () => {
     it('기본 엔티티 검증에 실패하면 실패 Result를 반환한다', () => {
       const createdAt = new Date('2026-01-02T00:00:00.000Z');
       const updatedAt = new Date('2026-01-01T00:00:00.000Z');
-      const result = SampleAggregate.from({
+      const result = SampleAggregate.create({
         id: 'sample-1',
         name: 'spring',
         createdAt,
@@ -133,7 +133,7 @@ describe('Domain model base', () => {
     });
 
     it('복원할 때도 성공 Result와 엔티티를 반환한다', () => {
-      const nameResult = SampleName.from('spring');
+      const nameResult = SampleName.of('spring');
 
       expect(isOk(nameResult)).toBe(true);
 
