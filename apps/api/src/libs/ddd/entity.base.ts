@@ -34,7 +34,7 @@ export abstract class Entity<EntityProps> {
     this.updatedAtValue = new Date(updatedAt.getTime());
   }
 
-  protected static create<
+  protected static construct<
     EntityProps,
     TError extends DomainError,
     TInstance extends Entity<EntityProps>,
