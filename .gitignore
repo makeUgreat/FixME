@@ -1,3 +1,6 @@
+# LLM
+/.codex/temp/
+
 # compiled output
 /dist
 /apps/*/dist
