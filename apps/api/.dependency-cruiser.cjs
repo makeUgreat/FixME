@@ -90,10 +90,9 @@ module.exports = {
         '^dist/',
         '^node_modules/',
         '^coverage/',
-        '^test/',
       ],
     },
-    includeOnly: ['^src/'],
+    includeOnly: ['^src/', '^test/'],
     tsConfig: {
       fileName: join(__dirname, 'tsconfig.json'),
     },

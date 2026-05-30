@@ -5,10 +5,12 @@ import eslint from '@eslint/js';
 import checkFile from 'eslint-plugin-check-file';
 import neverthrow from 'eslint-plugin-neverthrow';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import domain from './plugins/domain.mjs';
 import naming from './plugins/naming.mjs';
+import test from './plugins/test.mjs';
 
 const tsconfigRootDir = fileURLToPath(new URL('..', import.meta.url));
 
@@ -41,11 +43,13 @@ export default tseslint.config(
   {
     plugins: {
       neverthrow: fixupPluginRules(neverthrow),
+      'unused-imports': unusedImports,
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/naming-convention': [
         'error',
         {
@@ -79,12 +83,27 @@ export default tseslint.config(
       ],
       'no-restricted-syntax': ['error', noTypeScriptEnum],
       'neverthrow/must-use-result': 'error',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'error',
+        {
+          args: 'after-used',
+          vars: 'all',
+        },
+      ],
     },
   },
   {
     files: ['src/**/*.spec.ts', 'test/**/*.ts'],
+    plugins: {
+      test,
+    },
     rules: {
       'neverthrow/must-use-result': 'off',
+      'test/korean-test-case-name': 'error',
+      'test/integration-file-location': 'error',
+      'test/integration-describe-name': 'error',
+      'test/no-direct-integration-bootstrap': 'error',
     },
   },
   {
