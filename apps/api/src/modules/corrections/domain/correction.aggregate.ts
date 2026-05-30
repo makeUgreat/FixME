@@ -6,7 +6,7 @@ import {
   type DomainError,
   type Result,
 } from '@libs/ddd';
-import { CorrectionAnalysis } from './correction-analysis.vo';
+import { CorrectionFeedback } from './correction-feedback.vo';
 import { Mistake } from './mistake.vo';
 
 export type CorrectionId = string;
@@ -14,7 +14,7 @@ export type CorrectionId = string;
 export interface CorrectionProps {
   originalText: string;
   correctedText: string;
-  analysis: CorrectionAnalysis;
+  feedback: CorrectionFeedback;
   mistakes: Mistake[];
 }
 
@@ -22,7 +22,7 @@ export interface CreateCorrectionProps {
   id: CorrectionId;
   originalText: string;
   correctedText: string;
-  analysis: CorrectionAnalysis;
+  feedback: CorrectionFeedback;
   mistakes: Mistake[];
 }
 
@@ -36,7 +36,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         props: {
           originalText: params.originalText.trim(),
           correctedText: params.correctedText.trim(),
-          analysis: params.analysis,
+          feedback: params.feedback,
           mistakes: params.mistakes,
         },
       },
@@ -75,7 +75,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
       .andThen(() =>
         Correction.ensureCorrectedTextIsNotEmpty(params.props.correctedText),
       )
-      .andThen(() => Correction.ensureAnalysisIsValid(params.props.analysis))
+      .andThen(() => Correction.ensureFeedbackIsValid(params.props.feedback))
       .andThen(() => Correction.ensureMistakesAreValid(params.props.mistakes))
       .andThen(() =>
         Correction.ensureCorrectedCorrectionHasMistakes(
@@ -115,14 +115,14 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
     return ok(undefined);
   }
 
-  private static ensureAnalysisIsValid(
-    analysis: CorrectionAnalysis,
+  private static ensureFeedbackIsValid(
+    feedback: CorrectionFeedback,
   ): Result<void, DomainError> {
-    if (!(analysis instanceof CorrectionAnalysis)) {
+    if (!(feedback instanceof CorrectionFeedback)) {
       return err({
         kind: 'invariant_violation',
-        code: 'correction.analysis_invalid',
-        message: 'Correction analysis is invalid',
+        code: 'correction.feedback_invalid',
+        message: 'Correction feedback is invalid',
       });
     }
 

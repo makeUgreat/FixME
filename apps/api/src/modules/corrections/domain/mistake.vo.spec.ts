@@ -6,8 +6,6 @@ describe('Mistake', () => {
   describe('of', () => {
     it('검증에 성공하면 성공 Result와 오류 값 객체를 반환한다', () => {
       const result = Mistake.of({
-        originalFragment: ' for concurrency ',
-        correctedFragment: ' for handling concurrency ',
         types: ['naturalness', 'clarity'],
         explanation: ' The corrected phrase is more natural. ',
       });
@@ -18,34 +16,12 @@ describe('Mistake', () => {
         expect(result.value.value).toEqual({
           types: ['naturalness', 'clarity'],
           explanation: 'The corrected phrase is more natural.',
-          originalFragment: 'for concurrency',
-          correctedFragment: 'for handling concurrency',
-        });
-      }
-    });
-
-    it('조각이 없어도 검증에 성공하면 성공 Result와 설명 중심 오류 값 객체를 반환한다', () => {
-      const result = Mistake.of({
-        types: ['tone'],
-        explanation: 'The corrected sentence sounds more polite.',
-      });
-
-      expect(result.isOk()).toBe(true);
-
-      if (result.isOk()) {
-        expect(result.value.value).toEqual({
-          types: ['tone'],
-          explanation: 'The corrected sentence sounds more polite.',
-          originalFragment: undefined,
-          correctedFragment: undefined,
         });
       }
     });
 
     it('오류 유형이 비어 있으면 실패 Result를 반환한다', () => {
       const result = Mistake.of({
-        originalFragment: 'for concurrency',
-        correctedFragment: 'for handling concurrency',
         types: [],
         explanation: 'The corrected phrase is more natural.',
       });
@@ -59,8 +35,6 @@ describe('Mistake', () => {
 
     it('설명이 비어 있으면 실패 Result를 반환한다', () => {
       const result = Mistake.of({
-        originalFragment: 'for concurrency',
-        correctedFragment: 'for handling concurrency',
         types: ['naturalness'],
         explanation: ' ',
       });
@@ -74,8 +48,6 @@ describe('Mistake', () => {
 
     it('정의되지 않은 오류 유형이면 실패 Result를 반환한다', () => {
       const result = Mistake.of({
-        originalFragment: 'for concurrency',
-        correctedFragment: 'for handling concurrency',
         types: ['unknown' as MistakeType],
         explanation: 'The corrected phrase is more natural.',
       });
