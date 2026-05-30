@@ -5,10 +5,10 @@ export {
   type CreateCorrectionProps,
 } from './correction.aggregate';
 export {
-  CorrectionAnalysis,
-  type CorrectionAnalysisProps,
-  type CreateCorrectionAnalysisProps,
-} from './correction-analysis.vo';
+  CorrectionFeedback,
+  type CorrectionFeedbackProps,
+  type CreateCorrectionFeedbackProps,
+} from './correction-feedback.vo';
 export {
   Mistake,
   type CreateMistakeProps,

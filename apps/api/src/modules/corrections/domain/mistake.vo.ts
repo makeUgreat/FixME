@@ -4,8 +4,6 @@ import { areMistakeTypes, type MistakeType } from './mistake-type.constant';
 export interface MistakeProps {
   types: MistakeType[];
   explanation: string;
-  originalFragment?: string;
-  correctedFragment?: string;
 }
 
 export type CreateMistakeProps = MistakeProps;
@@ -15,8 +13,6 @@ export class Mistake extends ValueObject<MistakeProps> {
     const mistakeProps: MistakeProps = {
       types: props.types,
       explanation: props.explanation.trim(),
-      originalFragment: Mistake.normalizeOptionalText(props.originalFragment),
-      correctedFragment: Mistake.normalizeOptionalText(props.correctedFragment),
     };
 
     return super.construct({
@@ -79,13 +75,5 @@ export class Mistake extends ValueObject<MistakeProps> {
     }
 
     return ok(undefined);
-  }
-
-  private static normalizeOptionalText(
-    value: string | undefined,
-  ): string | undefined {
-    const normalized = value?.trim();
-
-    return normalized && normalized.length > 0 ? normalized : undefined;
   }
 }

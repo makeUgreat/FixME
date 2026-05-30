@@ -1,21 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { Correction, type CreateCorrectionProps } from './correction.aggregate';
 import {
-  CorrectionAnalysis,
-  type CreateCorrectionAnalysisProps,
-} from './correction-analysis.vo';
+  CorrectionFeedback,
+  type CreateCorrectionFeedbackProps,
+} from './correction-feedback.vo';
 import { Mistake } from './mistake.vo';
 
-const createAnalysisProps = (): CreateCorrectionAnalysisProps => ({
+const createFeedbackProps = (): CreateCorrectionFeedbackProps => ({
   inferredIntent: 'The user wants to ask whether this solves concurrency.',
-  overallExplanation:
+  explanation:
     'The corrected sentence uses a clearer verb phrase and a natural noun.',
 });
 
 const createMistake = (): Mistake =>
   Mistake.of({
-    originalFragment: 'for concurrency',
-    correctedFragment: 'for handling concurrency',
     types: ['naturalness'],
     explanation: 'The corrected phrase sounds more natural and specific.',
   })._unsafeUnwrap();
@@ -27,7 +25,7 @@ const createCorrection = (
     id: 'correction-1',
     originalText: 'Is this for concurrency?',
     correctedText: 'Is this for handling concurrency?',
-    analysis: CorrectionAnalysis.of(createAnalysisProps())._unsafeUnwrap(),
+    feedback: CorrectionFeedback.of(createFeedbackProps())._unsafeUnwrap(),
     mistakes: [createMistake()],
     ...overrides,
   });
@@ -45,7 +43,7 @@ describe('Correction', () => {
         expect(result.value.id).toBe('correction-1');
         expect(props.originalText).toBe('Is this for concurrency?');
         expect(props.correctedText).toBe('Is this for handling concurrency?');
-        expect(props.analysis.value.inferredIntent).toBe(
+        expect(props.feedback.value.inferredIntent).toBe(
           'The user wants to ask whether this solves concurrency.',
         );
         expect(props.mistakes).toHaveLength(1);
@@ -124,13 +122,13 @@ describe('Correction', () => {
   });
 
   describe('restore', () => {
-    it('분석 값이 교정 분석 모델이 아니면 실패 Result를 반환한다', () => {
+    it('피드백 값이 교정 피드백 모델이 아니면 실패 Result를 반환한다', () => {
       const result = Correction.restore({
         id: 'correction-1',
         props: {
           originalText: 'Is this for concurrency?',
           correctedText: 'Is this for handling concurrency?',
-          analysis: {} as CorrectionAnalysis,
+          feedback: {} as CorrectionFeedback,
           mistakes: [createMistake()],
         },
       });
@@ -138,7 +136,7 @@ describe('Correction', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.code).toBe('correction.analysis_invalid');
+        expect(result.error.code).toBe('correction.feedback_invalid');
       }
     });
 
@@ -148,8 +146,8 @@ describe('Correction', () => {
         props: {
           originalText: 'Is this for concurrency?',
           correctedText: 'Is this for handling concurrency?',
-          analysis: CorrectionAnalysis.of(
-            createAnalysisProps(),
+          feedback: CorrectionFeedback.of(
+            createFeedbackProps(),
           )._unsafeUnwrap(),
           mistakes: [{} as Mistake],
         },
