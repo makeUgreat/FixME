@@ -24,7 +24,7 @@ async function calculateConfigForFile(filePath: string): Promise<unknown> {
   return eslint.calculateConfigForFile(filePath);
 }
 
-describe('eslint.config.mjs', () => {
+describe('eslint.config.mjs (integration)', () => {
   it('공통 설정에서 TypeScript enum 사용을 금지한다', () => {
     const messages = lintWithProjectConfig(
       `
@@ -48,12 +48,31 @@ describe('eslint.config.mjs', () => {
 
   it('test 파일에서는 neverthrow Result 미사용 규칙을 끈다', async () => {
     const config = await calculateConfigForFile(
-      'test/eslint/config-integration.spec.ts',
+      'test/eslint/eslint-config.integration-spec.ts',
     );
 
     expect(getConfiguredRule(config, 'neverthrow/must-use-result')).toEqual([
       0,
     ]);
+  });
+
+  it('test 파일에는 테스트 컨벤션 규칙을 적용한다', async () => {
+    const config = await calculateConfigForFile(
+      'test/app/app.integration-spec.ts',
+    );
+
+    expect(getConfiguredRule(config, 'test/korean-test-case-name')).toEqual([
+      2,
+    ]);
+    expect(getConfiguredRule(config, 'test/integration-file-location')).toEqual(
+      [2],
+    );
+    expect(getConfiguredRule(config, 'test/integration-describe-name')).toEqual(
+      [2],
+    );
+    expect(
+      getConfiguredRule(config, 'test/no-direct-integration-bootstrap'),
+    ).toEqual([2]);
   });
 
   it('src 파일에는 커스텀 naming과 domain 규칙을 적용한다', async () => {
@@ -66,6 +85,24 @@ describe('eslint.config.mjs', () => {
       2,
     ]);
     expect(getConfiguredRule(config, 'domain/no-direct-new')).toEqual([2]);
+  });
+
+  it('미사용 import 자동 정리 규칙을 적용한다', async () => {
+    const config = await calculateConfigForFile('src/sample.service.ts');
+
+    expect(
+      getConfiguredRule(config, '@typescript-eslint/no-unused-vars'),
+    ).toEqual([0]);
+    expect(
+      getConfiguredRule(config, 'unused-imports/no-unused-imports'),
+    ).toEqual([2]);
+    expect(getConfiguredRule(config, 'unused-imports/no-unused-vars')).toEqual([
+      2,
+      {
+        args: 'after-used',
+        vars: 'all',
+      },
+    ]);
   });
 
   it('aggregate와 entity 파일에는 public constructor 금지 규칙을 적용한다', async () => {
