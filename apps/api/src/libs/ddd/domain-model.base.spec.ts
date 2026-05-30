@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { err, ok, type Result } from 'neverthrow';
 import { AggregateRoot } from './aggregate-root.base';
 import { type CreateEntityParams } from './entity.base';
 import { type DomainError } from './domain-error';
+import { err, ok, type Result } from './result.util';
 import { ValueObject, type DomainPrimitive } from './value-object.base';
 
 const sampleEmptyError: DomainError = {
@@ -39,7 +39,9 @@ interface SampleProps {
   name: SampleName;
 }
 
-class SampleAggregate extends AggregateRoot<SampleProps> {
+type SampleId = string;
+
+class SampleAggregate extends AggregateRoot<SampleId, SampleProps> {
   static create(params: {
     id: string;
     name: string;
@@ -67,12 +69,36 @@ class SampleAggregate extends AggregateRoot<SampleProps> {
   }
 
   static restore(
-    params: CreateEntityParams<SampleProps>,
+    params: CreateEntityParams<SampleId, SampleProps>,
   ): Result<SampleAggregate, DomainError> {
     return super.construct({
       params,
       validate: (entityParams) => ok(entityParams),
       instantiate: (entityParams) => new SampleAggregate(entityParams),
+    });
+  }
+}
+
+class NumericIdAggregate extends AggregateRoot<number, SampleProps> {
+  static create(params: {
+    id: number;
+    name: string;
+  }): Result<NumericIdAggregate, DomainError> {
+    const nameResult = SampleName.of(params.name);
+
+    if (nameResult.isErr()) {
+      return err(nameResult.error);
+    }
+
+    return super.construct({
+      params: {
+        id: params.id,
+        props: {
+          name: nameResult.value,
+        },
+      },
+      validate: (entityParams) => ok(entityParams),
+      instantiate: (entityParams) => new NumericIdAggregate(entityParams),
     });
   }
 }
@@ -112,6 +138,20 @@ describe('Domain model base', () => {
       if (result.isOk()) {
         expect(result.value.id).toBe('sample-1');
         expect(result.value.getProps().name.value).toBe('spring');
+      }
+    });
+
+    it('엔티티별로 숫자 식별자 타입을 사용할 수 있다', () => {
+      const result = NumericIdAggregate.create({
+        id: 1,
+        name: 'spring',
+      });
+
+      expect(result.isOk()).toBe(true);
+
+      if (result.isOk()) {
+        expect(result.value.id).toBe(1);
+        expect(result.value.getProps().id).toBe(1);
       }
     });
 
