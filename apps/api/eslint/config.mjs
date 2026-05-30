@@ -66,7 +66,7 @@ export default tseslint.config(
           selector: 'memberLike',
           modifiers: ['private', 'protected'],
           format: ['camelCase'],
-          leadingUnderscore: 'forbid',
+          leadingUnderscore: 'allow',
         },
         {
           selector: 'typeLike',
@@ -104,6 +104,7 @@ export default tseslint.config(
       'test/integration-file-location': 'error',
       'test/integration-describe-name': 'error',
       'test/no-direct-integration-bootstrap': 'error',
+      'test/no-misleading-integration-file-name': 'error',
     },
   },
   {
@@ -124,6 +125,7 @@ export default tseslint.config(
       'naming/type-name-matches-file-name': 'error',
       'domain/factory-result-return': 'error',
       'domain/no-direct-new': 'error',
+      'domain/split-multiple-validation-errors': 'error',
       'check-file/filename-naming-convention': [
         'error',
         {
@@ -136,6 +138,7 @@ export default tseslint.config(
     files: ['src/**/*.aggregate.ts', 'src/**/*.entity.ts'],
     ignores: ['src/**/*.base.ts'],
     rules: {
+      'domain/require-unit-spec': 'error',
       'no-restricted-syntax': [
         'error',
         noTypeScriptEnum,
@@ -158,6 +161,7 @@ export default tseslint.config(
     files: ['src/**/*.vo.ts'],
     ignores: ['src/**/*.base.ts'],
     rules: {
+      'domain/require-unit-spec': 'error',
       'no-restricted-syntax': [
         'error',
         noTypeScriptEnum,

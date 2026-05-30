@@ -73,6 +73,9 @@ describe('eslint.config.mjs (integration)', () => {
     expect(
       getConfiguredRule(config, 'test/no-direct-integration-bootstrap'),
     ).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'test/no-misleading-integration-file-name'),
+    ).toEqual([2]);
   });
 
   it('src 파일에는 커스텀 naming과 domain 규칙을 적용한다', async () => {
@@ -85,6 +88,10 @@ describe('eslint.config.mjs (integration)', () => {
       2,
     ]);
     expect(getConfiguredRule(config, 'domain/no-direct-new')).toEqual([2]);
+    expect(getConfiguredRule(config, 'domain/require-unit-spec')).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'domain/split-multiple-validation-errors'),
+    ).toEqual([2]);
   });
 
   it('미사용 import 자동 정리 규칙을 적용한다', async () => {
