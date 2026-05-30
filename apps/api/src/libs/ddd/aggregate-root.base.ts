@@ -1,3 +1,6 @@
-import { Entity } from './entity.base';
+import { Entity, type EntityId } from './entity.base';
 
-export abstract class AggregateRoot<EntityProps> extends Entity<EntityProps> {}
+export abstract class AggregateRoot<
+  TId extends EntityId,
+  EntityProps,
+> extends Entity<TId, EntityProps> {}

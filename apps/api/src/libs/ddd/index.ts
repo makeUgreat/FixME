@@ -1,4 +1,5 @@
 export { AggregateRoot } from './aggregate-root.base';
+export { err, ok, type Result } from './result.util';
 export {
   Entity,
   type BaseEntityProps,

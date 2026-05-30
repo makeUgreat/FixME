@@ -1,4 +1,4 @@
-import { type Result } from 'neverthrow';
+import { type Result } from './result.util';
 
 export type Primitives = string | number | boolean;
 
