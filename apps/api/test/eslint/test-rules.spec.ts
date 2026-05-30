@@ -5,6 +5,7 @@ import integrationDescribeNameRule from '../../eslint/rules/test/integration-des
 import integrationFileLocationRule from '../../eslint/rules/test/integration-file-location.mjs';
 import koreanTestCaseNameRule from '../../eslint/rules/test/korean-test-case-name.mjs';
 import noDirectIntegrationBootstrapRule from '../../eslint/rules/test/no-direct-integration-bootstrap.mjs';
+import noMisleadingIntegrationFileNameRule from '../../eslint/rules/test/no-misleading-integration-file-name.mjs';
 
 interface LintTestRuleOptions {
   code: string;
@@ -207,6 +208,50 @@ describe('test ESLint rules', () => {
       expect(messages[0]).toMatchObject({
         ruleId: 'test/no-direct-integration-bootstrap',
       });
+    });
+  });
+
+  describe('no-misleading-integration-file-name', () => {
+    it('integration 이름 구간이 있으면 integration spec suffix를 요구한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/metrics/metrics.integration.spec.ts',
+        ruleName: 'no-misleading-integration-file-name',
+        rule: noMisleadingIntegrationFileNameRule,
+        code: `
+          describe('MetricsController (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/no-misleading-integration-file-name',
+      });
+    });
+
+    it('integration spec suffix를 쓰면 통과한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/metrics/metrics.integration-spec.ts',
+        ruleName: 'no-misleading-integration-file-name',
+        rule: noMisleadingIntegrationFileNameRule,
+        code: `
+          describe('MetricsController (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('integration 이름 구간이 없는 unit spec은 통과한다', () => {
+      const messages = lintTestRule({
+        filename: 'src/metrics/metrics.service.spec.ts',
+        ruleName: 'no-misleading-integration-file-name',
+        rule: noMisleadingIntegrationFileNameRule,
+        code: `
+          describe('MetricsService', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
     });
   });
 });
