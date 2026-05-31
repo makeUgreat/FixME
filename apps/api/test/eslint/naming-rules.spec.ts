@@ -73,5 +73,19 @@ describe('naming ESLint rules', () => {
         message: 'Expected this file to declare UserProfile.',
       });
     });
+
+    it('type 파일은 여러 관련 타입을 선언해도 통과한다', () => {
+      const messages = lintNamingRule({
+        filename: 'mapper.type.ts',
+        code: `
+          export interface PersistenceMapper {}
+          export interface ApplicationErrorMapper {}
+          export interface PresentationMapper {}
+          export interface PresentationErrorMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
   });
 });

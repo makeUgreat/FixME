@@ -1,4 +1,5 @@
-import { err, ok, type Result, ValueObject } from '@libs/ddd';
+import { ValueObject } from '@libs/ddd';
+import { err, ok, type Result } from '@libs/result';
 import { type MistakeDomainError } from './correction.error';
 import { areMistakeTypes, type MistakeType } from './mistake-type.constant';
 
@@ -59,6 +60,7 @@ export class Mistake extends ValueObject<MistakeProps> {
         kind: 'invariant_violation',
         code: 'mistake.types_empty',
         message: 'Mistake types cannot be empty',
+        details: {},
       });
     }
 
@@ -88,6 +90,7 @@ export class Mistake extends ValueObject<MistakeProps> {
         kind: 'invariant_violation',
         code: 'mistake.explanation_empty',
         message: 'Mistake explanation cannot be empty',
+        details: {},
       });
     }
 

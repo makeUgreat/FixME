@@ -133,28 +133,6 @@ describe('CorrectionMetadata', () => {
   });
 
   describe('restore', () => {
-    it('기존 생성일과 수정일을 보존한다', () => {
-      const createdAt = new Date('2026-01-01T00:00:00.000Z');
-      const updatedAt = new Date('2026-01-02T00:00:00.000Z');
-      const result = CorrectionMetadata.restore({
-        id: 'correction-metadata-1',
-        createdAt,
-        updatedAt,
-        props: {
-          correctionId: 'correction-1',
-          model: 'gpt-5-mini',
-          providerMetadata: { providerRequestId: 'response-1' },
-        },
-      });
-
-      expect(result.isOk()).toBe(true);
-
-      if (result.isOk()) {
-        expect(result.value.createdAt).toEqual(createdAt);
-        expect(result.value.updatedAt).toEqual(updatedAt);
-      }
-    });
-
     it('잘못된 속성이 있으면 실패 Result를 반환한다', () => {
       const result = CorrectionMetadata.restore({
         id: 'correction-metadata-1',

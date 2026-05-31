@@ -201,7 +201,7 @@ describe('domain ESLint rules', () => {
         ruleName: 'split-multiple-validation-errors',
         rule: splitMultipleValidationErrorsRule,
         code: `
-          import { err, ok } from '@libs/ddd';
+          import { err, ok } from '@libs/result';
 
           class Sample {
             private static validateProps(props: { name: string }) {
@@ -224,7 +224,7 @@ describe('domain ESLint rules', () => {
         ruleName: 'split-multiple-validation-errors',
         rule: splitMultipleValidationErrorsRule,
         code: `
-          import { err, ok } from '@libs/ddd';
+          import { err, ok } from '@libs/result';
 
           class Sample {
             private static validateProps(props: { name: string; title: string }) {
@@ -256,7 +256,7 @@ describe('domain ESLint rules', () => {
         ruleName: 'split-multiple-validation-errors',
         rule: splitMultipleValidationErrorsRule,
         code: `
-          import { err, ok } from '@libs/ddd';
+          import { err, ok } from '@libs/result';
 
           class Sample {
             private static validateProps(props: { name: string; title: string }) {
@@ -281,7 +281,7 @@ describe('domain ESLint rules', () => {
   });
 
   describe('domain-error-shape', () => {
-    it('도메인 에러가 kind, code, message를 포함하고 code 형식이 맞으면 통과한다', () => {
+    it('도메인 에러가 kind, code, message, details를 포함하고 code 형식이 맞으면 통과한다', () => {
       const messages = lintDomainRule({
         filename: path.join(
           tsconfigRootDir,
@@ -290,12 +290,13 @@ describe('domain ESLint rules', () => {
         ruleName: 'domain-error-shape',
         rule: domainErrorShapeRule,
         code: `
-          import { err } from '@libs/ddd';
+          import { err } from '@libs/result';
 
           const result = err({
             kind: 'invariant_violation',
             code: 'sample.name_empty',
             message: 'Sample name cannot be empty',
+            details: {},
           });
 
           void result;
@@ -314,11 +315,12 @@ describe('domain ESLint rules', () => {
         ruleName: 'domain-error-shape',
         rule: domainErrorShapeRule,
         code: `
-          import { err } from '@libs/ddd';
+          import { err } from '@libs/result';
 
           const result = err({
             kind: 'invariant_violation',
             code: 'sample.name_empty',
+            details: {},
           });
 
           void result;
@@ -333,6 +335,35 @@ describe('domain ESLint rules', () => {
       });
     });
 
+    it('도메인 에러에 details가 없으면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/sample.vo.ts',
+        ),
+        ruleName: 'domain-error-shape',
+        rule: domainErrorShapeRule,
+        code: `
+          import { err } from '@libs/result';
+
+          const result = err({
+            kind: 'invariant_violation',
+            code: 'sample.name_empty',
+            message: 'Sample name cannot be empty',
+          });
+
+          void result;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/domain-error-shape',
+        message:
+          'Domain error objects returned through err must include details.',
+      });
+    });
+
     it('도메인 에러 kind가 허용된 값이 아니면 위반으로 보고한다', () => {
       const messages = lintDomainRule({
         filename: path.join(
@@ -342,12 +373,13 @@ describe('domain ESLint rules', () => {
         ruleName: 'domain-error-shape',
         rule: domainErrorShapeRule,
         code: `
-          import { err } from '@libs/ddd';
+          import { err } from '@libs/result';
 
           const result = err({
             kind: 'bad_request',
             code: 'sample.name_empty',
             message: 'Sample name cannot be empty',
+            details: {},
           });
 
           void result;
@@ -371,12 +403,13 @@ describe('domain ESLint rules', () => {
         ruleName: 'domain-error-shape',
         rule: domainErrorShapeRule,
         code: `
-          import { err } from '@libs/ddd';
+          import { err } from '@libs/result';
 
           const result = err({
             kind: 'invariant_violation',
             code: 'SAMPLE_NAME_EMPTY',
             message: 'Sample name cannot be empty',
+            details: {},
           });
 
           void result;
@@ -395,7 +428,7 @@ describe('domain ESLint rules', () => {
   describe('no-global-domain-error-codes', () => {
     it('공용 DomainError 파일에 도메인별 code 문자열이 없으면 통과한다', () => {
       const messages = lintDomainRule({
-        filename: path.join(tsconfigRootDir, 'src/libs/ddd/domain.error.ts'),
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.type.ts'),
         ruleName: 'no-global-domain-error-codes',
         rule: noGlobalDomainErrorCodesRule,
         code: `
@@ -408,7 +441,7 @@ describe('domain ESLint rules', () => {
 
     it('공용 DomainError 파일에 도메인별 code 문자열이 있으면 위반으로 보고한다', () => {
       const messages = lintDomainRule({
-        filename: path.join(tsconfigRootDir, 'src/libs/ddd/domain.error.ts'),
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.type.ts'),
         ruleName: 'no-global-domain-error-codes',
         rule: noGlobalDomainErrorCodesRule,
         code: `
@@ -420,7 +453,7 @@ describe('domain ESLint rules', () => {
       expect(messages[0]).toMatchObject({
         ruleId: 'domain/no-global-domain-error-codes',
         message:
-          'Domain-specific error codes must be owned by their domain, not src/libs/ddd/domain.error.ts.',
+          'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.type.ts.',
       });
     });
   });

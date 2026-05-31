@@ -1,10 +1,5 @@
-import {
-  AggregateRoot,
-  err,
-  ok,
-  type CreateEntityParams,
-  type Result,
-} from '@libs/ddd';
+import { AggregateRoot, type CreateEntityParams } from '@libs/ddd';
+import { err, ok, type Result } from '@libs/result';
 import {
   type CorrectionDomainError,
   type CorrectionMetadataDomainError,
@@ -120,6 +115,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.original_text_empty',
         message: 'Correction original text cannot be empty',
+        details: {},
       });
     }
 
@@ -134,6 +130,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.corrected_text_empty',
         message: 'Correction corrected text cannot be empty',
+        details: {},
       });
     }
 
@@ -148,6 +145,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.feedback_invalid',
         message: 'Correction feedback is invalid',
+        details: {},
       });
     }
 
@@ -162,6 +160,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.metadata_invalid',
         message: 'Correction metadata is invalid',
+        details: {},
       });
     }
 
@@ -198,6 +197,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.mistakes_invalid',
         message: 'Correction mistakes are invalid',
+        details: {},
       });
     }
 
