@@ -39,22 +39,57 @@ expressed in domain language and kept close to the aggregate, entity, value
 object, or domain service that owns the rule.
 
 Use a discriminated union so callers can branch by category while still keeping
-the exact reason in a stable code.
+the exact reason in a stable code. The shared `DomainError` type provides a
+common vocabulary across domains; each domain owns its exact error codes and any
+structured `details` it needs.
 
 Use `kind` for broad handling:
 
-| Kind | Meaning |
-|------|---------|
-| `invariant_violation` | The input or state would break a rule that must always hold. |
-| `state_conflict` | The requested operation conflicts with the current domain state. |
+| Kind                    | Meaning                                                                   |
+| ----------------------- | ------------------------------------------------------------------------- |
+| `invariant_violation`   | The input or state would break a rule that must always hold.              |
+| `state_conflict`        | The requested operation conflicts with the current domain state.          |
 | `operation_not_allowed` | The rule is valid, but the actor or context is not allowed to perform it. |
 
 Use `code` for the precise domain reason. A code should be stable enough for
 tests, logs, API responses, and client behavior. Prefer `{domain}.{reason}`.
 
+Domain error objects returned from domain code must include `kind`, `code`, and
+`message`. `details` is optional and should be present only when the extra
+structured context is safe and useful to the caller.
+
 Do not put every domain code in one global union. A shared error kind gives the
 application a common handling vocabulary; domain-specific codes should remain
 owned by the domain that defines them.
+
+Use `message` as a developer-facing explanation. User-facing text and localized
+copy should be mapped outside the domain layer. Use `details` only for safe,
+structured domain context that a caller needs for branching, logging, testing,
+or boundary mapping.
+
+The harness enforces mechanical rules such as the domain error object shape,
+code format, domain-layer dependency boundaries, and Result consumption. This
+document explains the intent behind those rules rather than repeating every
+lintable pattern.
+
+## Enforced Checks
+
+The API app uses lint rules to keep the convention mechanical where possible.
+
+- `neverthrow/must-use-result` requires production code to consume returned
+  `Result` values.
+- `domain/domain-error-shape` requires domain `err({ ... })` objects to include
+  `kind`, `code`, and `message`, restricts `kind` to the supported domain
+  categories, and requires `code` to follow `{domain}.{reason}`.
+- `domain/no-global-domain-error-codes` prevents
+  `src/libs/ddd/domain.error.ts` from becoming a registry of domain-specific
+  codes. Shared DDD codes such as `entity.*` may stay there; feature-domain
+  codes should live in the feature domain.
+- `domain/split-multiple-validation-errors` keeps `validateProps` readable by
+  requiring multiple validation failures to be split into named validation
+  methods instead of returning many `err(...)` values directly.
+- Domain files must not import Nest or HTTP exceptions. Map domain and
+  application failures at the API boundary.
 
 ## Application Errors
 

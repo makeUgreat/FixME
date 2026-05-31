@@ -4,6 +4,7 @@ import {
   CorrectionFeedback,
   type CreateCorrectionFeedbackProps,
 } from './correction-feedback.vo';
+import { CorrectionMetadata } from './correction-metadata.entity';
 import { Mistake } from './mistake.vo';
 
 const createFeedbackProps = (): CreateCorrectionFeedbackProps => ({
@@ -18,6 +19,14 @@ const createMistake = (): Mistake =>
     explanation: 'The corrected phrase sounds more natural and specific.',
   })._unsafeUnwrap();
 
+const createMetadata = (correctionId = 'correction-1'): CorrectionMetadata =>
+  CorrectionMetadata.create({
+    id: 'correction-metadata-1',
+    correctionId,
+    model: 'gpt-5-mini',
+    providerMetadata: { providerRequestId: 'response-1' },
+  })._unsafeUnwrap();
+
 const createCorrection = (
   overrides: Partial<CreateCorrectionProps> = {},
 ): ReturnType<typeof Correction.create> =>
@@ -27,6 +36,11 @@ const createCorrection = (
     correctedText: 'Is this for handling concurrency?',
     feedback: CorrectionFeedback.of(createFeedbackProps())._unsafeUnwrap(),
     mistakes: [createMistake()],
+    metadata: {
+      id: 'correction-metadata-1',
+      model: 'gpt-5-mini',
+      providerMetadata: { providerRequestId: 'response-1' },
+    },
     ...overrides,
   });
 
@@ -47,6 +61,14 @@ describe('Correction', () => {
           'The user wants to ask whether this solves concurrency.',
         );
         expect(props.mistakes).toHaveLength(1);
+        expect(props.metadata.id).toBe('correction-metadata-1');
+        expect(props.metadata.getProps()).toEqual(
+          expect.objectContaining({
+            correctionId: 'correction-1',
+            model: 'gpt-5-mini',
+            providerMetadata: { providerRequestId: 'response-1' },
+          }),
+        );
       }
     });
 
@@ -76,6 +98,7 @@ describe('Correction', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('correction.original_text_empty');
       }
     });
@@ -88,6 +111,7 @@ describe('Correction', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('correction.corrected_text_empty');
       }
     });
@@ -100,9 +124,35 @@ describe('Correction', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe(
           'correction.mistakes_empty_for_corrected_text',
         );
+        if (
+          result.error.code === 'correction.mistakes_empty_for_corrected_text'
+        ) {
+          expect(result.error.details).toEqual({
+            originalText: 'Is this for concurrency?',
+            correctedText: 'Is this for handling concurrency?',
+          });
+        }
+      }
+    });
+
+    it('메타데이터 모델이 비어 있으면 실패 Result를 반환한다', () => {
+      const result = createCorrection({
+        metadata: {
+          id: 'correction-metadata-1',
+          model: ' ',
+          providerMetadata: { providerRequestId: 'response-1' },
+        },
+      });
+
+      expect(result.isErr()).toBe(true);
+
+      if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe('correction_metadata.model_empty');
       }
     });
 
@@ -130,13 +180,47 @@ describe('Correction', () => {
           correctedText: 'Is this for handling concurrency?',
           feedback: {} as CorrectionFeedback,
           mistakes: [createMistake()],
+          metadata: createMetadata(),
         },
       });
 
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('correction.feedback_invalid');
+      }
+    });
+
+    it('메타데이터가 교정에 속하지 않으면 실패 Result를 반환한다', () => {
+      const result = Correction.restore({
+        id: 'correction-1',
+        props: {
+          originalText: 'Is this for concurrency?',
+          correctedText: 'Is this for handling concurrency?',
+          feedback: CorrectionFeedback.of(
+            createFeedbackProps(),
+          )._unsafeUnwrap(),
+          mistakes: [createMistake()],
+          metadata: createMetadata('another-correction'),
+        },
+      });
+
+      expect(result.isErr()).toBe(true);
+
+      if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe(
+          'correction.metadata_correction_id_mismatch',
+        );
+        if (
+          result.error.code === 'correction.metadata_correction_id_mismatch'
+        ) {
+          expect(result.error.details).toEqual({
+            correctionId: 'correction-1',
+            metadataCorrectionId: 'another-correction',
+          });
+        }
       }
     });
 
@@ -150,13 +234,37 @@ describe('Correction', () => {
             createFeedbackProps(),
           )._unsafeUnwrap(),
           mistakes: [{} as Mistake],
+          metadata: createMetadata(),
         },
       });
 
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('correction.mistakes_invalid');
+      }
+    });
+
+    it('메타데이터 값이 교정 메타데이터 모델이 아니면 실패 Result를 반환한다', () => {
+      const result = Correction.restore({
+        id: 'correction-1',
+        props: {
+          originalText: 'Is this for concurrency?',
+          correctedText: 'Is this for handling concurrency?',
+          feedback: CorrectionFeedback.of(
+            createFeedbackProps(),
+          )._unsafeUnwrap(),
+          mistakes: [createMistake()],
+          metadata: {} as CorrectionMetadata,
+        },
+      });
+
+      expect(result.isErr()).toBe(true);
+
+      if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe('correction.metadata_invalid');
       }
     });
   });

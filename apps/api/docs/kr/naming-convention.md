@@ -6,6 +6,7 @@
 
 - aggregate, entity, value object에는 단수 도메인 용어를 사용한다: `Post`, `PostTitle`, `UserEmail`.
 - 내부 상태에는 `Props`, 생성 입력에는 `CreateXProps`를 사용한다.
+- 여러 raw 생성 입력을 domain object 배열로 변환해야 하고 하나라도 유효하지 않으면 전체가 실패해야 할 때는 domain model에 `createMany`를 둔다.
 - DDD framework primitive는 재사용 가능한 `protected static construct` helper를 유지할 수 있다.
 - persistence/API 변환 관심사는 domain model에 기본 serialization method를 추가하지 말고 mapper에 둔다.
 - DDD framework primitive는 `Entity`, `AggregateRoot`, `ValueObject` 같은 framework 이름을 사용할 수 있다.

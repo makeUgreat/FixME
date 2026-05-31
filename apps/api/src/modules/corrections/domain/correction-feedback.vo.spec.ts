@@ -36,6 +36,7 @@ describe('CorrectionFeedback', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe(
           'correction_feedback.inferred_intent_empty',
         );
@@ -51,6 +52,7 @@ describe('CorrectionFeedback', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
+        expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('correction_feedback.explanation_empty');
       }
     });

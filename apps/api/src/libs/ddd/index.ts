@@ -24,4 +24,5 @@ export type {
   DomainInvariantViolationError,
   DomainOperationNotAllowedError,
   DomainStateConflictError,
-} from './domain-error';
+  EntityDomainError,
+} from './domain.error';

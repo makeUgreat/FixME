@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AggregateRoot } from './aggregate-root.base';
 import { type CreateEntityParams } from './entity.base';
-import { type DomainError } from './domain-error';
+import { type DomainError } from './domain.error';
 import { err, ok, type Result } from './result.util';
 import { ValueObject, type DomainPrimitive } from './value-object.base';
 

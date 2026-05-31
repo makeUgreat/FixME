@@ -6,6 +6,7 @@ Use concise, role-based names. Avoid meta names such as `Impl`, `Adapter`, `Port
 
 - Use singular domain terms for aggregates, entities, and value objects: `Post`, `PostTitle`, `UserEmail`.
 - Use `Props` for internal state and `CreateXProps` for creation input.
+- Use `createMany` on the domain model when multiple raw creation inputs must be converted into domain objects and any invalid item should fail the whole operation.
 - DDD framework primitives may keep reusable `protected static construct` helpers.
 - Keep persistence/API conversion concerns in mappers instead of adding default serialization methods to domain models.
 - DDD framework primitives may use framework names such as `Entity`, `AggregateRoot`, and `ValueObject`.

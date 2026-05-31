@@ -19,6 +19,8 @@ export function isMistakeType(value: unknown): value is MistakeType {
   return MISTAKE_TYPES.includes(value as MistakeType);
 }
 
-export function areMistakeTypes(values: unknown[]): values is MistakeType[] {
+export function areMistakeTypes(
+  values: readonly unknown[],
+): values is readonly MistakeType[] {
   return values.every(isMistakeType);
 }

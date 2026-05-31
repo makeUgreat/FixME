@@ -1,4 +1,5 @@
-import { err, ok, type DomainError, type Result, ValueObject } from '@libs/ddd';
+import { err, ok, type Result, ValueObject } from '@libs/ddd';
+import { type CorrectionFeedbackDomainError } from './correction.error';
 
 export interface CorrectionFeedbackProps {
   inferredIntent: string;
@@ -10,7 +11,7 @@ export type CreateCorrectionFeedbackProps = CorrectionFeedbackProps;
 export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
   static of(
     props: CreateCorrectionFeedbackProps,
-  ): Result<CorrectionFeedback, DomainError> {
+  ): Result<CorrectionFeedback, CorrectionFeedbackDomainError> {
     return super.construct({
       props: {
         inferredIntent: props.inferredIntent.trim(),
@@ -28,7 +29,7 @@ export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
 
   private static validateProps(
     props: CorrectionFeedbackProps,
-  ): Result<CorrectionFeedbackProps, DomainError> {
+  ): Result<CorrectionFeedbackProps, CorrectionFeedbackDomainError> {
     return CorrectionFeedback.inferredIntentMustNotBeEmpty(props.inferredIntent)
       .andThen(() =>
         CorrectionFeedback.explanationMustNotBeEmpty(props.explanation),
@@ -38,7 +39,7 @@ export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
 
   private static inferredIntentMustNotBeEmpty(
     inferredIntent: string,
-  ): Result<void, DomainError> {
+  ): Result<void, CorrectionFeedbackDomainError> {
     if (inferredIntent.length === 0) {
       return err({
         kind: 'invariant_violation',
@@ -52,7 +53,7 @@ export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
 
   private static explanationMustNotBeEmpty(
     explanation: string,
-  ): Result<void, DomainError> {
+  ): Result<void, CorrectionFeedbackDomainError> {
     if (explanation.length === 0) {
       return err({
         kind: 'invariant_violation',

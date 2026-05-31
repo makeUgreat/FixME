@@ -1,4 +1,4 @@
-import { DomainError } from './domain-error';
+import { DomainError } from './domain.error';
 import { Entity } from './entity.base';
 import { type Result } from './result.util';
 
