@@ -89,9 +89,37 @@ describe('eslint.config.mjs (integration)', () => {
     ]);
     expect(getConfiguredRule(config, 'domain/no-direct-new')).toEqual([2]);
     expect(getConfiguredRule(config, 'domain/require-unit-spec')).toEqual([2]);
+    expect(getConfiguredRule(config, 'domain/domain-error-shape')).toEqual([2]);
     expect(
       getConfiguredRule(config, 'domain/split-multiple-validation-errors'),
     ).toEqual([2]);
+  });
+
+  it('공용 DomainError 파일에는 전역 도메인 code 금지 규칙을 적용한다', async () => {
+    const config = await calculateConfigForFile('src/libs/ddd/domain.error.ts');
+
+    expect(
+      getConfiguredRule(config, 'domain/no-global-domain-error-codes'),
+    ).toEqual([2]);
+  });
+
+  it('domain 파일에는 Nest import 금지 규칙을 적용한다', async () => {
+    const config = await calculateConfigForFile(
+      'src/modules/corrections/domain/sample.vo.ts',
+    );
+
+    expect(getConfiguredRule(config, 'no-restricted-imports')).toEqual([
+      2,
+      {
+        paths: [
+          {
+            name: '@nestjs/common',
+            message:
+              'Domain code must not import Nest or HTTP exceptions. Map domain errors at the API boundary.',
+          },
+        ],
+      },
+    ]);
   });
 
   it('미사용 import 자동 정리 규칙을 적용한다', async () => {
@@ -144,7 +172,7 @@ describe('eslint.config.mjs (integration)', () => {
     );
   });
 
-  it('value object 파일에는 constructor와 of factory 이름 제한을 적용한다', async () => {
+  it('value object 파일에는 constructor와 of/createMany factory 이름 제한을 적용한다', async () => {
     const config = await calculateConfigForFile('src/sample.vo.ts');
     const rule = getConfiguredRule(config, 'no-restricted-syntax');
 
@@ -158,8 +186,9 @@ describe('eslint.config.mjs (integration)', () => {
         }),
         expect.objectContaining({
           selector:
-            "MethodDefinition[static=true][kind='method']:not([accessibility='private']):not([accessibility='protected'])[key.name!='of']",
-          message: 'Public static factories on value objects must be named of.',
+            "MethodDefinition[static=true][kind='method']:not([accessibility='private']):not([accessibility='protected'])[key.name!=/^(of|createMany)$/]",
+          message:
+            'Public static factories on value objects must be named of or createMany.',
         }),
       ]),
     );

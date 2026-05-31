@@ -47,6 +47,12 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-object-type': [
+        'error',
+        {
+          allowInterfaces: 'with-single-extends',
+        },
+      ],
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       '@typescript-eslint/no-unused-vars': 'off',
@@ -114,7 +120,7 @@ export default tseslint.config(
       'src/**/index.ts',
       'src/**/*.spec.ts',
       'src/libs/guard.ts',
-      'src/libs/ddd/domain-error.ts',
+      'src/libs/ddd/domain.error.ts',
     ],
     plugins: {
       domain,
@@ -125,11 +131,38 @@ export default tseslint.config(
       'naming/type-name-matches-file-name': 'error',
       'domain/factory-result-return': 'error',
       'domain/no-direct-new': 'error',
+      'domain/domain-error-shape': 'error',
       'domain/split-multiple-validation-errors': 'error',
       'check-file/filename-naming-convention': [
         'error',
         {
           '**/*.ts': '+([a-z0-9-]).+([a-z0-9-.])',
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/libs/ddd/domain.error.ts'],
+    plugins: {
+      domain,
+    },
+    rules: {
+      'domain/no-global-domain-error-codes': 'error',
+    },
+  },
+  {
+    files: ['src/modules/*/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@nestjs/common',
+              message:
+                'Domain code must not import Nest or HTTP exceptions. Map domain errors at the API boundary.',
+            },
+          ],
         },
       ],
     },
@@ -173,8 +206,9 @@ export default tseslint.config(
         },
         {
           selector:
-            "MethodDefinition[static=true][kind='method']:not([accessibility='private']):not([accessibility='protected'])[key.name!='of']",
-          message: 'Public static factories on value objects must be named of.',
+            "MethodDefinition[static=true][kind='method']:not([accessibility='private']):not([accessibility='protected'])[key.name!=/^(of|createMany)$/]",
+          message:
+            'Public static factories on value objects must be named of or createMany.',
         },
       ],
     },

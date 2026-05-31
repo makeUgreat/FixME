@@ -24,7 +24,7 @@ Domain decision, use case outcome, 기타 예측 가능한 branch에는 `Result`
 
 Domain error는 domain rule이 operation을 거부한 이유를 설명한다. Domain language로 표현하고 해당 rule을 소유한 aggregate, entity, value object, domain service 가까이에 둔다.
 
-호출자가 category별로 branch할 수 있으면서도 정확한 reason을 안정적인 code로 유지할 수 있도록 discriminated union을 사용한다.
+호출자가 category별로 branch할 수 있으면서도 정확한 reason을 안정적인 code로 유지할 수 있도록 discriminated union을 사용한다. Shared `DomainError` type은 domain 전반에서 공통 vocabulary를 제공하고, 각 domain은 자신이 필요한 정확한 error code와 structured `details`를 소유한다.
 
 넓은 처리에는 `kind`를 사용한다.
 
@@ -36,7 +36,23 @@ Domain error는 domain rule이 operation을 거부한 이유를 설명한다. Do
 
 정확한 domain reason에는 `code`를 사용한다. Code는 test, log, API response, client behavior에 사용할 만큼 안정적이어야 한다. `{domain}.{reason}` 형식을 선호한다.
 
+Domain code에서 반환하는 domain error object는 `kind`, `code`, `message`를 반드시 포함해야 한다. `details`는 optional이며, caller에게 안전하고 유용한 structured context가 있을 때만 포함한다.
+
 모든 domain code를 하나의 global union에 넣지 않는다. Shared error kind는 application에 공통 handling vocabulary를 제공하지만, domain-specific code는 그 code를 정의한 domain이 소유해야 한다.
+
+`message`는 developer-facing explanation으로 사용한다. User-facing text와 localized copy는 domain layer 밖에서 mapping해야 한다. `details`는 caller가 branching, logging, testing, boundary mapping에 필요한 안전한 structured domain context에만 사용한다.
+
+Harness는 domain error object shape, code format, domain-layer dependency boundary, Result consumption 같은 기계적인 규칙을 강제한다. 이 문서는 lint 가능한 pattern을 모두 반복하기보다 그 규칙의 의도를 설명한다.
+
+## 강제되는 체크
+
+API app은 가능한 부분을 lint rule로 강제한다.
+
+- `neverthrow/must-use-result`는 production code에서 반환된 `Result` value를 반드시 소비하도록 강제한다.
+- `domain/domain-error-shape`는 domain `err({ ... })` object에 `kind`, `code`, `message`가 있는지 확인하고, `kind`를 지원되는 domain category로 제한하며, `code`가 `{domain}.{reason}` 형식을 따르도록 강제한다.
+- `domain/no-global-domain-error-codes`는 `src/libs/ddd/domain.error.ts`가 domain-specific code registry가 되는 것을 막는다. `entity.*` 같은 shared DDD code는 이 파일에 둘 수 있지만 feature-domain code는 해당 feature domain에 둔다.
+- `domain/split-multiple-validation-errors`는 `validateProps` 안에서 여러 `err(...)`를 직접 반환하지 않고 named validation method로 분리하도록 강제해 validation 흐름을 읽기 쉽게 유지한다.
+- Domain file은 Nest 또는 HTTP exception을 import하지 않는다. Domain/application failure는 API boundary에서 mapping한다.
 
 ## Application Error
 

@@ -25,3 +25,25 @@ export type DomainOperationNotAllowedError = {
   code: string;
   message: string;
 };
+
+export type EntityDomainError =
+  | {
+      kind: 'invariant_violation';
+      code: 'entity.props_empty';
+      message: string;
+    }
+  | {
+      kind: 'invariant_violation';
+      code: 'entity.props_not_object';
+      message: string;
+    }
+  | {
+      kind: 'invariant_violation';
+      code: 'entity.props_too_many';
+      message: string;
+    }
+  | {
+      kind: 'invariant_violation';
+      code: 'entity.updated_at_before_created_at';
+      message: string;
+    };

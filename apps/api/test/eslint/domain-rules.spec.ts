@@ -2,8 +2,10 @@ import path from 'node:path';
 import { Linter, type Rule } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
+import domainErrorShapeRule from '../../eslint/rules/domain/domain-error-shape.mjs';
 import factoryResultReturnRule from '../../eslint/rules/domain/factory-result-return.mjs';
 import noDirectNewRule from '../../eslint/rules/domain/no-direct-new.mjs';
+import noGlobalDomainErrorCodesRule from '../../eslint/rules/domain/no-global-domain-error-codes.mjs';
 import requireUnitSpecRule from '../../eslint/rules/domain/require-unit-spec.mjs';
 import splitMultipleValidationErrorsRule from '../../eslint/rules/domain/split-multiple-validation-errors.mjs';
 
@@ -275,6 +277,151 @@ describe('domain ESLint rules', () => {
       });
 
       expect(messages).toHaveLength(0);
+    });
+  });
+
+  describe('domain-error-shape', () => {
+    it('도메인 에러가 kind, code, message를 포함하고 code 형식이 맞으면 통과한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/sample.vo.ts',
+        ),
+        ruleName: 'domain-error-shape',
+        rule: domainErrorShapeRule,
+        code: `
+          import { err } from '@libs/ddd';
+
+          const result = err({
+            kind: 'invariant_violation',
+            code: 'sample.name_empty',
+            message: 'Sample name cannot be empty',
+          });
+
+          void result;
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('도메인 에러에 message가 없으면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/sample.vo.ts',
+        ),
+        ruleName: 'domain-error-shape',
+        rule: domainErrorShapeRule,
+        code: `
+          import { err } from '@libs/ddd';
+
+          const result = err({
+            kind: 'invariant_violation',
+            code: 'sample.name_empty',
+          });
+
+          void result;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/domain-error-shape',
+        message:
+          'Domain error objects returned through err must include message.',
+      });
+    });
+
+    it('도메인 에러 kind가 허용된 값이 아니면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/sample.vo.ts',
+        ),
+        ruleName: 'domain-error-shape',
+        rule: domainErrorShapeRule,
+        code: `
+          import { err } from '@libs/ddd';
+
+          const result = err({
+            kind: 'bad_request',
+            code: 'sample.name_empty',
+            message: 'Sample name cannot be empty',
+          });
+
+          void result;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/domain-error-shape',
+        message:
+          'Domain error kind must be invariant_violation, state_conflict, or operation_not_allowed.',
+      });
+    });
+
+    it('도메인 에러 code가 domain.reason 형식이 아니면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/sample.vo.ts',
+        ),
+        ruleName: 'domain-error-shape',
+        rule: domainErrorShapeRule,
+        code: `
+          import { err } from '@libs/ddd';
+
+          const result = err({
+            kind: 'invariant_violation',
+            code: 'SAMPLE_NAME_EMPTY',
+            message: 'Sample name cannot be empty',
+          });
+
+          void result;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/domain-error-shape',
+        message:
+          'Domain error code must follow {domain}.{reason}, for example correction.original_text_empty.',
+      });
+    });
+  });
+
+  describe('no-global-domain-error-codes', () => {
+    it('공용 DomainError 파일에 도메인별 code 문자열이 없으면 통과한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/domain.error.ts'),
+        ruleName: 'no-global-domain-error-codes',
+        rule: noGlobalDomainErrorCodesRule,
+        code: `
+          export type DomainErrorKind = 'invariant_violation';
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('공용 DomainError 파일에 도메인별 code 문자열이 있으면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/domain.error.ts'),
+        ruleName: 'no-global-domain-error-codes',
+        rule: noGlobalDomainErrorCodesRule,
+        code: `
+          export type DomainErrorCode = 'correction.original_text_empty';
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/no-global-domain-error-codes',
+        message:
+          'Domain-specific error codes must be owned by their domain, not src/libs/ddd/domain.error.ts.',
+      });
     });
   });
 });

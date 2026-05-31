@@ -1,4 +1,5 @@
-import { err, ok, type DomainError, type Result, ValueObject } from '@libs/ddd';
+import { err, ok, type Result, ValueObject } from '@libs/ddd';
+import { type MistakeDomainError } from './correction.error';
 import { areMistakeTypes, type MistakeType } from './mistake-type.constant';
 
 export interface MistakeProps {
@@ -6,12 +7,15 @@ export interface MistakeProps {
   explanation: string;
 }
 
-export type CreateMistakeProps = MistakeProps;
+export interface CreateMistakeProps {
+  readonly types: readonly MistakeType[];
+  readonly explanation: string;
+}
 
 export class Mistake extends ValueObject<MistakeProps> {
-  static of(props: CreateMistakeProps): Result<Mistake, DomainError> {
+  static of(props: CreateMistakeProps): Result<Mistake, MistakeDomainError> {
     const mistakeProps: MistakeProps = {
-      types: props.types,
+      types: [...props.types],
       explanation: props.explanation.trim(),
     };
 
@@ -22,13 +26,25 @@ export class Mistake extends ValueObject<MistakeProps> {
     });
   }
 
+  static createMany(
+    propsList: readonly CreateMistakeProps[],
+  ): Result<Mistake[], MistakeDomainError> {
+    return propsList.reduce<Result<Mistake[], MistakeDomainError>>(
+      (result, props) =>
+        result.andThen((mistakes) =>
+          Mistake.of(props).map((mistake) => [...mistakes, mistake]),
+        ),
+      ok([]),
+    );
+  }
+
   private constructor(props: MistakeProps) {
     super(props);
   }
 
   private static validateProps(
     props: MistakeProps,
-  ): Result<MistakeProps, DomainError> {
+  ): Result<MistakeProps, MistakeDomainError> {
     return Mistake.typesMustNotBeEmpty(props.types)
       .andThen(() => Mistake.typesMustBeKnown(props.types))
       .andThen(() => Mistake.explanationMustNotBeEmpty(props.explanation))
@@ -37,7 +53,7 @@ export class Mistake extends ValueObject<MistakeProps> {
 
   private static typesMustNotBeEmpty(
     types: MistakeType[],
-  ): Result<void, DomainError> {
+  ): Result<void, MistakeDomainError> {
     if (!Array.isArray(types) || types.length === 0) {
       return err({
         kind: 'invariant_violation',
@@ -51,12 +67,13 @@ export class Mistake extends ValueObject<MistakeProps> {
 
   private static typesMustBeKnown(
     types: MistakeType[],
-  ): Result<void, DomainError> {
+  ): Result<void, MistakeDomainError> {
     if (!areMistakeTypes(types)) {
       return err({
         kind: 'invariant_violation',
         code: 'mistake.types_invalid',
         message: 'Mistake types are invalid',
+        details: { types },
       });
     }
 
@@ -65,7 +82,7 @@ export class Mistake extends ValueObject<MistakeProps> {
 
   private static explanationMustNotBeEmpty(
     explanation: string,
-  ): Result<void, DomainError> {
+  ): Result<void, MistakeDomainError> {
     if (explanation.length === 0) {
       return err({
         kind: 'invariant_violation',

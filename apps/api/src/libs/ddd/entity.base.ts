@@ -1,5 +1,5 @@
 import { Guard } from '../guard';
-import { type DomainError } from './domain-error';
+import { type DomainError, type EntityDomainError } from './domain.error';
 import { err, ok, type Result } from './result.util';
 
 export type EntityId = string | number;
@@ -54,7 +54,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
     TInstance extends Entity<TId, EntityProps>,
   >(
     options: ConstructEntityOptions<TId, EntityProps, TError, TInstance>,
-  ): Result<TInstance, DomainError | TError> {
+  ): Result<TInstance, EntityDomainError | TError> {
     return Entity.validateBaseParams(options.params)
       .andThen(options.validate)
       .map(options.instantiate);
@@ -83,7 +83,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
 
   private static validateBaseParams<TId extends EntityId, EntityProps>(
     params: CreateEntityParams<TId, EntityProps>,
-  ): Result<CreateEntityParams<TId, EntityProps>, DomainError> {
+  ): Result<CreateEntityParams<TId, EntityProps>, EntityDomainError> {
     const maxProps = 50;
     const createdAt = params.createdAt;
     const updatedAt = params.updatedAt;

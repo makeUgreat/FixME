@@ -4,12 +4,19 @@ export {
   type CorrectionProps,
   type CreateCorrectionProps,
 } from './correction.aggregate';
+export type {
+  CorrectionDomainError,
+  CorrectionFeedbackDomainError,
+  CorrectionMetadataDomainError,
+  MistakeDomainError,
+} from './correction.error';
+export { type CorrectionRepository } from './correction.repository.port';
 export {
-  CorrectionGeneration,
-  type CorrectionGenerationId,
-  type CorrectionGenerationProps,
-  type CreateCorrectionGenerationProps,
-} from './correction-generation.entity';
+  CorrectionMetadata,
+  type CorrectionMetadataId,
+  type CorrectionMetadataProps,
+  type CreateCorrectionMetadataProps,
+} from './correction-metadata.entity';
 export {
   CorrectionFeedback,
   type CorrectionFeedbackProps,
