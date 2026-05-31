@@ -2,14 +2,38 @@
 
 Use concise, role-based names. Avoid meta names such as `Impl`, `Adapter`, `Port`, `Aggregate`, `Entity`, or `Vo` in type names unless the word is part of the domain language.
 
+ESLint-enforced naming checks are summarized in the
+[API ESLint rules README](../../eslint/README.md#naming-rules).
+
 ## Domain Models
 
 - Use singular domain terms for aggregates, entities, and value objects: `Post`, `PostTitle`, `UserEmail`.
 - Use `Props` for internal state and `CreateXProps` for creation input.
 - Use `createMany` on the domain model when multiple raw creation inputs must be converted into domain objects and any invalid item should fail the whole operation.
-- DDD framework primitives may keep reusable `protected static construct` helpers.
-- Keep persistence/API conversion concerns in mappers instead of adding default serialization methods to domain models.
 - DDD framework primitives may use framework names such as `Entity`, `AggregateRoot`, and `ValueObject`.
+
+## Domain Model Files
+
+Domain model files use kebab-case domain terms plus a role suffix.
+
+| Model role | File pattern | Type name |
+| --- | --- | --- |
+| Aggregate | `{domain-term}.aggregate.ts` | PascalCase domain term |
+| Entity | `{domain-term}.entity.ts` | PascalCase domain term |
+| Value object | `{domain-term}.vo.ts` | PascalCase domain term |
+
+Examples:
+
+- `correction.aggregate.ts` -> `Correction`
+- `correction-metadata.entity.ts` -> `CorrectionMetadata`
+- `correction-feedback.vo.ts` -> `CorrectionFeedback`
+- `user-email.vo.ts` -> `UserEmail`
+
+Do not include role words such as `Aggregate`, `Entity`, or `Vo` in concrete
+domain model type names unless they are part of the domain language.
+
+These names are enforced by the API ESLint naming rules. See the
+[API ESLint rules README](../../eslint/README.md#naming-rules).
 
 ## Methods By Layer
 
@@ -43,6 +67,26 @@ For restore, express the domain state change on the aggregate, such as `restore`
 - Use `At` for timestamps: `createdAt`, `updatedAt`, `expiresAt`.
 - Use `Params`, `Props`, `Options`, `Result`, and `Payload` by meaning. Use `RequestDto` and `ResponseDto` only at API DTO boundaries.
 
+## File Suffixes
+
+Use file suffixes to describe the file's role, not its implementation detail.
+
+| Suffix | Use when |
+| --- | --- |
+| `.type.ts` | The file exports only types or interfaces. |
+| `.constant.ts` | The file owns constants or enum-like `as const` data for one concept. |
+| `.util.ts` | The file exports stateless helper functions. |
+| `.base.ts` | The file exports an abstract or base class intended for inheritance. |
+| `.port.ts` | The file defines a layer boundary abstraction. |
+| `.mapper.ts` | The file exports a mapper class or mapper implementation. |
+| `.error.ts` | The file owns feature, use case, or domain error unions. |
+| `index.ts` | The file is a public barrel or package/lib entrypoint. |
+
+Prefer `.type.ts` over `.interface.ts`. TypeScript `interface` is a type-level
+construct, while the file suffix should describe the role of the whole file.
+Use singular `.constant.ts`, even when the file exports multiple constants,
+because the suffix describes the file role.
+
 ## Ports And Infrastructure
 
 Port implementation files follow `{port-name}.{technology}.ts`. Implementation classes use `TechnologyPrefix + RoleName`.
@@ -68,7 +112,8 @@ export const TOKEN_PROVIDER = Symbol('token_provider');
 
 ## DTOs And Controllers
 
-- Shared response DTOs belong in `src/libs/api/`: `IdResponseDto`, `HttpErrorResponse`.
+- Feature response DTOs belong near the controller that owns the protocol boundary.
+- Shared response DTOs may be introduced under `src/libs/api/` only when multiple modules need the same stable API shape.
 - Controller files include the protocol: `{module}.{protocol}.controller.ts`, such as `post.http.controller.ts` -> `PostHttpController`.
 
 ## Test Helpers
