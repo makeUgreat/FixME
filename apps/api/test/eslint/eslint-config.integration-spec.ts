@@ -84,6 +84,21 @@ describe('eslint.config.mjs (integration)', () => {
     expect(
       getConfiguredRule(config, 'naming/type-name-matches-file-name'),
     ).toEqual([2]);
+    expect(getConfiguredRule(config, 'mapper/implements-layer-mapper')).toEqual(
+      [2],
+    );
+    expect(
+      getConfiguredRule(config, 'mapper/no-domain-model-serialization'),
+    ).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'mapper/no-error-contract-in-mapper'),
+    ).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'mapper/no-nest-in-application-error'),
+    ).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'mapper/no-nest-in-application-mapper'),
+    ).toEqual([2]);
     expect(getConfiguredRule(config, 'domain/factory-result-return')).toEqual([
       2,
     ]);
@@ -96,7 +111,7 @@ describe('eslint.config.mjs (integration)', () => {
   });
 
   it('공용 DomainError 파일에는 전역 도메인 code 금지 규칙을 적용한다', async () => {
-    const config = await calculateConfigForFile('src/libs/ddd/domain.error.ts');
+    const config = await calculateConfigForFile('src/libs/ddd/error.type.ts');
 
     expect(
       getConfiguredRule(config, 'domain/no-global-domain-error-codes'),

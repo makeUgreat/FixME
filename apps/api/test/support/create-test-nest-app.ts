@@ -1,4 +1,4 @@
-import { Type } from '@nestjs/common';
+import { Type, ValidationPipe } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -14,6 +14,13 @@ export async function createTestNestApp(
 
   const app = moduleFixture.createNestApplication<NestFastifyApplication>(
     new FastifyAdapter(),
+  );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      forbidNonWhitelisted: true,
+      transform: true,
+      whitelist: true,
+    }),
   );
   await app.init();
 

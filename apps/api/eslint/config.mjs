@@ -9,6 +9,7 @@ import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import domain from './plugins/domain.mjs';
+import mapper from './plugins/mapper.mjs';
 import naming from './plugins/naming.mjs';
 import test from './plugins/test.mjs';
 
@@ -120,15 +121,21 @@ export default tseslint.config(
       'src/**/index.ts',
       'src/**/*.spec.ts',
       'src/libs/guard.ts',
-      'src/libs/ddd/domain.error.ts',
+      'src/libs/ddd/error.type.ts',
     ],
     plugins: {
       domain,
+      mapper,
       naming,
       'check-file': checkFile,
     },
     rules: {
       'naming/type-name-matches-file-name': 'error',
+      'mapper/implements-layer-mapper': 'error',
+      'mapper/no-domain-model-serialization': 'error',
+      'mapper/no-error-contract-in-mapper': 'error',
+      'mapper/no-nest-in-application-error': 'error',
+      'mapper/no-nest-in-application-mapper': 'error',
       'domain/factory-result-return': 'error',
       'domain/no-direct-new': 'error',
       'domain/domain-error-shape': 'error',
@@ -142,7 +149,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/libs/ddd/domain.error.ts'],
+    files: ['src/libs/ddd/error.type.ts'],
     plugins: {
       domain,
     },

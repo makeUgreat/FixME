@@ -1,4 +1,4 @@
-import { type Result } from './result.util';
+import { type Result } from '../result';
 
 export type Primitives = string | number | boolean;
 

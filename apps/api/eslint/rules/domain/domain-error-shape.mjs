@@ -75,7 +75,7 @@ const domainErrorShapeRule = {
           return;
         }
 
-        for (const name of ['kind', 'code', 'message']) {
+        for (const name of ['kind', 'code', 'message', 'details']) {
           if (!getObjectProperty(errorArgument, name)) {
             context.report({
               node: errorArgument,
