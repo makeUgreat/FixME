@@ -1,15 +1,38 @@
 # 네이밍 컨벤션
 
-간결하고 역할이 드러나는 이름을 사용한다. `Impl`, `Adapter`, `Port`, `Aggregate`, `Entity`, `Vo` 같은 메타 이름은 해당 단어가 도메인 언어의 일부가 아니라면 type name에 사용하지 않는다.
+간결하고 역할이 드러나는 이름을 사용한다. 
+`Impl`, `Adapter`, `Port`, `Aggregate`, `Entity`, `Vo` 같은 메타 이름은 해당 단어가 도메인 언어의 일부가 아니라면 type name에 사용하지 않는다.
+
+ESLint로 강제되는 네이밍 검사는 [API ESLint rules README](../../eslint/README.kr.md#naming-rules)에 정리한다.
 
 ## 도메인 모델
 
 - aggregate, entity, value object에는 단수 도메인 용어를 사용한다: `Post`, `PostTitle`, `UserEmail`.
 - 내부 상태에는 `Props`, 생성 입력에는 `CreateXProps`를 사용한다.
 - 여러 raw 생성 입력을 domain object 배열로 변환해야 하고 하나라도 유효하지 않으면 전체가 실패해야 할 때는 domain model에 `createMany`를 둔다.
-- DDD framework primitive는 재사용 가능한 `protected static construct` helper를 유지할 수 있다.
-- persistence/API 변환 관심사는 domain model에 기본 serialization method를 추가하지 말고 mapper에 둔다.
 - DDD framework primitive는 `Entity`, `AggregateRoot`, `ValueObject` 같은 framework 이름을 사용할 수 있다.
+
+## 도메인 모델 파일
+
+도메인 모델 파일은 kebab-case 도메인 용어와 role suffix를 사용한다.
+
+| Model role | File pattern | Type name |
+| --- | --- | --- |
+| Aggregate | `{domain-term}.aggregate.ts` | 도메인 용어의 PascalCase |
+| Entity | `{domain-term}.entity.ts` | 도메인 용어의 PascalCase |
+| Value object | `{domain-term}.vo.ts` | 도메인 용어의 PascalCase |
+
+예:
+
+- `correction.aggregate.ts` -> `Correction`
+- `correction-metadata.entity.ts` -> `CorrectionMetadata`
+- `correction-feedback.vo.ts` -> `CorrectionFeedback`
+- `user-email.vo.ts` -> `UserEmail`
+
+`Aggregate`, `Entity`, `Vo` 같은 role 단어는 도메인 언어의 일부가 아니라면 concrete domain model type name에 포함하지 않는다.
+
+이 이름은 API ESLint naming rule로 강제한다. 자세한 강제 규칙은
+[API ESLint rules README](../../eslint/README.kr.md#naming-rules)를 참고한다.
 
 ## 레이어별 메서드
 
@@ -43,6 +66,24 @@ Restore는 `restore`처럼 aggregate의 domain state change로 표현한 뒤 `sa
 - timestamp에는 `At`을 사용한다: `createdAt`, `updatedAt`, `expiresAt`.
 - `Params`, `Props`, `Options`, `Result`, `Payload`는 의미에 따라 사용한다. `RequestDto`와 `ResponseDto`는 API DTO boundary에서만 사용한다.
 
+## 파일 Suffix
+
+파일 suffix는 구현 세부가 아니라 파일의 역할을 설명해야 한다.
+
+| Suffix | 사용할 때 |
+| --- | --- |
+| `.type.ts` | type 또는 interface만 export하는 파일. |
+| `.constant.ts` | 하나의 개념에 대한 constant 또는 enum-like `as const` data를 소유하는 파일. |
+| `.util.ts` | state 없는 helper function을 export하는 파일. |
+| `.base.ts` | 상속을 전제로 한 abstract/base class를 export하는 파일. |
+| `.port.ts` | layer boundary abstraction을 정의하는 파일. |
+| `.mapper.ts` | mapper class 또는 mapper implementation을 export하는 파일. |
+| `.error.ts` | feature, use case, domain의 error union을 소유하는 파일. |
+| `index.ts` | public barrel 또는 package/lib entrypoint. |
+
+`.interface.ts`보다는 `.type.ts`를 선호한다. TypeScript `interface`는 type-level construct이고, 파일 suffix는 파일 전체의 역할을 설명해야 한다.
+파일이 여러 constant를 export하더라도 suffix는 파일 역할을 나타내므로 단수형 `.constant.ts`를 사용한다.
+
 ## Port와 Infrastructure
 
 Port implementation file은 `{port-name}.{technology}.ts`를 따른다. Implementation class는 `TechnologyPrefix + RoleName`을 사용한다.
@@ -68,7 +109,8 @@ export const TOKEN_PROVIDER = Symbol('token_provider');
 
 ## DTO와 Controller
 
-- 공유 response DTO는 `src/libs/api/`에 둔다: `IdResponseDto`, `HttpErrorResponse`.
+- Feature response DTO는 해당 protocol boundary를 소유한 controller 가까이에 둔다.
+- Shared response DTO는 여러 module이 같은 안정적인 API shape를 필요로 할 때만 `src/libs/api/` 아래에 도입할 수 있다.
 - Controller file은 protocol을 포함한다: `{module}.{protocol}.controller.ts`, 예: `post.http.controller.ts` -> `PostHttpController`.
 
 ## 테스트 Helper

@@ -2,6 +2,9 @@
 
 The API app uses Vitest and separates unit tests from integration tests. Prefer unit tests first based on execution speed and verification scope. Write integration tests when the test must verify multiple real components working together, such as framework configuration, module wiring, Nest application bootstrap, routing, or actual HTTP responses.
 
+ESLint-enforced test checks are summarized in the
+[API ESLint rules README](../../eslint/README.md#test-rules).
+
 ## Common Review Rules
 
 - Use a subdirectory close to the target being tested. Example: `apps/api/test/metrics/metrics.service.spec.ts`
@@ -12,6 +15,8 @@ The API app uses Vitest and separates unit tests from integration tests. Prefer 
 - Verify async behavior clearly with `async/await` or Vitest `resolves`/`rejects` matchers.
 - Do not share state between tests. If a shared resource is required, create it in `beforeEach` and clean it up in `afterEach`.
 - Tests must produce the same result under the same conditions.
+- Test shared contracts from base classes, abstract classes, and shared helpers in the test file for that shared target. Concrete class tests should focus on the concrete class's own rules, validation, composition, and error cases.
+- If a concrete class overrides shared behavior or combines it in a way that changes the observable result, test that concrete behavior in the concrete class test.
 
 ## Unit Tests
 

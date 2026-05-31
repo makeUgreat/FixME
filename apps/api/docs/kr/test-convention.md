@@ -2,6 +2,8 @@
 
 API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리한다. 실행 속도와 검증 범위를 기준으로 단위 테스트를 먼저 선호한다. 프레임워크 설정, 모듈 연결, Nest 애플리케이션 부트스트랩, 라우팅, 실제 HTTP 응답처럼 여러 실제 컴포넌트가 함께 동작하는지 검증해야 할 때 통합 테스트를 작성한다.
 
+ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/README.kr.md#test-rules)에 정리한다.
+
 ## 공통 리뷰 규칙
 
 - 테스트 대상과 가까운 하위 디렉터리를 사용한다. 예: `apps/api/test/metrics/metrics.service.spec.ts`
@@ -12,6 +14,8 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 - 비동기 동작은 `async/await` 또는 Vitest `resolves`/`rejects` matcher로 명확히 검증한다.
 - 테스트 사이에 상태를 공유하지 않는다. 공유 리소스가 필요하면 `beforeEach`에서 만들고 `afterEach`에서 정리한다.
 - 테스트는 같은 조건에서 항상 같은 결과를 내야 한다.
+- 기반 클래스, 추상 클래스, 공유 helper가 제공하는 공통 계약은 해당 공통 대상의 테스트 파일에서 검증한다. 구체 클래스 테스트는 구체 클래스 자신의 규칙, validation, 조합, error case에 집중한다.
+- 구체 클래스가 공통 동작을 override하거나 조합 방식 때문에 관찰 가능한 결과가 달라진다면, 그 구체 동작은 구체 클래스 테스트에서 검증한다.
 
 ## 단위 테스트
 

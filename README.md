@@ -7,7 +7,7 @@ FixME is a pnpm workspace repository. The current backend application lives in `
 ```text
 apps/
   api/      # NestJS API application
-packages/  # Shared packages can be added here when needed
+docs/       # Repository-wide documentation conventions
 ```
 
 ## Setup
@@ -26,8 +26,11 @@ pnpm api:build
 pnpm api:typecheck
 pnpm api:lint
 pnpm api:test
-pnpm api:test:e2e
+pnpm api:test:unit
+pnpm api:test:integration
 pnpm api:test:cov
+pnpm api:harness:local
+pnpm api:harness:pr
 ```
 
 You can also run commands directly against the API workspace:
@@ -40,3 +43,5 @@ pnpm --filter @fixme/api test
 ## Adding UI Later
 
 Add the UI as a separate workspace package under `apps/web`. The existing `pnpm-workspace.yaml` already includes `apps/*`, so a future UI package only needs its own `package.json`.
+
+Shared packages can be added under `packages/*` when the repository needs code shared across workspace apps.

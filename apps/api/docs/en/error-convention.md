@@ -54,18 +54,18 @@ Use `kind` for broad handling:
 Use `code` for the precise domain reason. A code should be stable enough for
 tests, logs, API responses, and client behavior. Prefer `{domain}.{reason}`.
 
-Domain error objects returned from domain code must include `kind`, `code`, and
-`message`. `details` is optional and should be present only when the extra
-structured context is safe and useful to the caller.
+Domain error objects returned from domain code must include `kind`, `code`,
+`message`, and `details`. Use `details: {}` when there is no extra safe
+structured context for the caller.
 
 Do not put every domain code in one global union. A shared error kind gives the
 application a common handling vocabulary; domain-specific codes should remain
 owned by the domain that defines them.
 
 Use `message` as a developer-facing explanation. User-facing text and localized
-copy should be mapped outside the domain layer. Use `details` only for safe,
-structured domain context that a caller needs for branching, logging, testing,
-or boundary mapping.
+copy should be mapped outside the domain layer. Non-empty `details` should only
+contain safe, structured domain context that a caller needs for branching,
+logging, testing, or boundary mapping.
 
 The harness enforces mechanical rules such as the domain error object shape,
 code format, domain-layer dependency boundaries, and Result consumption. This
@@ -75,19 +75,11 @@ lintable pattern.
 ## Enforced Checks
 
 The API app uses lint rules to keep the convention mechanical where possible.
+ESLint-enforced error and domain checks are summarized in the
+[API ESLint rules README](../../eslint/README.md#domain-rules).
 
 - `neverthrow/must-use-result` requires production code to consume returned
   `Result` values.
-- `domain/domain-error-shape` requires domain `err({ ... })` objects to include
-  `kind`, `code`, and `message`, restricts `kind` to the supported domain
-  categories, and requires `code` to follow `{domain}.{reason}`.
-- `domain/no-global-domain-error-codes` prevents
-  `src/libs/ddd/domain.error.ts` from becoming a registry of domain-specific
-  codes. Shared DDD codes such as `entity.*` may stay there; feature-domain
-  codes should live in the feature domain.
-- `domain/split-multiple-validation-errors` keeps `validateProps` readable by
-  requiring multiple validation failures to be split into named validation
-  methods instead of returning many `err(...)` values directly.
 - Domain files must not import Nest or HTTP exceptions. Map domain and
   application failures at the API boundary.
 
