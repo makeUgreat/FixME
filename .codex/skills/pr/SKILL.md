@@ -79,6 +79,34 @@ Ask the user before finalizing the PR plan when:
 - Review boundaries and history boundaries conflict.
 - Part of the diff appears to be unfinished user work.
 
+## Split Gate Before Opening PRs
+
+Before opening or updating a PR, always report the PR unit decision to the user.
+This gate applies even when the user explicitly asks to create the PR.
+
+Use `git diff --name-status` or the branch comparison to group the diff by
+change kind before deciding the PR unit:
+
+- Documentation-only convention changes.
+- Runtime or API behavior changes.
+- Lint, build, test tooling, or harness changes.
+- Shared refactors or cross-layer contracts.
+- Dependency or lockfile changes.
+- Tests.
+
+Split by default when the diff mixes documentation-only convention changes with
+runtime behavior changes. Split by default when the diff mixes lint/tooling
+changes with product behavior, unless the tooling change is required to keep the
+same PR buildable and reviewable. Split by default when dependency changes are
+not solely required by the same runtime change.
+
+If the final plan keeps multiple change kinds in one PR, state the reason before
+creating the PR. Acceptable reasons include avoiding a broken intermediate
+state, keeping required tests with the behavior they verify, or keeping a small
+shared contract change that is necessary for the same boundary. Do not open a
+large mixed PR without first documenting why it is one PR instead of multiple
+PRs.
+
 ## cm Skill Coordination
 
 Use `cm` as the commit-level preparation step and `pr` as the PR-level history
@@ -184,11 +212,12 @@ Do not include:
    unrelated user work, has unclear commit boundaries, or should likely split
    into multiple PRs.
 5. Decide whether the change belongs in one PR or multiple PRs using the PR unit
-   checklist.
-6. Draft the PR title as the future squash-merge commit subject.
-7. Draft the PR body using the default sections, emphasizing durable `Why`
+   checklist and the split gate.
+6. Report the proposed PR split before opening or updating any PR.
+7. Draft the PR title as the future squash-merge commit subject.
+8. Draft the PR body using the default sections, emphasizing durable `Why`
    context.
-8. Report any verification gaps separately if they need user attention before the
+9. Report any verification gaps separately if they need user attention before the
    PR is opened.
-9. If the user asks to open or update the PR with a tool, confirm the exact title
+10. If the user asks to open or update the PR with a tool, confirm the exact title
    and body first unless they already approved them.
