@@ -33,6 +33,10 @@ function getExpectedTypeName(filename) {
   return toPascalCase(match.nameParts.join('.')) + match.typeSuffix;
 }
 
+function getFileRole(filename) {
+  return getFileRoleMatch(filename)?.role;
+}
+
 function getRelevantDeclarations(programNode) {
   return programNode.body
     .map((node) => {
@@ -75,6 +79,10 @@ const typeNameMatchesFileNameRule = {
         const expectedName = getExpectedTypeName(filename);
 
         if (!expectedName) {
+          return;
+        }
+
+        if (getFileRole(filename) === 'type') {
           return;
         }
 

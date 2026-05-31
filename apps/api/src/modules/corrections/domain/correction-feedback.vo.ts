@@ -1,4 +1,5 @@
-import { err, ok, type Result, ValueObject } from '@libs/ddd';
+import { ValueObject } from '@libs/ddd';
+import { err, ok, type Result } from '@libs/result';
 import { type CorrectionFeedbackDomainError } from './correction.error';
 
 export interface CorrectionFeedbackProps {
@@ -45,6 +46,7 @@ export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
         kind: 'invariant_violation',
         code: 'correction_feedback.inferred_intent_empty',
         message: 'Correction feedback inferred intent cannot be empty',
+        details: {},
       });
     }
 
@@ -59,6 +61,7 @@ export class CorrectionFeedback extends ValueObject<CorrectionFeedbackProps> {
         kind: 'invariant_violation',
         code: 'correction_feedback.explanation_empty',
         message: 'Correction feedback explanation cannot be empty',
+        details: {},
       });
     }
 

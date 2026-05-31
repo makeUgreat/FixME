@@ -3,11 +3,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { CreateCorrectionCommandHandler } from './application/commands/create-correction.command-handler';
 import { CORRECTION_REPOSITORY } from './corrections.tokens';
 import { MemoryCorrectionRepository } from './infrastructure/correction.repository.memory';
+import { CorrectionsHttpController } from './presentation/corrections.http.controller';
 
 const commandHandlers = [CreateCorrectionCommandHandler];
 
 @Module({
   imports: [CqrsModule],
+  controllers: [CorrectionsHttpController],
   providers: [
     ...commandHandlers,
     {

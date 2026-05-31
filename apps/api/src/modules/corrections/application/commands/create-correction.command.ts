@@ -1,13 +1,7 @@
 import { Command } from '@nestjs/cqrs';
-import { type Result } from '@libs/ddd';
-import {
-  type CorrectionDomainError,
-  type CorrectionId,
-  type CorrectionFeedbackDomainError,
-  type CorrectionMetadataDomainError,
-  type MistakeDomainError,
-  type MistakeType,
-} from '../../domain';
+import { type Result } from '@libs/result';
+import { type CorrectionId, type MistakeType } from '../../domain';
+import { type CreateCorrectionError } from './create-correction.error';
 
 export interface CorrectionFeedbackInput {
   readonly inferredIntent: string;
@@ -35,12 +29,6 @@ export interface CreateCorrectionCommandProps {
 export interface CreateCorrectionResult {
   correctionId: CorrectionId;
 }
-
-export type CreateCorrectionError =
-  | CorrectionDomainError
-  | CorrectionFeedbackDomainError
-  | CorrectionMetadataDomainError
-  | MistakeDomainError;
 
 export class CreateCorrectionCommand extends Command<
   Result<CreateCorrectionResult, CreateCorrectionError>

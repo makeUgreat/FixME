@@ -6,26 +6,31 @@ export type CorrectionDomainError =
       kind: 'invariant_violation';
       code: 'correction.original_text_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction.corrected_text_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction.feedback_invalid';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction.mistakes_invalid';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction.metadata_invalid';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
@@ -52,11 +57,13 @@ export type CorrectionFeedbackDomainError =
       kind: 'invariant_violation';
       code: 'correction_feedback.inferred_intent_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction_feedback.explanation_empty';
       message: string;
+      details: unknown;
     };
 
 export type MistakeDomainError =
@@ -64,6 +71,7 @@ export type MistakeDomainError =
       kind: 'invariant_violation';
       code: 'mistake.types_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
@@ -77,6 +85,7 @@ export type MistakeDomainError =
       kind: 'invariant_violation';
       code: 'mistake.explanation_empty';
       message: string;
+      details: unknown;
     };
 
 export type CorrectionMetadataDomainError =
@@ -84,15 +93,18 @@ export type CorrectionMetadataDomainError =
       kind: 'invariant_violation';
       code: 'correction_metadata.correction_id_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction_metadata.model_empty';
       message: string;
+      details: unknown;
     }
   | {
       kind: 'invariant_violation';
       code: 'correction_metadata.provider_metadata_invalid';
       message: string;
+      details: unknown;
     }
   | EntityDomainError;

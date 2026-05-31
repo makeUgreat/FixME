@@ -31,10 +31,11 @@ const createCommand = (
     ...overrides,
   });
 
-const createHandler = () => {
-  const saveCorrection = vi.fn((correction: Correction) =>
+const createHandler = (
+  saveCorrection = vi.fn((correction: Correction) =>
     Promise.resolve(correction),
-  );
+  ),
+) => {
   const findCorrectionById = vi.fn(() => Promise.resolve(null));
   const correctionRepository: CorrectionRepository = {
     save: saveCorrection,
@@ -100,10 +101,13 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('invariant_violation');
-        expect(result.error.code).toBe(
-          'correction_feedback.inferred_intent_empty',
-        );
+        expect(result.error.kind).toBe('validation_failed');
+        if (result.error.kind === 'validation_failed') {
+          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.details.domainCode).toBe(
+            'correction_feedback.inferred_intent_empty',
+          );
+        }
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -125,8 +129,13 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('invariant_violation');
-        expect(result.error.code).toBe('correction_feedback.explanation_empty');
+        expect(result.error.kind).toBe('validation_failed');
+        if (result.error.kind === 'validation_failed') {
+          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.details.domainCode).toBe(
+            'correction_feedback.explanation_empty',
+          );
+        }
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -149,10 +158,13 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('invariant_violation');
-        expect(result.error.code).toBe('mistake.types_invalid');
-        if (result.error.code === 'mistake.types_invalid') {
-          expect(result.error.details).toEqual({ types: ['unknown'] });
+        expect(result.error.kind).toBe('validation_failed');
+        if (result.error.kind === 'validation_failed') {
+          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.details).toEqual({
+            domainCode: 'mistake.types_invalid',
+            domainDetails: { types: ['unknown'] },
+          });
         }
       }
 
@@ -171,16 +183,15 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('invariant_violation');
-        expect(result.error.code).toBe(
-          'correction.mistakes_empty_for_corrected_text',
-        );
-        if (
-          result.error.code === 'correction.mistakes_empty_for_corrected_text'
-        ) {
+        expect(result.error.kind).toBe('validation_failed');
+        if (result.error.kind === 'validation_failed') {
+          expect(result.error.code).toBe('create_correction.validation_failed');
           expect(result.error.details).toEqual({
-            originalText: 'Is this for concurrency?',
-            correctedText: 'Is this for handling concurrency?',
+            domainCode: 'correction.mistakes_empty_for_corrected_text',
+            domainDetails: {
+              originalText: 'Is this for concurrency?',
+              correctedText: 'Is this for handling concurrency?',
+            },
           });
         }
       }
@@ -203,11 +214,37 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('invariant_violation');
-        expect(result.error.code).toBe('correction_metadata.model_empty');
+        expect(result.error.kind).toBe('validation_failed');
+        if (result.error.kind === 'validation_failed') {
+          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.details.domainCode).toBe(
+            'correction_metadata.model_empty',
+          );
+        }
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
+    });
+
+    it('저장소 저장에 실패하면 의존성 실패 Result를 반환한다', async () => {
+      const saveCorrection = vi.fn(() =>
+        Promise.reject(new Error('connection failed')),
+      );
+      const { handler } = createHandler(saveCorrection);
+
+      const result = await handler.execute(createCommand());
+
+      expect(result.isErr()).toBe(true);
+
+      if (result.isErr()) {
+        expect(result.error.kind).toBe('dependency_unavailable');
+        expect(result.error.code).toBe(
+          'create_correction.persistence_unavailable',
+        );
+        expect(result.error.details).toEqual({});
+      }
+
+      expect(saveCorrection).toHaveBeenCalledTimes(1);
     });
   });
 });

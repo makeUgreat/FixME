@@ -1,6 +1,6 @@
 import { Guard } from '../guard';
-import { type DomainError, type EntityDomainError } from './domain.error';
-import { err, ok, type Result } from './result.util';
+import { err, ok, type Result } from '../result';
+import { type DomainError, type EntityDomainError } from './error.type';
 
 export type EntityId = string | number;
 
@@ -93,6 +93,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
         kind: 'invariant_violation',
         code: 'entity.props_empty',
         message: 'Entity props cannot be empty',
+        details: {},
       });
     }
 
@@ -101,6 +102,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
         kind: 'invariant_violation',
         code: 'entity.props_not_object',
         message: 'Entity props must be an object',
+        details: {},
       });
     }
 
@@ -111,6 +113,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
         kind: 'invariant_violation',
         code: 'entity.props_too_many',
         message: `Entity props cannot exceed ${maxProps} properties`,
+        details: {},
       });
     }
 
@@ -119,6 +122,7 @@ export abstract class Entity<TId extends EntityId, EntityProps> {
         kind: 'invariant_violation',
         code: 'entity.updated_at_before_created_at',
         message: 'updatedAt cannot be earlier than createdAt',
+        details: {},
       });
     }
 
