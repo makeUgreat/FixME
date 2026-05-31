@@ -5,6 +5,12 @@ export {
   type CreateCorrectionProps,
 } from './correction.aggregate';
 export {
+  CorrectionGeneration,
+  type CorrectionGenerationId,
+  type CorrectionGenerationProps,
+  type CreateCorrectionGenerationProps,
+} from './correction-generation.entity';
+export {
   CorrectionFeedback,
   type CorrectionFeedbackProps,
   type CreateCorrectionFeedbackProps,
