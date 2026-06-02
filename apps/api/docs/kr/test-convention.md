@@ -6,7 +6,7 @@ ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/REA
 
 ## 공통 리뷰 규칙
 
-- 테스트 대상과 가까운 하위 디렉터리를 사용한다. 예: `apps/api/test/metrics/metrics.service.spec.ts`
+- 테스트 종류에 맞는 표준 디렉터리를 사용한다. 단위 테스트는 대상 파일이 있는 디렉터리의 `__tests__` 아래에 두고, 통합 테스트는 `apps/api/test/{domain}/` 아래에 둔다.
 - `describe()`에는 테스트 대상 이름을 사용한다.
 - 각 `it()`는 하나의 작업 단위를 호출하고 하나의 구체적인 동작 결과를 검증해야 한다.
 - 상태 코드, 본문, 헤더가 같은 실행 결과를 검증한다면 같은 `it()` 안에서 assertion한다.
@@ -20,7 +20,7 @@ ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/REA
 ## 단위 테스트
 
 - 단위 테스트는 `pnpm api:test:unit`으로 실행한다.
-- 단위 테스트는 테스트 대상 파일 옆에 두는 것을 선호한다. 공유 harness, fixture, cross-cutting setup이 필요한 테스트는 `apps/api/test/{domain}/` 아래에 둘 수 있다.
+- 단위 테스트는 테스트 대상 파일이 있는 디렉터리 안의 `__tests__` 디렉터리에 둔다. 예: `apps/api/src/modules/corrections/domain/__tests__/mistake.vo.spec.ts`
 - 순수 서비스, 함수, 작은 비즈니스 로직 단위를 대상으로 한다.
 - HTTP 서버, 실제 Nest 애플리케이션 부트스트랩, 외부 I/O를 사용하지 않는다.
 - 필요한 dependency는 직접 만들거나 가벼운 mock/stub으로 대체한다.
@@ -40,6 +40,9 @@ ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/REA
 - 통합 테스트는 `pnpm api:test:integration`으로 실행한다.
 - config-to-rule wiring, dependency injection wiring, framework bootstrap, routing, controller response처럼 단위 테스트로 다룰 수 없는 상호작용을 검증할 때 통합 테스트를 사용한다.
 - 실제 네트워크, REST API, 시스템 시간, 파일 시스템, 데이터베이스처럼 통제하기 어려운 요소를 사용하는 테스트는 단위 테스트가 아니라 통합 테스트로 분리한다.
+- 통합 테스트는 외부 protocol 또는 persistence와 맞닿은 boundary adapter의 계약 테스트로 본다.
+- Integration spec file은 adapter target별로 분리한다. 예: HTTP controller adapter는 `corrections-http.controller.integration-spec.ts`, repository persistence adapter는 `correction.repository.memory.integration-spec.ts` 또는 `correction.repository.prisma.integration-spec.ts`를 사용한다.
+- 모든 domain 또는 application invariant를 통합 테스트에서 반복하지 않는다. 상세한 domain/application rule은 단위 테스트에 두고, 통합 테스트는 request/response shape, validation pipe 동작, dependency injection wiring, framework routing, repository save/find contract처럼 boundary에서 관찰 가능한 동작을 검증한다.
 - Nest 앱 통합 테스트는 표준 Fastify 요청 방식으로 `app.inject()`를 사용한다.
 - Nest 앱 통합 테스트 파일은 `beforeEach`에서 app을 만들고 `afterEach`에서 `app.close()`로 닫아야 한다.
 - 바깥 `describe()`는 통합 대상 이름을 지정해야 한다.

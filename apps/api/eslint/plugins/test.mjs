@@ -1,4 +1,5 @@
 import integrationDescribeNameRule from '../rules/test/integration-describe-name.mjs';
+import integrationAdapterTargetFileNameRule from '../rules/test/integration-adapter-target-file-name.mjs';
 import integrationFileLocationRule from '../rules/test/integration-file-location.mjs';
 import koreanTestCaseNameRule from '../rules/test/korean-test-case-name.mjs';
 import noDirectIntegrationBootstrapRule from '../rules/test/no-direct-integration-bootstrap.mjs';
@@ -9,6 +10,8 @@ const testPlugin = {
     name: 'eslint-plugin-test',
   },
   rules: {
+    'integration-adapter-target-file-name':
+      integrationAdapterTargetFileNameRule,
     'integration-describe-name': integrationDescribeNameRule,
     'integration-file-location': integrationFileLocationRule,
     'korean-test-case-name': koreanTestCaseNameRule,

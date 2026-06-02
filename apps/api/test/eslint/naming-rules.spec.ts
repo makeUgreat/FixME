@@ -119,5 +119,21 @@ describe('naming ESLint rules', () => {
 
       expect(messages).toHaveLength(0);
     });
+
+    it('일반 mapper 파일은 파일명과 타입 이름이 일치해야 한다', () => {
+      const messages = lintNamingRule({
+        filename: 'create-correction-http-response.mapper.ts',
+        code: `
+          export class CreateCorrectionDomainResponseMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'naming/type-name-matches-file-name',
+        message:
+          'Expected this file to declare CreateCorrectionHttpResponseMapper.',
+      });
+    });
   });
 });

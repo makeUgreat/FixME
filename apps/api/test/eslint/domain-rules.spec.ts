@@ -6,6 +6,7 @@ import domainErrorShapeRule from '../../eslint/rules/domain/domain-error-shape.m
 import factoryResultReturnRule from '../../eslint/rules/domain/factory-result-return.mjs';
 import noDirectNewRule from '../../eslint/rules/domain/no-direct-new.mjs';
 import noGlobalDomainErrorCodesRule from '../../eslint/rules/domain/no-global-domain-error-codes.mjs';
+import preferDomainErrorOfRule from '../../eslint/rules/domain/prefer-domain-error-of.mjs';
 import requireUnitSpecRule from '../../eslint/rules/domain/require-unit-spec.mjs';
 import splitMultipleValidationErrorsRule from '../../eslint/rules/domain/split-multiple-validation-errors.mjs';
 
@@ -454,6 +455,81 @@ describe('domain ESLint rules', () => {
         ruleId: 'domain/no-global-domain-error-codes',
         message:
           'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.base.ts.',
+      });
+    });
+  });
+
+  describe('prefer-domain-error-of', () => {
+    it('공용 DomainErrorOf helper를 사용하면 통과한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/correction.error.ts',
+        ),
+        ruleName: 'prefer-domain-error-of',
+        rule: preferDomainErrorOfRule,
+        code: `
+          import { DOMAIN_ERROR_KIND, type DomainErrorOf } from '@libs/ddd';
+
+          export type CorrectionDomainError =
+            DomainErrorOf<
+              typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
+              'correction',
+              'original_text_empty'
+            >;
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('DomainErrorBase에 kind를 직접 넣으면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/correction.error.ts',
+        ),
+        ruleName: 'prefer-domain-error-of',
+        rule: preferDomainErrorOfRule,
+        code: `
+          import { type DomainErrorBase } from '@libs/ddd';
+
+          export type CorrectionDomainError =
+            DomainErrorBase<'invariant_violation', 'correction.original_text_empty'>;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/prefer-domain-error-of',
+        message:
+          'Use DomainErrorOf<Kind, Owner, Reason, Details> instead of spelling out the invariant_violation domain error shape.',
+      });
+    });
+
+    it('domain error shape를 type literal로 직접 쓰면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: path.join(
+          tsconfigRootDir,
+          'src/modules/corrections/domain/correction.error.ts',
+        ),
+        ruleName: 'prefer-domain-error-of',
+        rule: preferDomainErrorOfRule,
+        code: `
+          export type CorrectionDomainError = {
+            kind: 'state_conflict';
+            code: 'correction.already_applied';
+            message: string;
+            details: unknown;
+          };
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/prefer-domain-error-of',
+        message:
+          'Use DomainErrorOf<Kind, Owner, Reason, Details> instead of spelling out the state_conflict domain error shape.',
       });
     });
   });

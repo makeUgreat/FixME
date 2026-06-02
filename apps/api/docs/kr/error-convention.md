@@ -26,12 +26,22 @@ Domain error는 domain rule이 operation을 거부한 이유를 설명한다. Do
 
 호출자가 category별로 branch할 수 있으면서도 정확한 reason을 안정적인 code로 유지할 수 있도록 discriminated union을 사용한다. Shared `DomainError` type은 domain 전반에서 공통 vocabulary를 제공하고, 각 domain은 자신이 필요한 정확한 error code와 structured `details`를 소유한다.
 
+Domain error contract를 선언할 때는 `@libs/ddd`의 shared `DomainErrorOf`
+helper를 사용한다. Shared DDD error type file 밖에서
+`DomainErrorBase<'kind', ...>` 또는 `{ kind; code; message; details }` type을
+직접 풀어 쓰지 않는다. `DomainErrorOf`는 `DomainErrorKind`를 broad category의
+single source로 유지하면서 각 domain이 자신의 `owner`, `reason`, `details`를
+좁힐 수 있게 한다. 예를 들어
+`DomainErrorOf<typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION, 'correction', 'original_text_empty', DomainInvariantViolationDetails>`처럼
+쓴다. Template literal code type은 직접 작성하지 말고 shared
+`DomainErrorCode` helper를 사용한다.
+
 넓은 처리에는 `kind`를 사용한다.
 
-| Kind | 의미 |
-| --- | --- |
-| `invariant_violation` | 입력 또는 상태가 항상 유지되어야 하는 rule을 깨뜨린다. |
-| `state_conflict` | 요청한 operation이 현재 domain state와 충돌한다. |
+| Kind                    | 의미                                                               |
+| ----------------------- | ------------------------------------------------------------------ |
+| `invariant_violation`   | 입력 또는 상태가 항상 유지되어야 하는 rule을 깨뜨린다.             |
+| `state_conflict`        | 요청한 operation이 현재 domain state와 충돌한다.                   |
 | `operation_not_allowed` | rule은 유효하지만 actor 또는 context가 operation을 수행할 수 없다. |
 
 정확한 domain reason에는 `code`를 사용한다. Code는 test, log, API response, client behavior에 사용할 만큼 안정적이어야 한다. `{domain}.{reason}` 형식을 선호한다.
@@ -60,6 +70,35 @@ Application error는 orchestration의 실패를 설명한다: authentication, au
 
 Application code는 lower-layer failure가 사용자에게 의미 있는지, retry 가능한지, forbidden인지, unavailable인지, unexpected인지 결정해야 한다. 그 결정은 충분한 context를 가진 레이어에 속한다.
 
+Lower-layer의 `message`, `code`, raw `details`를 application error에 기본으로
+복사하지 않는다. Application error는 use case의 안정적인 의미를 노출해야 한다.
+Lower-layer diagnostic이 필요하다면 public application contract가 아니라 log나
+전용 internal context에 둔다.
+
+넓은 application failure 처리는 shared `ApplicationErrorKind` vocabulary를
+사용한다. 처음에는 안정적인 최소 집합으로 시작하고, 여러 use case가 같은
+orchestration-level 의미를 필요로 할 때만 새 kind를 추가한다. Application error
+contract는 `@libs/layer`의 shared `ApplicationErrorOf` helper를 사용하고, 각
+use case는 자신의 정확한 `owner`, `reason`, `details`를 소유한다. Application
+error code는 `{owner}.{reason}`을 사용하고, 넓은 category는 `kind`에 둔다.
+
+넓은 처리에는 다음 application error kind를 사용한다.
+
+| Kind                      | 의미                                                                  |
+| ------------------------- | --------------------------------------------------------------------- |
+| `validation_failed`       | Command, query, 또는 변환된 domain result가 validation에 실패했다.    |
+| `dependency_unavailable`  | 필요한 repository, provider, service, external dependency가 실패했다. |
+| `not_found`               | 필요한 application resource를 찾지 못했다.                            |
+| `state_conflict`          | 요청이 현재 application state 또는 workflow state와 충돌한다.         |
+| `permission_denied`       | 인증된 actor가 해당 use case를 수행할 권한이 없다.                    |
+| `authentication_required` | Use case에 인증된 actor가 필요하지만 사용할 수 없다.                  |
+| `operation_not_allowed`   | Application workflow 또는 policy가 operation을 허용하지 않는다.       |
+| `rate_limited`            | Rate limit에 도달해 use case를 진행할 수 없다.                        |
+| `unexpected`              | Boundary에서 실패를 의미 있게 분류할 수 없다.                         |
+
+`bad_request`, `internal_server_error` 같은 HTTP status 이름을 application error
+kind로 사용하지 않는다. HTTP mapping은 presentation error mapper에 속한다.
+
 ## Infrastructure Error
 
 Infrastructure error는 보통 technology-shaped다: database constraint error, network timeout, SDK exception, serialization error 등이 해당한다.
@@ -75,6 +114,16 @@ API error는 presentation concern이다. 안정적이고 client-safe한 정보�
 Domain 또는 application code에 HTTP exception을 import하지 않는다. Domain/application error는 controller, presenter, exception-filter boundary에서 HTTP status code로 mapping한다.
 
 안정적인 error code를 노출한다. Message는 안전하고 의도적인 경우에만 user-facing text로 취급한다. Internal diagnostic은 log에 둔다.
+
+Application error와 domain error는 `create_correction.command_invalid`,
+`correction.original_text_empty`처럼 정확한 internal code를 유지할 수 있다.
+HTTP response는 internal owner prefix를 누출하지 않고 `validation_failed`,
+`dependency_unavailable`, `not_found` 같은 안정적인 public reason code를
+노출한다. 문제 분석에 정확한 internal code가 필요하다면 log나 다른 server-side
+diagnostic에 남긴다.
+
+Domain developer message를 client-facing HTTP message로 재사용하지 않는다.
+Application 또는 presentation boundary에서 protocol-safe copy로 변환한다.
 
 HTTP status mapping은 error가 발생한 source file이 아니라 error의 의미를 따라야 한다. 예를 들어 domain state conflict는 보통 invariant violation과 다르게 mapping된다.
 

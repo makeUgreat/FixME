@@ -1,6 +1,7 @@
 import { Linter, type Rule } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
+import integrationAdapterTargetFileNameRule from '../../eslint/rules/test/integration-adapter-target-file-name.mjs';
 import integrationDescribeNameRule from '../../eslint/rules/test/integration-describe-name.mjs';
 import integrationFileLocationRule from '../../eslint/rules/test/integration-file-location.mjs';
 import koreanTestCaseNameRule from '../../eslint/rules/test/korean-test-case-name.mjs';
@@ -143,6 +144,126 @@ describe('test ESLint rules', () => {
       expect(messages).toHaveLength(1);
       expect(messages[0]).toMatchObject({
         ruleId: 'test/integration-file-location',
+      });
+    });
+  });
+
+  describe('integration-adapter-target-file-name', () => {
+    it('HTTP controller adapter target이 파일명에 드러나면 통과한다', () => {
+      const messages = lintTestRule({
+        filename:
+          'test/corrections/corrections-http.controller.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('CorrectionsHttpController (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('repository adapter target이 파일명에 드러나면 통과한다', () => {
+      const messages = lintTestRule({
+        filename:
+          'test/corrections/correction.repository.memory.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('MemoryCorrectionRepository (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('app bootstrap target 파일명은 통과한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/app/app.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('AppModule (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('ESLint harness target 파일명은 통과한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/eslint/eslint-config.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('ESLint config (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('adapter target이 없는 통합 테스트 파일명은 위반으로 보고한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/corrections/corrections.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('Corrections (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/integration-adapter-target-file-name',
+      });
+    });
+
+    it('technology segment가 없는 repository 통합 테스트 파일명은 위반으로 보고한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/corrections/correction.repository.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('CorrectionRepository (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/integration-adapter-target-file-name',
+      });
+    });
+
+    it('일반 persistence 이름의 통합 테스트 파일명은 위반으로 보고한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/corrections/correction.persistence.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('CorrectionPersistence (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/integration-adapter-target-file-name',
+      });
+    });
+
+    it('adapter라는 meta 이름의 통합 테스트 파일명은 위반으로 보고한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/corrections/correction.adapter.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('CorrectionAdapter (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/integration-adapter-target-file-name',
       });
     });
   });

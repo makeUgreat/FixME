@@ -99,12 +99,18 @@ describe('eslint.config.mjs (integration)', () => {
     expect(
       getConfiguredRule(config, 'mapper/no-nest-in-application-mapper'),
     ).toEqual([2]);
+    expect(
+      getConfiguredRule(config, 'mapper/prefer-application-error-of'),
+    ).toEqual([2]);
     expect(getConfiguredRule(config, 'domain/factory-result-return')).toEqual([
       2,
     ]);
     expect(getConfiguredRule(config, 'domain/no-direct-new')).toEqual([2]);
     expect(getConfiguredRule(config, 'domain/require-unit-spec')).toEqual([2]);
     expect(getConfiguredRule(config, 'domain/domain-error-shape')).toEqual([2]);
+    expect(getConfiguredRule(config, 'domain/prefer-domain-error-of')).toEqual([
+      2,
+    ]);
     expect(
       getConfiguredRule(config, 'domain/split-multiple-validation-errors'),
     ).toEqual([2]);
