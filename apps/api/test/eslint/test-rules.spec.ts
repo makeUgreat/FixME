@@ -13,6 +13,7 @@ interface LintTestRuleOptions {
   filename: string;
   ruleName: string;
   rule: Rule.RuleModule;
+  ruleOptions?: unknown[];
 }
 
 function lintTestRule({
@@ -20,6 +21,7 @@ function lintTestRule({
   filename,
   ruleName,
   rule,
+  ruleOptions = [],
 }: LintTestRuleOptions): Linter.LintMessage[] {
   const linter = new Linter();
 
@@ -43,7 +45,7 @@ function lintTestRule({
           },
         },
         rules: {
-          [`test/${ruleName}`]: 'error',
+          [`test/${ruleName}`]: ['error', ...ruleOptions],
         },
       },
     ],
@@ -182,6 +184,7 @@ describe('test ESLint rules', () => {
         filename: 'test/app/app.integration-spec.ts',
         ruleName: 'integration-adapter-target-file-name',
         rule: integrationAdapterTargetFileNameRule,
+        ruleOptions: [{ systemTargets: ['app'] }],
         code: `
           describe('AppModule (integration)', () => {});
         `,
@@ -195,12 +198,29 @@ describe('test ESLint rules', () => {
         filename: 'test/eslint/eslint-config.integration-spec.ts',
         ruleName: 'integration-adapter-target-file-name',
         rule: integrationAdapterTargetFileNameRule,
+        ruleOptions: [{ systemTargets: ['eslint-config'] }],
         code: `
           describe('ESLint config (integration)', () => {});
         `,
       });
 
       expect(messages).toHaveLength(0);
+    });
+
+    it('system target이 설정되지 않으면 일반 통합 테스트 파일명으로 보고한다', () => {
+      const messages = lintTestRule({
+        filename: 'test/app/app.integration-spec.ts',
+        ruleName: 'integration-adapter-target-file-name',
+        rule: integrationAdapterTargetFileNameRule,
+        code: `
+          describe('AppModule (integration)', () => {});
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'test/integration-adapter-target-file-name',
+      });
     });
 
     it('adapter target이 없는 통합 테스트 파일명은 위반으로 보고한다', () => {

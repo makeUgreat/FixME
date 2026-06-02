@@ -106,6 +106,8 @@ name such as `Translator` for error translation.
 - Error mapper file names use `-error.mapper.ts` while the class name names
   the conversion direction, such as
   `CreateCorrectionDomainErrorToApplicationErrorMapper`.
+- Shared `.base.ts` mapper files may expose a stable shared contract whose name
+  describes the conversion direction rather than repeating the file subject.
 
 Examples:
 
@@ -115,6 +117,7 @@ Examples:
 | Domain error -> application error | `create-correction-error.mapper.ts` | `CreateCorrectionDomainErrorToApplicationErrorMapper` |
 | Application error -> HTTP error | `correction-http-error.mapper.ts` | `CorrectionHttpErrorMapper` |
 | Application result -> HTTP response | `create-correction-http-response.mapper.ts` | `CreateCorrectionHttpResponseMapper` |
+| Shared domain error -> application error contract | `application-error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
 
 ## Boundary Abstractions And Infrastructure
 

@@ -11,7 +11,7 @@ const EXPECTED_INTERFACE_BY_MAPPER = [
     relationship: 'extend',
   },
   {
-    pathPattern: /\/presentation\/.*error[.]mapper[.]ts$/,
+    pathPattern: /\/presentation\/.*-http-error[.]mapper[.]ts$/,
     namePattern: /Mapper$/,
     interfaceName: 'PresentationHttpErrorMapper',
     relationship: 'extend',
