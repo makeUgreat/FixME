@@ -25,6 +25,9 @@ cleanup.
 - Treat an explicit `pr` request with uncommitted changes as approval to prepare
   the necessary commits first. Do not stop only to ask whether to commit when the
   diff is a clear, commit-ready PR unit.
+- Treat an explicit request to open or update a PR as approval to use the
+  prepared title and body and run the PR tool without a separate confirmation
+  step.
 - Never fabricate verification. Clearly report tests that were run, skipped, or
   could not be run.
 - Never revert, overwrite, or discard user changes unless explicitly instructed.
@@ -79,10 +82,11 @@ Ask the user before finalizing the PR plan when:
 - Review boundaries and history boundaries conflict.
 - Part of the diff appears to be unfinished user work.
 
-## Split Gate Before Opening PRs
+## Split Decision Before Opening PRs
 
-Before opening or updating a PR, always report the PR unit decision to the user.
-This gate applies even when the user explicitly asks to create the PR.
+Before opening or updating a PR, always decide the PR unit and include that
+decision in the PR preparation output or final user report. Do not pause only to
+ask the user to approve the split decision when the boundary is clear.
 
 Use `git diff --name-status` or the branch comparison to group the diff by
 change kind before deciding the PR unit:
@@ -100,12 +104,12 @@ changes with product behavior, unless the tooling change is required to keep the
 same PR buildable and reviewable. Split by default when dependency changes are
 not solely required by the same runtime change.
 
-If the final plan keeps multiple change kinds in one PR, state the reason before
-creating the PR. Acceptable reasons include avoiding a broken intermediate
-state, keeping required tests with the behavior they verify, or keeping a small
-shared contract change that is necessary for the same boundary. Do not open a
-large mixed PR without first documenting why it is one PR instead of multiple
-PRs.
+If the final plan keeps multiple change kinds in one PR, state the reason in
+the PR body or final report. Acceptable reasons include avoiding a broken
+intermediate state, keeping required tests with the behavior they verify, or
+keeping a small shared contract change that is necessary for the same boundary.
+Do not open a large mixed PR without documenting why it is one PR instead of
+multiple PRs.
 
 ## cm Skill Coordination
 
@@ -213,11 +217,12 @@ Do not include:
    into multiple PRs.
 5. Decide whether the change belongs in one PR or multiple PRs using the PR unit
    checklist and the split gate.
-6. Report the proposed PR split before opening or updating any PR.
+6. Record the PR unit decision before opening or updating any PR.
 7. Draft the PR title as the future squash-merge commit subject.
 8. Draft the PR body using the default sections, emphasizing durable `Why`
    context.
 9. Report any verification gaps separately if they need user attention before the
    PR is opened.
-10. If the user asks to open or update the PR with a tool, confirm the exact title
-   and body first unless they already approved them.
+10. If the user asks to open or update the PR with a tool, open or update it
+   with the drafted title and body without asking for another approval, unless
+   a blocker requires user input.
