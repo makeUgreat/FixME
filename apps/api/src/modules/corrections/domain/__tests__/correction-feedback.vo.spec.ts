@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CorrectionFeedback,
   type CreateCorrectionFeedbackProps,
-} from './correction-feedback.vo';
+} from '../correction-feedback.vo';
 
 const createFeedbackProps = (): CreateCorrectionFeedbackProps => ({
   inferredIntent: 'The user wants to ask whether this solves concurrency.',

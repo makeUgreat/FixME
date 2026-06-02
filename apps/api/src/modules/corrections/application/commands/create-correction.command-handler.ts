@@ -17,11 +17,12 @@ import {
   type CreateCorrectionDependencyUnavailableError,
   type CreateCorrectionError,
 } from './create-correction.error';
-import { CreateCorrectionErrorMapper } from './create-correction-error.mapper';
+import { CreateCorrectionDomainErrorToApplicationErrorMapper } from './create-correction-error.mapper';
 
 @CommandHandler(CreateCorrectionCommand)
 export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCorrectionCommand> {
-  private readonly errorMapper = new CreateCorrectionErrorMapper();
+  private readonly domainErrorMapper =
+    new CreateCorrectionDomainErrorToApplicationErrorMapper();
 
   constructor(
     @Inject(CORRECTION_REPOSITORY)
@@ -42,7 +43,7 @@ export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCor
       ({ feedback, mistakes }) =>
         this.createAndSaveCorrection(command, feedback, mistakes),
       (error) =>
-        Promise.resolve(err(this.errorMapper.toApplicationError(error))),
+        Promise.resolve(err(this.domainErrorMapper.toApplicationError(error))),
     );
   }
 
@@ -69,20 +70,18 @@ export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCor
         try {
           await this.correctionRepository.save(correction);
         } catch {
-          const error: CreateCorrectionDependencyUnavailableError = {
+          return err({
             kind: 'dependency_unavailable',
             code: 'create_correction.persistence_unavailable',
             message: 'Correction could not be saved',
             details: {},
-          };
-
-          return err(error);
+          } satisfies CreateCorrectionDependencyUnavailableError);
         }
 
         return ok({ correctionId });
       },
       (error) =>
-        Promise.resolve(err(this.errorMapper.toApplicationError(error))),
+        Promise.resolve(err(this.domainErrorMapper.toApplicationError(error))),
     );
   }
 }

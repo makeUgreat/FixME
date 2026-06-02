@@ -1,10 +1,8 @@
 import { AggregateRoot, type CreateEntityParams } from '@libs/ddd';
 import { err, ok, type Result } from '@libs/result';
-import {
-  type CorrectionDomainError,
-  type CorrectionMetadataDomainError,
-} from './correction.error';
+import { type CorrectionDomainError } from './correction.error';
 import { CorrectionFeedback } from './correction-feedback.vo';
+import { type CorrectionMetadataDomainError } from './correction-metadata.error';
 import {
   CorrectionMetadata,
   type CreateCorrectionMetadataProps,
@@ -115,7 +113,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.original_text_empty',
         message: 'Correction original text cannot be empty',
-        details: {},
+        details: { fields: ['originalText'] },
       });
     }
 
@@ -130,7 +128,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.corrected_text_empty',
         message: 'Correction corrected text cannot be empty',
-        details: {},
+        details: { fields: ['correctedText'] },
       });
     }
 
@@ -145,7 +143,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.feedback_invalid',
         message: 'Correction feedback is invalid',
-        details: {},
+        details: { fields: ['feedback'] },
       });
     }
 
@@ -160,7 +158,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.metadata_invalid',
         message: 'Correction metadata is invalid',
-        details: {},
+        details: { fields: ['metadata'] },
       });
     }
 
@@ -176,10 +174,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.metadata_correction_id_mismatch',
         message: 'Correction metadata must belong to the correction',
-        details: {
-          correctionId,
-          metadataCorrectionId: metadata.getProps().correctionId,
-        },
+        details: { fields: ['id', 'metadata.correctionId'] },
       });
     }
 
@@ -197,7 +192,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.mistakes_invalid',
         message: 'Correction mistakes are invalid',
-        details: {},
+        details: { fields: ['mistakes'] },
       });
     }
 
@@ -214,7 +209,7 @@ export class Correction extends AggregateRoot<CorrectionId, CorrectionProps> {
         kind: 'invariant_violation',
         code: 'correction.mistakes_empty_for_corrected_text',
         message: 'Correction mistakes cannot be empty when text is corrected',
-        details: { originalText, correctedText },
+        details: { fields: ['correctedText', 'mistakes'] },
       });
     }
 

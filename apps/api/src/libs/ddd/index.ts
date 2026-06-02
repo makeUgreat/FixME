@@ -18,9 +18,11 @@ export type { UseCase } from './use-case.base';
 export { generateId } from './generate-id.util';
 export type {
   DomainError,
+  DomainErrorBase,
+  DomainErrorCode,
   DomainErrorKind,
-  DomainInvariantViolationError,
-  DomainOperationNotAllowedError,
-  DomainStateConflictError,
-  EntityDomainError,
-} from './error.type';
+  DomainErrorOf,
+  DomainInvariantViolationDetails,
+} from './error.base';
+export { DOMAIN_ERROR_KIND } from './error.base';
+export type { EntityDomainError } from './entity.error';

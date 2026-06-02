@@ -1,17 +1,20 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { type PresentationHttpError } from '@libs/layer';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppModule } from '../../src/app.module';
+import { type CreateCorrectionResponseDto } from '../../src/modules/corrections/presentation/create-correction.response.dto';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
-interface ErrorResponse {
-  code?: string;
-  details?: unknown;
-  message?: string | string[];
-  statusCode?: number;
-}
-
-interface CreateCorrectionResponse {
-  correctionId: unknown;
+interface ValidationErrorResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  details: {
+    fields: {
+      path: string;
+      messages: string[];
+    }[];
+  };
 }
 
 const createRequestPayload = () => ({
@@ -47,20 +50,23 @@ describe('CorrectionsHttpController (integration)', () => {
 
   describe('POST /corrections', () => {
     it('유효한 교정 결과 요청이면 생성된 교정 ID를 반환한다', async () => {
-      const response = await app.inject({
+      const res = await app.inject({
         method: 'POST',
         url: '/corrections',
         payload: createRequestPayload(),
       });
 
-      const body = JSON.parse(response.payload) as CreateCorrectionResponse;
-
-      expect(response.statusCode).toBe(201);
-      expect(typeof body.correctionId).toBe('string');
+      expect(res.statusCode).toBe(201);
+      expect(res.json<CreateCorrectionResponseDto>().correctionId).toEqual(
+        expect.any(String),
+      );
+      expect(res.json<CreateCorrectionResponseDto>()).toEqual({
+        correctionId: res.json<CreateCorrectionResponseDto>().correctionId,
+      });
     });
 
-    it('DTO 필수 문자열이 비어 있으면 Bad Request를 반환한다', async () => {
-      const response = await app.inject({
+    it('요청 필수 문자열이 비어 있으면 Bad Request를 반환한다', async () => {
+      const res = await app.inject({
         method: 'POST',
         url: '/corrections',
         payload: {
@@ -68,19 +74,29 @@ describe('CorrectionsHttpController (integration)', () => {
           originalText: '',
         },
       });
-      const body = JSON.parse(response.payload) as ErrorResponse;
 
-      expect(response.statusCode).toBe(400);
-      expect(body.statusCode).toBe(400);
-      expect(body.message).toEqual(
-        expect.arrayContaining(['originalText should not be empty']),
-      );
+      expect(res.statusCode).toBe(400);
+      const body = res.json<ValidationErrorResponse>();
+
+      expect(body).toMatchObject({
+        statusCode: 400,
+        code: 'validation_failed',
+        message: 'Request validation failed',
+        details: {
+          fields: [
+            {
+              path: 'originalText',
+              messages: ['originalText should not be empty'],
+            },
+          ],
+        },
+      });
     });
 
     it('허용되지 않은 오류 유형이면 Bad Request를 반환한다', async () => {
       const payload = createRequestPayload();
 
-      const response = await app.inject({
+      const res = await app.inject({
         method: 'POST',
         url: '/corrections',
         payload: {
@@ -93,19 +109,29 @@ describe('CorrectionsHttpController (integration)', () => {
           ],
         },
       });
-      const body = JSON.parse(response.payload) as ErrorResponse;
 
-      expect(response.statusCode).toBe(400);
-      expect(body.statusCode).toBe(400);
-      expect(body.message).toEqual(
-        expect.arrayContaining([
-          'mistakes.0.each value in types must be one of the following values: grammar, word_choice, word_order, tense, spelling, article, preposition, punctuation, formality, tone, naturalness, clarity',
-        ]),
-      );
+      expect(res.statusCode).toBe(400);
+      const body = res.json<ValidationErrorResponse>();
+
+      expect(body).toMatchObject({
+        statusCode: 400,
+        code: 'validation_failed',
+        message: 'Request validation failed',
+        details: {
+          fields: [
+            {
+              path: 'mistakes.types',
+              messages: [
+                'each value in types must be one of the following values: grammar, word_choice, word_order, tense, spelling, article, preposition, punctuation, formality, tone, naturalness, clarity',
+              ],
+            },
+          ],
+        },
+      });
     });
 
-    it('교정됐는데 오류 목록이 비어 있으면 application 오류 코드를 반환한다', async () => {
-      const response = await app.inject({
+    it('교정됐는데 오류 목록이 비어 있으면 표준 Bad Request를 반환한다', async () => {
+      const res = await app.inject({
         method: 'POST',
         url: '/corrections',
         payload: {
@@ -113,18 +139,27 @@ describe('CorrectionsHttpController (integration)', () => {
           mistakes: [],
         },
       });
-      const body = JSON.parse(response.payload) as ErrorResponse;
 
-      expect(response.statusCode).toBe(400);
-      expect(body.code).toBe('create_correction.validation_failed');
-      expect(body.message).toBe(
-        'Correction mistakes cannot be empty when text is corrected',
-      );
-      expect(body.details).toEqual({
-        domainCode: 'correction.mistakes_empty_for_corrected_text',
-        domainDetails: {
-          originalText: 'Is this for concurrency?',
-          correctedText: 'Is this for handling concurrency?',
+      expect(res.statusCode).toBe(400);
+      expect(res.json<PresentationHttpError>()).toEqual({
+        statusCode: 400,
+        code: 'validation_failed',
+        message: 'Request validation failed',
+        details: {
+          fields: [
+            {
+              path: 'correctedText',
+              messages: [
+                'Correction mistakes are required when text is corrected',
+              ],
+            },
+            {
+              path: 'mistakes',
+              messages: [
+                'Correction mistakes are required when text is corrected',
+              ],
+            },
+          ],
         },
       });
     });

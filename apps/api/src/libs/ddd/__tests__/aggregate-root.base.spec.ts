@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { AggregateRoot } from './aggregate-root.base';
-import { type DomainError } from './error.type';
-import { ok, type Result } from '../result';
+import { AggregateRoot } from '../aggregate-root.base';
+import { type DomainError } from '../error.base';
+import { ok, type Result } from '../../result';
 
 interface SampleProps {
   name: string;

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCorrectionCommand } from '../application/commands/create-correction.command';
 import { CorrectionHttpErrorMapper } from './correction-http-error.mapper';
@@ -28,10 +28,7 @@ export class CorrectionsHttpController {
     return result.match(
       (response) => response,
       (error) => {
-        throw new HttpException(
-          this.errorMapper.toResponse(error),
-          this.errorMapper.toStatus(error),
-        );
+        throw this.errorMapper.toException(error);
       },
     );
   }

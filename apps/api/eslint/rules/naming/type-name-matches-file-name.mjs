@@ -33,6 +33,44 @@ function getExpectedTypeName(filename) {
   return toPascalCase(match.nameParts.join('.')) + match.typeSuffix;
 }
 
+function getAllowedTypeNames(filename) {
+  const expectedName = getExpectedTypeName(filename);
+  const match = getFileRoleMatch(filename);
+
+  if (!expectedName || !match) {
+    return [];
+  }
+
+  const allowedNames = [expectedName];
+
+  if (match.role === 'base') {
+    allowedNames.push(expectedName + 'Base');
+  }
+
+  if (match.role === 'mapper' && match.nameParts.at(-1)?.endsWith('-error')) {
+    const namePartsWithoutErrorSuffix = match.nameParts.slice();
+    namePartsWithoutErrorSuffix[namePartsWithoutErrorSuffix.length - 1] =
+      namePartsWithoutErrorSuffix.at(-1).replace(/-error$/u, '');
+    const scopeName = toPascalCase(
+      namePartsWithoutErrorSuffix.join('.'),
+    );
+
+    allowedNames.push(
+      scopeName + 'DomainErrorMapper',
+      scopeName + 'DomainErrorToApplicationErrorMapper',
+    );
+  }
+
+  if (
+    (match.role === 'mapper' || match.role === 'base') &&
+    match.nameParts.join('.') === 'application-error-mapper'
+  ) {
+    allowedNames.push('DomainErrorToApplicationErrorMapper');
+  }
+
+  return allowedNames;
+}
+
 function getFileRole(filename) {
   return getFileRoleMatch(filename)?.role;
 }
@@ -76,9 +114,9 @@ const typeNameMatchesFileNameRule = {
     return {
       Program(node) {
         const filename = context.filename ?? context.getFilename();
-        const expectedName = getExpectedTypeName(filename);
+        const allowedNames = getAllowedTypeNames(filename);
 
-        if (!expectedName) {
+        if (allowedNames.length === 0) {
           return;
         }
 
@@ -91,8 +129,8 @@ const typeNameMatchesFileNameRule = {
           return;
         }
 
-        const hasExpectedDeclaration = declarations.some(
-          (declaration) => getDeclarationName(declaration) === expectedName,
+        const hasExpectedDeclaration = declarations.some((declaration) =>
+          allowedNames.includes(getDeclarationName(declaration)),
         );
 
         if (hasExpectedDeclaration) {
@@ -102,7 +140,7 @@ const typeNameMatchesFileNameRule = {
         context.report({
           node: declarations[0],
           messageId: 'expectedTypeName',
-          data: { expectedName },
+          data: { expectedName: allowedNames[0] },
         });
       },
     };

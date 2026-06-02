@@ -73,21 +73,21 @@ function firstMessage(messages: Linter.LintMessage[]): Linter.LintMessage {
 
 describe('mapper ESLint rules', () => {
   describe('implements-layer-mapper', () => {
-    it('presentation error mapper가 PresentationErrorMapper를 구현하면 통과한다', () => {
+    it('presentation error mapper가 PresentationHttpErrorMapper를 상속하면 통과한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/presentation/correction-http-error.mapper.ts',
         ruleName: 'implements-layer-mapper',
         rule: implementsLayerMapperRuleModule,
         code: `
-          class CorrectionHttpErrorMapper implements PresentationErrorMapper<Error, object> {}
+          class CorrectionHttpErrorMapper extends PresentationHttpErrorMapper<Error> {}
         `,
       });
 
       expect(messages).toHaveLength(0);
     });
 
-    it('presentation error mapper가 PresentationErrorMapper를 구현하지 않으면 위반으로 보고한다', () => {
+    it('presentation error mapper가 PresentationHttpErrorMapper를 상속하지 않으면 위반으로 보고한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/presentation/correction-http-error.mapper.ts',
@@ -102,7 +102,7 @@ describe('mapper ESLint rules', () => {
       expect(firstMessage(messages)).toMatchObject({
         ruleId: 'mapper/implements-layer-mapper',
         message:
-          'Mapper class CorrectionHttpErrorMapper must implement PresentationErrorMapper.',
+          'Mapper class CorrectionHttpErrorMapper must extend PresentationHttpErrorMapper.',
       });
     });
 
@@ -125,28 +125,28 @@ describe('mapper ESLint rules', () => {
       });
     });
 
-    it('application error mapper가 ApplicationErrorMapper를 구현하면 통과한다', () => {
+    it('application error mapper가 DomainErrorToApplicationErrorMapper를 상속하면 통과한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/application/commands/create-correction-error.mapper.ts',
         ruleName: 'implements-layer-mapper',
         rule: implementsLayerMapperRuleModule,
         code: `
-          class CreateCorrectionErrorMapper implements ApplicationErrorMapper<Error, object> {}
+          class CreateCorrectionDomainErrorToApplicationErrorMapper extends DomainErrorToApplicationErrorMapper<Error, object> {}
         `,
       });
 
       expect(messages).toHaveLength(0);
     });
 
-    it('application error mapper가 ApplicationErrorMapper를 구현하지 않으면 위반으로 보고한다', () => {
+    it('application error mapper가 DomainErrorToApplicationErrorMapper를 상속하지 않으면 위반으로 보고한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/application/commands/create-correction-error.mapper.ts',
         ruleName: 'implements-layer-mapper',
         rule: implementsLayerMapperRuleModule,
         code: `
-          class CreateCorrectionErrorMapper {}
+          class CreateCorrectionDomainErrorToApplicationErrorMapper {}
         `,
       });
 
@@ -154,7 +154,7 @@ describe('mapper ESLint rules', () => {
       expect(firstMessage(messages)).toMatchObject({
         ruleId: 'mapper/implements-layer-mapper',
         message:
-          'Mapper class CreateCorrectionErrorMapper must implement ApplicationErrorMapper.',
+          'Mapper class CreateCorrectionDomainErrorToApplicationErrorMapper must extend DomainErrorToApplicationErrorMapper.',
       });
     });
   });
@@ -193,7 +193,7 @@ describe('mapper ESLint rules', () => {
         code: `
           import { HttpStatus } from '@nestjs/common';
 
-          class CreateCorrectionErrorMapper {}
+          class CreateCorrectionDomainErrorToApplicationErrorMapper {}
           void HttpStatus;
         `,
       });
@@ -306,7 +306,7 @@ describe('mapper ESLint rules', () => {
             readonly code: string;
           };
 
-          export class CreateCorrectionErrorMapper {}
+          export class CreateCorrectionDomainErrorToApplicationErrorMapper {}
         `,
       });
 

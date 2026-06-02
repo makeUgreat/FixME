@@ -1,7 +1,7 @@
 const DOMAIN_ERROR_CODE_PATTERN = /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/u;
 
 function isSharedDomainErrorFile(filename) {
-  return /[/\\]src[/\\]libs[/\\]ddd[/\\]error.type\.ts$/u.test(filename);
+  return /[/\\]src[/\\]libs[/\\]ddd[/\\]error.base\.ts$/u.test(filename);
 }
 
 function isSharedDddCode(value) {
@@ -17,7 +17,7 @@ const noGlobalDomainErrorCodesRule = {
     },
     messages: {
       domainCode:
-        'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.type.ts.',
+        'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.base.ts.',
     },
     schema: [],
   },

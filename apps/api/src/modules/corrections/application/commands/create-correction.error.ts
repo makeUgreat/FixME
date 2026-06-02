@@ -1,24 +1,21 @@
-export type CreateCorrectionValidationFailedCode =
-  'create_correction.validation_failed';
+import {
+  APPLICATION_ERROR_KIND,
+  type ApplicationErrorOf,
+  type ValidationFailedDetails,
+} from '@libs/layer';
 
-export interface CreateCorrectionValidationFailedDetails {
-  readonly domainCode: string;
-  readonly domainDetails: unknown;
-}
+export type CreateCorrectionValidationFailedError = ApplicationErrorOf<
+  typeof APPLICATION_ERROR_KIND.VALIDATION_FAILED,
+  'create_correction',
+  'command_invalid',
+  ValidationFailedDetails
+>;
 
-export interface CreateCorrectionValidationFailedError {
-  readonly kind: 'validation_failed';
-  readonly code: CreateCorrectionValidationFailedCode;
-  readonly message: string;
-  readonly details: CreateCorrectionValidationFailedDetails;
-}
-
-export interface CreateCorrectionDependencyUnavailableError {
-  readonly kind: 'dependency_unavailable';
-  readonly code: 'create_correction.persistence_unavailable';
-  readonly message: string;
-  readonly details: unknown;
-}
+export type CreateCorrectionDependencyUnavailableError = ApplicationErrorOf<
+  typeof APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
+  'create_correction',
+  'persistence_unavailable'
+>;
 
 export type CreateCorrectionError =
   | CreateCorrectionValidationFailedError

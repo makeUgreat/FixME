@@ -1,6 +1,6 @@
 import { Entity, type CreateEntityParams } from '@libs/ddd';
 import { err, ok, type Result } from '@libs/result';
-import { type CorrectionMetadataDomainError } from './correction.error';
+import { type CorrectionMetadataDomainError } from './correction-metadata.error';
 
 export type CorrectionMetadataId = string;
 
@@ -91,7 +91,7 @@ export class CorrectionMetadata extends Entity<
         kind: 'invariant_violation',
         code: 'correction_metadata.correction_id_empty',
         message: 'Correction metadata correction ID cannot be empty',
-        details: {},
+        details: { fields: ['correctionId'] },
       });
     }
 
@@ -106,7 +106,7 @@ export class CorrectionMetadata extends Entity<
         kind: 'invariant_violation',
         code: 'correction_metadata.model_empty',
         message: 'Correction metadata model cannot be empty',
-        details: {},
+        details: { fields: ['model'] },
       });
     }
 
@@ -121,7 +121,7 @@ export class CorrectionMetadata extends Entity<
         kind: 'invariant_violation',
         code: 'correction_metadata.provider_metadata_invalid',
         message: 'Correction metadata provider metadata must be a plain object',
-        details: {},
+        details: { fields: ['providerMetadata'] },
       });
     }
 

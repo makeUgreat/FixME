@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Mistake } from './mistake.vo';
-import { type MistakeType } from './mistake-type.constant';
+import { Mistake } from '../mistake.vo';
+import { type MistakeType } from '../mistake-type.constant';
 
 describe('Mistake', () => {
   describe('of', () => {
@@ -60,7 +60,7 @@ describe('Mistake', () => {
         expect(result.error.kind).toBe('invariant_violation');
         expect(result.error.code).toBe('mistake.types_invalid');
         if (result.error.code === 'mistake.types_invalid') {
-          expect(result.error.details).toEqual({ types: ['unknown'] });
+          expect(result.error.details).toEqual({ fields: ['types'] });
         }
       }
     });
