@@ -110,8 +110,8 @@ describe('eslint.config.mjs (integration)', () => {
     ).toEqual([2]);
   });
 
-  it('공용 DomainError 파일에는 전역 도메인 code 금지 규칙을 적용한다', async () => {
-    const config = await calculateConfigForFile('src/libs/ddd/error.type.ts');
+  it('공용 DomainError base 파일에는 전역 도메인 code 금지 규칙을 적용한다', async () => {
+    const config = await calculateConfigForFile('src/libs/ddd/error.base.ts');
 
     expect(
       getConfiguredRule(config, 'domain/no-global-domain-error-codes'),

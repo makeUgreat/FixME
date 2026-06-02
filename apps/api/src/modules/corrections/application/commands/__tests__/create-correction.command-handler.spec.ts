@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type Correction, type CorrectionRepository } from '../../domain';
+import { type Correction, type CorrectionRepository } from '../../../domain';
 import {
   type CorrectionMistakeInput,
   CreateCorrectionCommand,
   type CreateCorrectionCommandProps,
-} from './create-correction.command';
-import { CreateCorrectionCommandHandler } from './create-correction.command-handler';
+} from '../create-correction.command';
+import { CreateCorrectionCommandHandler } from '../create-correction.command-handler';
 
 const createCommand = (
   overrides: Partial<CreateCorrectionCommandProps> = {},
@@ -103,10 +103,17 @@ describe('CreateCorrectionCommandHandler', () => {
       if (result.isErr()) {
         expect(result.error.kind).toBe('validation_failed');
         if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.validation_failed');
-          expect(result.error.details.domainCode).toBe(
-            'correction_feedback.inferred_intent_empty',
-          );
+          expect(result.error.code).toBe('create_correction.command_invalid');
+          expect(result.error.details).toEqual({
+            fields: [
+              {
+                path: 'feedback.inferredIntent',
+                messages: [
+                  'Correction feedback inferred intent cannot be empty',
+                ],
+              },
+            ],
+          });
         }
       }
 
@@ -131,10 +138,15 @@ describe('CreateCorrectionCommandHandler', () => {
       if (result.isErr()) {
         expect(result.error.kind).toBe('validation_failed');
         if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.validation_failed');
-          expect(result.error.details.domainCode).toBe(
-            'correction_feedback.explanation_empty',
-          );
+          expect(result.error.code).toBe('create_correction.command_invalid');
+          expect(result.error.details).toEqual({
+            fields: [
+              {
+                path: 'feedback.explanation',
+                messages: ['Correction feedback explanation cannot be empty'],
+              },
+            ],
+          });
         }
       }
 
@@ -160,10 +172,14 @@ describe('CreateCorrectionCommandHandler', () => {
       if (result.isErr()) {
         expect(result.error.kind).toBe('validation_failed');
         if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.code).toBe('create_correction.command_invalid');
           expect(result.error.details).toEqual({
-            domainCode: 'mistake.types_invalid',
-            domainDetails: { types: ['unknown'] },
+            fields: [
+              {
+                path: 'mistakes.types',
+                messages: ['Mistake types are invalid'],
+              },
+            ],
           });
         }
       }
@@ -185,13 +201,22 @@ describe('CreateCorrectionCommandHandler', () => {
       if (result.isErr()) {
         expect(result.error.kind).toBe('validation_failed');
         if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.validation_failed');
+          expect(result.error.code).toBe('create_correction.command_invalid');
           expect(result.error.details).toEqual({
-            domainCode: 'correction.mistakes_empty_for_corrected_text',
-            domainDetails: {
-              originalText: 'Is this for concurrency?',
-              correctedText: 'Is this for handling concurrency?',
-            },
+            fields: [
+              {
+                path: 'correctedText',
+                messages: [
+                  'Correction mistakes cannot be empty when text is corrected',
+                ],
+              },
+              {
+                path: 'mistakes',
+                messages: [
+                  'Correction mistakes cannot be empty when text is corrected',
+                ],
+              },
+            ],
           });
         }
       }
@@ -216,10 +241,15 @@ describe('CreateCorrectionCommandHandler', () => {
       if (result.isErr()) {
         expect(result.error.kind).toBe('validation_failed');
         if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.validation_failed');
-          expect(result.error.details.domainCode).toBe(
-            'correction_metadata.model_empty',
-          );
+          expect(result.error.code).toBe('create_correction.command_invalid');
+          expect(result.error.details).toEqual({
+            fields: [
+              {
+                path: 'metadata.model',
+                messages: ['Correction metadata model cannot be empty'],
+              },
+            ],
+          });
         }
       }
 

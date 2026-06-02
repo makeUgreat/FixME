@@ -4,6 +4,10 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import {
+  HttpExceptionFilter,
+  HttpValidationErrorMapper,
+} from '../../src/libs/layer';
 
 export async function createTestNestApp(
   rootModule: Type<unknown>,
@@ -15,13 +19,16 @@ export async function createTestNestApp(
   const app = moduleFixture.createNestApplication<NestFastifyApplication>(
     new FastifyAdapter(),
   );
+  const validationErrorMapper = new HttpValidationErrorMapper();
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,
       transform: true,
       whitelist: true,
+      exceptionFactory: (errors) => validationErrorMapper.toException(errors),
     }),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
   await app.init();
 
   return app;

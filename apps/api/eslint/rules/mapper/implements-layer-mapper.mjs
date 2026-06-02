@@ -7,12 +7,14 @@ const EXPECTED_INTERFACE_BY_MAPPER = [
   {
     pathPattern: /\/application\/.*error[.]mapper[.]ts$/,
     namePattern: /Mapper$/,
-    interfaceName: 'ApplicationErrorMapper',
+    interfaceName: 'DomainErrorToApplicationErrorMapper',
+    relationship: 'extend',
   },
   {
     pathPattern: /\/presentation\/.*error[.]mapper[.]ts$/,
     namePattern: /Mapper$/,
-    interfaceName: 'PresentationErrorMapper',
+    interfaceName: 'PresentationHttpErrorMapper',
+    relationship: 'extend',
   },
   {
     pathPattern: /\/presentation\/.*[.]mapper[.]ts$/,
@@ -20,6 +22,8 @@ const EXPECTED_INTERFACE_BY_MAPPER = [
     interfaceName: 'PresentationMapper',
   },
 ];
+
+const EXTENDABLE_MAPPER_BY_INTERFACE = new Map();
 
 function normalizePath(filename) {
   return filename.replaceAll('\\', '/');
@@ -49,7 +53,11 @@ function getExpectedInterface(filename) {
 
   return EXPECTED_INTERFACE_BY_MAPPER.find(({ pathPattern }) =>
     pathPattern.test(normalizedFilename),
-  )?.interfaceName;
+  );
+}
+
+function getExpectedRelationship(expectedInterface) {
+  return expectedInterface.relationship ?? 'implement';
 }
 
 function implementsInterface(node, interfaceName) {
@@ -57,6 +65,33 @@ function implementsInterface(node, interfaceName) {
     (implemented) =>
       getImplementedInterfaceName(implemented.expression) === interfaceName,
   );
+}
+
+function getExtendedClassName(superClass) {
+  if (!superClass) {
+    return undefined;
+  }
+
+  if (superClass.type === 'Identifier') {
+    return superClass.name;
+  }
+
+  if (
+    superClass.type === 'TSInstantiationExpression' &&
+    superClass.expression.type === 'Identifier'
+  ) {
+    return superClass.expression.name;
+  }
+
+  return undefined;
+}
+
+function extendsClass(node, className) {
+  if (!className) {
+    return false;
+  }
+
+  return getExtendedClassName(node.superClass) === className;
 }
 
 const implementsLayerMapperRule = {
@@ -68,7 +103,7 @@ const implementsLayerMapperRule = {
     },
     messages: {
       expectedInterface:
-        'Mapper class {{ className }} must implement {{ interfaceName }}.',
+        'Mapper class {{ className }} must {{ relationship }} {{ interfaceName }}.',
     },
     schema: [],
   },
@@ -80,6 +115,9 @@ const implementsLayerMapperRule = {
       return {};
     }
 
+    const expectedRelationship = getExpectedRelationship(expectedInterface);
+    const interfaceName = expectedInterface.interfaceName;
+
     return {
       ClassDeclaration(node) {
         const className = getClassName(node);
@@ -88,14 +126,26 @@ const implementsLayerMapperRule = {
           return;
         }
 
-        if (implementsInterface(node, expectedInterface)) {
+        const extendsAllowedBase =
+          EXTENDABLE_MAPPER_BY_INTERFACE.get(interfaceName);
+        const satisfiesContract =
+          expectedRelationship === 'extend'
+            ? extendsClass(node, interfaceName)
+            : implementsInterface(node, interfaceName) ||
+              extendsClass(node, extendsAllowedBase);
+
+        if (satisfiesContract) {
           return;
         }
 
         context.report({
           node: node.id ?? node,
           messageId: 'expectedInterface',
-          data: { className, interfaceName: expectedInterface },
+          data: {
+            className,
+            interfaceName,
+            relationship: expectedRelationship,
+          },
         });
       },
     };

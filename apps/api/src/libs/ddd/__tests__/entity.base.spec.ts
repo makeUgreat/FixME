@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { Entity, type CreateEntityParams } from './entity.base';
-import { type DomainError } from './error.type';
-import { ok, type Result } from '../result';
+import { Entity, type CreateEntityParams } from '../entity.base';
+import { type DomainError } from '../error.base';
+import { ok, type Result } from '../../result';
 
 interface SampleProps {
   name: string;

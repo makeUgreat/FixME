@@ -78,10 +78,42 @@ describe('naming ESLint rules', () => {
       const messages = lintNamingRule({
         filename: 'mapper.type.ts',
         code: `
+          export interface ApplicationMapper {}
           export interface PersistenceMapper {}
-          export interface ApplicationErrorMapper {}
           export interface PresentationMapper {}
-          export interface PresentationErrorMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('error mapper 파일은 source error를 드러내는 mapper 이름을 허용한다', () => {
+      const messages = lintNamingRule({
+        filename: 'create-correction-error.mapper.ts',
+        code: `
+          export class CreateCorrectionDomainErrorToApplicationErrorMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('error mapper base 파일은 base class 이름과 일치해야 한다', () => {
+      const messages = lintNamingRule({
+        filename: 'application-error-mapper.base.ts',
+        code: `
+          export abstract class DomainErrorToApplicationErrorMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('base 파일은 Base suffix 타입 이름을 허용한다', () => {
+      const messages = lintNamingRule({
+        filename: 'application-error.base.ts',
+        code: `
+          export interface ApplicationErrorBase {}
         `,
       });
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CorrectionMetadata,
   type CreateCorrectionMetadataProps,
-} from './correction-metadata.entity';
+} from '../correction-metadata.entity';
 
 const createCorrectionMetadata = (
   overrides: Partial<CreateCorrectionMetadataProps> = {},

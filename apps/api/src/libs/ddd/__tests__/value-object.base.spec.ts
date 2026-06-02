@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { type DomainError } from './error.type';
-import { err, ok, type Result } from '../result';
-import { ValueObject, type DomainPrimitive } from './value-object.base';
+import { type DomainError } from '../error.base';
+import { err, ok, type Result } from '../../result';
+import { ValueObject, type DomainPrimitive } from '../value-object.base';
 
 const sampleEmptyError: DomainError = {
   kind: 'invariant_violation',
   code: 'sample.empty',
   message: 'Sample cannot be empty',
-  details: {},
+  details: { fields: ['value'] },
 };
 
 class SampleName extends ValueObject<string> {

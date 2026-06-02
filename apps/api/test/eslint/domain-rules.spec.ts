@@ -156,7 +156,7 @@ describe('domain ESLint rules', () => {
   });
 
   describe('require-unit-spec', () => {
-    it('도메인 모델과 같은 위치에 unit spec이 있으면 통과한다', () => {
+    it('도메인 모델 디렉터리의 __tests__에 unit spec이 있으면 통과한다', () => {
       const messages = lintDomainRule({
         filename: path.join(
           tsconfigRootDir,
@@ -172,7 +172,7 @@ describe('domain ESLint rules', () => {
       expect(messages).toHaveLength(0);
     });
 
-    it('도메인 모델과 같은 위치에 unit spec이 없으면 위반으로 보고한다', () => {
+    it('도메인 모델 디렉터리의 __tests__에 unit spec이 없으면 위반으로 보고한다', () => {
       const messages = lintDomainRule({
         filename: path.join(
           tsconfigRootDir,
@@ -189,7 +189,7 @@ describe('domain ESLint rules', () => {
       expect(messages[0]).toMatchObject({
         ruleId: 'domain/require-unit-spec',
         message:
-          'Domain models must have a colocated unit spec file: missing-spec.vo.spec.ts.',
+          'Domain models must have a colocated __tests__ unit spec file: __tests__/missing-spec.vo.spec.ts.',
       });
     });
   });
@@ -428,7 +428,7 @@ describe('domain ESLint rules', () => {
   describe('no-global-domain-error-codes', () => {
     it('공용 DomainError 파일에 도메인별 code 문자열이 없으면 통과한다', () => {
       const messages = lintDomainRule({
-        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.type.ts'),
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.base.ts'),
         ruleName: 'no-global-domain-error-codes',
         rule: noGlobalDomainErrorCodesRule,
         code: `
@@ -441,7 +441,7 @@ describe('domain ESLint rules', () => {
 
     it('공용 DomainError 파일에 도메인별 code 문자열이 있으면 위반으로 보고한다', () => {
       const messages = lintDomainRule({
-        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.type.ts'),
+        filename: path.join(tsconfigRootDir, 'src/libs/ddd/error.base.ts'),
         ruleName: 'no-global-domain-error-codes',
         rule: noGlobalDomainErrorCodesRule,
         code: `
@@ -453,7 +453,7 @@ describe('domain ESLint rules', () => {
       expect(messages[0]).toMatchObject({
         ruleId: 'domain/no-global-domain-error-codes',
         message:
-          'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.type.ts.',
+          'Domain-specific error codes must be owned by their domain, not src/libs/ddd/error.base.ts.',
       });
     });
   });

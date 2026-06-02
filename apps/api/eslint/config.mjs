@@ -121,7 +121,7 @@ export default tseslint.config(
       'src/**/index.ts',
       'src/**/*.spec.ts',
       'src/libs/guard.ts',
-      'src/libs/ddd/error.type.ts',
+      'src/libs/ddd/error.base.ts',
     ],
     plugins: {
       domain,
@@ -149,7 +149,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/libs/ddd/error.type.ts'],
+    files: ['src/libs/ddd/error.base.ts'],
     plugins: {
       domain,
     },

@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { Correction, type CreateCorrectionProps } from './correction.aggregate';
+import {
+  Correction,
+  type CreateCorrectionProps,
+} from '../correction.aggregate';
 import {
   CorrectionFeedback,
   type CreateCorrectionFeedbackProps,
-} from './correction-feedback.vo';
-import { CorrectionMetadata } from './correction-metadata.entity';
-import { Mistake } from './mistake.vo';
+} from '../correction-feedback.vo';
+import { CorrectionMetadata } from '../correction-metadata.entity';
+import { Mistake } from '../mistake.vo';
 
 const createFeedbackProps = (): CreateCorrectionFeedbackProps => ({
   inferredIntent: 'The user wants to ask whether this solves concurrency.',
@@ -132,8 +135,7 @@ describe('Correction', () => {
           result.error.code === 'correction.mistakes_empty_for_corrected_text'
         ) {
           expect(result.error.details).toEqual({
-            originalText: 'Is this for concurrency?',
-            correctedText: 'Is this for handling concurrency?',
+            fields: ['correctedText', 'mistakes'],
           });
         }
       }
@@ -217,8 +219,7 @@ describe('Correction', () => {
           result.error.code === 'correction.metadata_correction_id_mismatch'
         ) {
           expect(result.error.details).toEqual({
-            correctionId: 'correction-1',
-            metadataCorrectionId: 'another-correction',
+            fields: ['id', 'metadata.correctionId'],
           });
         }
       }
