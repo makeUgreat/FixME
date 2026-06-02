@@ -1,5 +1,5 @@
 import { type CorrectionId } from '../domain';
 
-export class CreateCorrectionResponseDto {
+export class CreateCorrectionHttpResponse {
   correctionId!: CorrectionId;
 }

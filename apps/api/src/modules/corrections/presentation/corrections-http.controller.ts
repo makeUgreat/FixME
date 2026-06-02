@@ -2,19 +2,20 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCorrectionCommand } from '../application/commands/create-correction.command';
 import { CorrectionHttpErrorMapper } from './correction-http-error.mapper';
-import { CreateCorrectionRequestDto } from './create-correction.request.dto';
-import { type CreateCorrectionResponseDto } from './create-correction.response.dto';
+import { CreateCorrectionHttpRequest } from './create-correction-http.request';
+import { type CreateCorrectionHttpResponse } from './create-correction-http.response';
 
 @Controller('corrections')
 export class CorrectionsHttpController {
-  private readonly errorMapper = new CorrectionHttpErrorMapper();
-
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly errorMapper: CorrectionHttpErrorMapper,
+  ) {}
 
   @Post()
   async createCorrection(
-    @Body() request: CreateCorrectionRequestDto,
-  ): Promise<CreateCorrectionResponseDto> {
+    @Body() request: CreateCorrectionHttpRequest,
+  ): Promise<CreateCorrectionHttpResponse> {
     const result = await this.commandBus.execute(
       new CreateCorrectionCommand({
         originalText: request.originalText,

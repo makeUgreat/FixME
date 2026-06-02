@@ -5,6 +5,7 @@ import {
   CreateCorrectionCommand,
   type CreateCorrectionCommandProps,
 } from '../create-correction.command';
+import { CreateCorrectionDomainErrorToApplicationErrorMapper } from '../create-correction-error.mapper';
 import { CreateCorrectionCommandHandler } from '../create-correction.command-handler';
 
 const createCommand = (
@@ -45,7 +46,10 @@ const createHandler = (
   return {
     correctionRepository,
     saveCorrection,
-    handler: new CreateCorrectionCommandHandler(correctionRepository),
+    handler: new CreateCorrectionCommandHandler(
+      correctionRepository,
+      new CreateCorrectionDomainErrorToApplicationErrorMapper(),
+    ),
   };
 };
 

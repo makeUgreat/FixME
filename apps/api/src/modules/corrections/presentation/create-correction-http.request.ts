@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { MISTAKE_TYPES, type MistakeType } from '../domain';
 
-export class CorrectionFeedbackRequestDto {
+export class CorrectionFeedbackHttpRequest {
   @IsString()
   @IsNotEmpty()
   inferredIntent!: string;
@@ -21,7 +21,7 @@ export class CorrectionFeedbackRequestDto {
   explanation!: string;
 }
 
-export class CorrectionMistakeRequestDto {
+export class CorrectionMistakeHttpRequest {
   @IsArray()
   @ArrayNotEmpty()
   @IsIn(MISTAKE_TYPES, { each: true })
@@ -32,7 +32,7 @@ export class CorrectionMistakeRequestDto {
   explanation!: string;
 }
 
-export class CorrectionMetadataRequestDto {
+export class CorrectionMetadataHttpRequest {
   @IsString()
   @IsNotEmpty()
   model!: string;
@@ -41,7 +41,7 @@ export class CorrectionMetadataRequestDto {
   providerMetadata!: Record<string, unknown>;
 }
 
-export class CreateCorrectionRequestDto {
+export class CreateCorrectionHttpRequest {
   @IsString()
   @IsNotEmpty()
   originalText!: string;
@@ -53,17 +53,17 @@ export class CreateCorrectionRequestDto {
   @ValidateNested()
   @IsDefined()
   @IsObject()
-  @Type(() => CorrectionFeedbackRequestDto)
-  feedback!: CorrectionFeedbackRequestDto;
+  @Type(() => CorrectionFeedbackHttpRequest)
+  feedback!: CorrectionFeedbackHttpRequest;
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CorrectionMistakeRequestDto)
-  mistakes!: CorrectionMistakeRequestDto[];
+  @Type(() => CorrectionMistakeHttpRequest)
+  mistakes!: CorrectionMistakeHttpRequest[];
 
   @ValidateNested()
   @IsDefined()
   @IsObject()
-  @Type(() => CorrectionMetadataRequestDto)
-  metadata!: CorrectionMetadataRequestDto;
+  @Type(() => CorrectionMetadataHttpRequest)
+  metadata!: CorrectionMetadataHttpRequest;
 }

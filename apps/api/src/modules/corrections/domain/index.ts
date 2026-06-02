@@ -8,7 +8,7 @@ export type { CorrectionDomainError } from './correction.error';
 export type { CorrectionFeedbackDomainError } from './correction-feedback.error';
 export type { CorrectionMetadataDomainError } from './correction-metadata.error';
 export type { MistakeDomainError } from './mistake.error';
-export { type CorrectionRepository } from './correction.repository.port';
+export { type CorrectionRepository } from './correction.repository';
 export {
   CorrectionMetadata,
   type CorrectionMetadataId,

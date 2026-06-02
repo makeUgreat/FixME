@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { generateId } from '@libs/ddd';
+import { generateId } from '@libs/id';
 import { err, ok, type Result } from '@libs/result';
 import { CORRECTION_REPOSITORY } from '../../corrections.tokens';
 import {
@@ -21,12 +21,10 @@ import { CreateCorrectionDomainErrorToApplicationErrorMapper } from './create-co
 
 @CommandHandler(CreateCorrectionCommand)
 export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCorrectionCommand> {
-  private readonly domainErrorMapper =
-    new CreateCorrectionDomainErrorToApplicationErrorMapper();
-
   constructor(
     @Inject(CORRECTION_REPOSITORY)
     private readonly correctionRepository: CorrectionRepository,
+    private readonly domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
   ) {}
 
   async execute(

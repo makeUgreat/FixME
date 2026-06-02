@@ -1,22 +1,14 @@
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
-import { CreateCorrectionCommandHandler } from './application/commands/create-correction.command-handler';
-import { CORRECTION_REPOSITORY } from './corrections.tokens';
-import { MemoryCorrectionRepository } from './infrastructure/correction.repository.memory';
-import { CorrectionsHttpController } from './presentation/corrections.http.controller';
+import { CorrectionsApplicationModule } from './application/corrections.application.module';
+import { CorrectionsInfrastructureModule } from './infrastructure/corrections.infrastructure.module';
+import { CorrectionsPresentationModule } from './presentation/corrections.presentation.module';
 
-const commandHandlers = [CreateCorrectionCommandHandler];
+const correctionsApplicationModule = CorrectionsApplicationModule.register([
+  CorrectionsInfrastructureModule,
+]);
 
 @Module({
-  imports: [CqrsModule],
-  controllers: [CorrectionsHttpController],
-  providers: [
-    ...commandHandlers,
-    {
-      provide: CORRECTION_REPOSITORY,
-      useClass: MemoryCorrectionRepository,
-    },
-  ],
-  exports: [CqrsModule],
+  imports: [correctionsApplicationModule, CorrectionsPresentationModule],
+  exports: [correctionsApplicationModule],
 })
 export class CorrectionsModule {}

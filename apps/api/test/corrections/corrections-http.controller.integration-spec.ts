@@ -2,7 +2,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { type PresentationHttpError } from '@libs/layer';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppModule } from '../../src/app.module';
-import { type CreateCorrectionResponseDto } from '../../src/modules/corrections/presentation/create-correction.response.dto';
+import { type CreateCorrectionHttpResponse } from '../../src/modules/corrections/presentation/create-correction-http.response';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
 interface ValidationErrorResponse {
@@ -57,11 +57,11 @@ describe('CorrectionsHttpController (integration)', () => {
       });
 
       expect(res.statusCode).toBe(201);
-      expect(res.json<CreateCorrectionResponseDto>().correctionId).toEqual(
+      expect(res.json<CreateCorrectionHttpResponse>().correctionId).toEqual(
         expect.any(String),
       );
-      expect(res.json<CreateCorrectionResponseDto>()).toEqual({
-        correctionId: res.json<CreateCorrectionResponseDto>().correctionId,
+      expect(res.json<CreateCorrectionHttpResponse>()).toEqual({
+        correctionId: res.json<CreateCorrectionHttpResponse>().correctionId,
       });
     });
 
