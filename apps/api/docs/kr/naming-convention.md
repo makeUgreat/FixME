@@ -101,6 +101,7 @@ Layer boundary translation에는 `Mapper`를 사용한다. Error translation에
 - Type name은 semantic error conversion을 수행할 때 변환 방향을 포함해야 한다.
 - Error mapper file name은 `-error.mapper.ts`를 사용하고, class name은
   `CreateCorrectionDomainErrorToApplicationErrorMapper`처럼 변환 방향을 드러낸다.
+- Shared `.base.ts` mapper file은 file subject를 반복하기보다 변환 방향을 설명하는 안정적인 shared contract 이름을 노출할 수 있다.
 
 예:
 
@@ -110,6 +111,7 @@ Layer boundary translation에는 `Mapper`를 사용한다. Error translation에
 | Domain error -> application error | `create-correction-error.mapper.ts` | `CreateCorrectionDomainErrorToApplicationErrorMapper` |
 | Application error -> HTTP error | `correction-http-error.mapper.ts` | `CorrectionHttpErrorMapper` |
 | Application result -> HTTP response | `create-correction-http-response.mapper.ts` | `CreateCorrectionHttpResponseMapper` |
+| Shared domain error -> application error contract | `application-error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
 
 ## Boundary Abstraction과 Infrastructure
 

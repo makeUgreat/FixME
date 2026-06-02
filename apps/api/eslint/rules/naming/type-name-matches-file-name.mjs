@@ -9,6 +9,14 @@ const IGNORED_TYPE_SUFFIXES = [
   'Result',
 ];
 
+const DIRECTIONAL_ERROR_MAPPER_TYPE_NAMES_BY_SOURCE = {
+  domain: ['DomainErrorMapper', 'DomainErrorToApplicationErrorMapper'],
+};
+
+const SHARED_BASE_TYPE_NAMES_BY_FILE_SUBJECT = new Map([
+  ['application-error-mapper', ['DomainErrorToApplicationErrorMapper']],
+]);
+
 function isClassOrInterface(node) {
   return (
     node.type === 'ClassDeclaration' || node.type === 'TSInterfaceDeclaration'
@@ -21,6 +29,10 @@ function getDeclarationName(node) {
 
 function isIgnoredHelperDeclaration(name) {
   return IGNORED_TYPE_SUFFIXES.some((suffix) => name.endsWith(suffix));
+}
+
+function getFileSubject(match) {
+  return match.nameParts.join('.');
 }
 
 function getExpectedTypeName(filename) {
@@ -55,17 +67,16 @@ function getAllowedTypeNames(filename) {
       namePartsWithoutErrorSuffix.join('.'),
     );
 
-    allowedNames.push(
-      scopeName + 'DomainErrorMapper',
-      scopeName + 'DomainErrorToApplicationErrorMapper',
-    );
+    for (const suffix of DIRECTIONAL_ERROR_MAPPER_TYPE_NAMES_BY_SOURCE.domain) {
+      allowedNames.push(scopeName + suffix);
+    }
   }
 
-  if (
-    (match.role === 'mapper' || match.role === 'base') &&
-    match.nameParts.join('.') === 'application-error-mapper'
-  ) {
-    allowedNames.push('DomainErrorToApplicationErrorMapper');
+  if (match.role === 'base') {
+    allowedNames.push(
+      ...(SHARED_BASE_TYPE_NAMES_BY_FILE_SUBJECT.get(getFileSubject(match)) ??
+        []),
+    );
   }
 
   return allowedNames;

@@ -75,7 +75,7 @@ function firstMessage(messages: Linter.LintMessage[]): Linter.LintMessage {
 
 describe('mapper ESLint rules', () => {
   describe('implements-layer-mapper', () => {
-    it('presentation error mapper가 PresentationHttpErrorMapper를 상속하면 통과한다', () => {
+    it('HTTP presentation error mapper가 PresentationHttpErrorMapper를 상속하면 통과한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/presentation/correction-http-error.mapper.ts',
@@ -89,7 +89,7 @@ describe('mapper ESLint rules', () => {
       expect(messages).toHaveLength(0);
     });
 
-    it('presentation error mapper가 PresentationHttpErrorMapper를 상속하지 않으면 위반으로 보고한다', () => {
+    it('HTTP presentation error mapper가 PresentationHttpErrorMapper를 상속하지 않으면 위반으로 보고한다', () => {
       const messages = lintMapperRule({
         filename:
           'src/modules/corrections/presentation/correction-http-error.mapper.ts',
@@ -105,6 +105,39 @@ describe('mapper ESLint rules', () => {
         ruleId: 'mapper/implements-layer-mapper',
         message:
           'Mapper class CorrectionHttpErrorMapper must extend PresentationHttpErrorMapper.',
+      });
+    });
+
+    it('HTTP가 아닌 presentation error mapper는 PresentationMapper 구현을 요구한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/presentation/correction-graphql-error.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CorrectionGraphqlErrorMapper implements PresentationMapper<Error, object> {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('HTTP가 아닌 presentation error mapper가 PresentationMapper를 구현하지 않으면 위반으로 보고한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/presentation/correction-graphql-error.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CorrectionGraphqlErrorMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(firstMessage(messages)).toMatchObject({
+        ruleId: 'mapper/implements-layer-mapper',
+        message:
+          'Mapper class CorrectionGraphqlErrorMapper must implement PresentationMapper.',
       });
     });
 

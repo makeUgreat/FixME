@@ -111,7 +111,12 @@ export default tseslint.config(
     rules: {
       'neverthrow/must-use-result': 'off',
       'test/korean-test-case-name': 'error',
-      'test/integration-adapter-target-file-name': 'error',
+      'test/integration-adapter-target-file-name': [
+        'error',
+        {
+          systemTargets: ['app', 'eslint-config'],
+        },
+      ],
       'test/integration-file-location': 'error',
       'test/integration-describe-name': 'error',
       'test/no-direct-integration-bootstrap': 'error',

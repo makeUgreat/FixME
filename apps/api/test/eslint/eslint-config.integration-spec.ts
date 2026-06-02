@@ -64,6 +64,14 @@ describe('eslint.config.mjs (integration)', () => {
     expect(getConfiguredRule(config, 'test/korean-test-case-name')).toEqual([
       2,
     ]);
+    expect(
+      getConfiguredRule(config, 'test/integration-adapter-target-file-name'),
+    ).toEqual([
+      2,
+      {
+        systemTargets: ['app', 'eslint-config'],
+      },
+    ]);
     expect(getConfiguredRule(config, 'test/integration-file-location')).toEqual(
       [2],
     );

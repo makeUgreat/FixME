@@ -54,9 +54,9 @@ Domain과 error 의도는 [아키텍처 컨벤션](../docs/kr/architecture-conve
 | `domain/factory-result-return`            | error | `src/**/*.ts`                                                   | Public domain model factory는 명시적으로 `Result`를 반환해야 한다.                                                                           |
 | `domain/no-direct-new`                    | error | `src/**/*.ts`                                                   | Domain model은 자기 class body 밖에서 `new`로 직접 생성하지 않고 factory를 통해 생성해야 한다.                                               |
 | `domain/domain-error-shape`               | error | Shared `error.base.ts`를 제외한 `src/**/*.ts`                   | Domain `err({ ... })` object는 `kind`, `code`, `message`, `details`를 포함하고 지원되는 domain error category를 사용해야 한다.               |
-| `domain/no-global-domain-error-codes`     | error | `src/libs/ddd/error.base.ts`                                    | Shared `DomainError`가 feature-domain error code registry가 되는 것을 막는다.                                                                |
+| `domain/no-global-domain-error-codes`     | error | `src/libs/ddd/error.base.ts`                                    | Shared `DomainError`가 feature-domain error code registry가 되는 것을 막는다. Shared DDD가 소유하는 `entity.*` code는 허용한다.              |
 | `domain/prefer-domain-error-of`           | error | Shared `error.base.ts`를 제외한 `src/**/*.ts`                   | Domain error contract는 shape를 직접 풀어 쓰지 않고 `DomainErrorOf<Kind, Owner, Reason, Details>`를 사용해야 한다.                                  |
-| `domain/split-multiple-validation-errors` | error | `src/**/*.ts`                                                   | `validateProps`에서 여러 validation failure를 직접 반환하지 않고 named validation method로 분리해야 한다.                                    |
+| `domain/split-multiple-validation-errors` | error | `src/**/*.ts`                                                   | Domain model `validateProps` entrypoint에서 여러 validation failure를 직접 반환하지 않고 named validation method로 분리해야 한다.            |
 | `domain/require-unit-spec`                | error | `src/**/*.aggregate.ts`, `src/**/*.entity.ts`, `src/**/*.vo.ts` | Domain model file은 같은 디렉터리의 `__tests__` 아래에 unit spec을 가져야 한다.                                                              |
 | `no-restricted-imports`                   | error | `src/modules/*/domain/**/*.ts`                                  | Domain file은 Nest 또는 HTTP exception을 import하면 안 된다.                                                                                 |
 | `no-restricted-syntax`                    | error | `src/**/*.aggregate.ts`, `src/**/*.entity.ts`                   | Aggregate와 entity constructor는 private/protected여야 하며, public static factory 이름은 `create` 또는 `restore`여야 한다.                  |
@@ -69,7 +69,7 @@ Mapper boundary 원칙은 [아키텍처 컨벤션](../docs/kr/architecture-conve
 
 | Rule                                   | Level | Scope         | Check                                                                                                                           |
 | -------------------------------------- | ----- | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure, application error, presentation mapper class는 layer-specific mapper interface를 구현해야 한다.                 |
+| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure, application error, HTTP presentation error, generic presentation mapper class는 layer-specific mapper contract를 사용해야 한다. |
 | `mapper/no-domain-model-serialization` | error | `src/**/*.ts` | Domain model은 `toResponse`, `toRecord`, `toDto`, `toJSON`, `fromRecord` 같은 boundary serialization method를 정의하면 안 된다. |
 | `mapper/no-error-contract-in-mapper`   | error | `src/**/*.ts` | Mapper file은 error contract type을 export하면 안 되며, application error contract는 `.error.ts` file에 둔다.                   |
 | `mapper/no-nest-in-application-error`  | error | `src/**/*.ts` | Application error contract file은 Nest 또는 HTTP type을 import하면 안 된다.                                                     |
@@ -84,7 +84,7 @@ Mapper boundary 원칙은 [아키텍처 컨벤션](../docs/kr/architecture-conve
 | ------------------------------------------- | ----- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `neverthrow/must-use-result`                | off   | `src/**/*.spec.ts`, `test/**/*.ts` | Test에서는 production Result consumption rule을 끄고 직접 값을 검사할 수 있다.                      |
 | `test/korean-test-case-name`                | error | `src/**/*.spec.ts`, `test/**/*.ts` | Test case name은 한국어로 작성해야 한다.                                                            |
-| `test/integration-adapter-target-file-name` | error | `src/**/*.spec.ts`, `test/**/*.ts` | Integration spec file name은 adapter target을 식별해야 한다.                                        |
+| `test/integration-adapter-target-file-name` | error | `src/**/*.spec.ts`, `test/**/*.ts` | Integration spec file name은 adapter target 또는 설정된 system target을 식별해야 한다.              |
 | `test/integration-file-location`            | error | `src/**/*.spec.ts`, `test/**/*.ts` | Integration spec은 `apps/api/test` 아래에 있어야 한다.                                              |
 | `test/integration-describe-name`            | error | `src/**/*.spec.ts`, `test/**/*.ts` | Integration spec의 top-level `describe`는 integrated target을 식별해야 한다.                        |
 | `test/no-direct-integration-bootstrap`      | error | `src/**/*.spec.ts`, `test/**/*.ts` | Integration test는 직접 bootstrap하지 않고 shared Nest test app helper를 사용해야 한다.             |

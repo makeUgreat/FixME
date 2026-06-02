@@ -104,6 +104,46 @@ describe('domain ESLint rules', () => {
         message: 'Public domain model factories must explicitly return Result.',
       });
     });
+
+    it('value object createMany factory가 Result 반환 타입을 명시하면 통과한다', () => {
+      const messages = lintDomainRule({
+        filename: 'sample.vo.ts',
+        ruleName: 'factory-result-return',
+        rule: factoryResultReturnRule,
+        code: `
+          import type { Result } from 'neverthrow';
+
+          class Sample {
+            static createMany(): Result<Sample[], Error> {
+              throw new Error();
+            }
+          }
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('value object createMany factory가 Result 반환 타입을 명시하지 않으면 위반으로 보고한다', () => {
+      const messages = lintDomainRule({
+        filename: 'sample.vo.ts',
+        ruleName: 'factory-result-return',
+        rule: factoryResultReturnRule,
+        code: `
+          class Sample {
+            static createMany(): Sample[] {
+              throw new Error();
+            }
+          }
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        ruleId: 'domain/factory-result-return',
+        message: 'Public domain model factories must explicitly return Result.',
+      });
+    });
   });
 
   describe('no-direct-new', () => {

@@ -5,7 +5,7 @@ import { hasResultReturnType } from '../../utils/result-type.mjs';
 const FACTORY_NAMES_BY_ROLE = {
   aggregate: new Set(['create', 'restore']),
   entity: new Set(['create', 'restore']),
-  vo: new Set(['of']),
+  vo: new Set(['of', 'createMany']),
 };
 
 const factoryResultReturnRule = {

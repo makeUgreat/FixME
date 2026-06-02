@@ -98,7 +98,7 @@ describe('naming ESLint rules', () => {
       expect(messages).toHaveLength(0);
     });
 
-    it('error mapper base 파일은 base class 이름과 일치해야 한다', () => {
+    it('shared mapper base 파일은 정책상 허용된 base class 이름을 선언할 수 있다', () => {
       const messages = lintNamingRule({
         filename: 'application-error-mapper.base.ts',
         code: `
