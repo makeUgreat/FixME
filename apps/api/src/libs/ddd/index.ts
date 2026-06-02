@@ -13,9 +13,8 @@ export {
   type Primitives,
   type ValueObjectProps,
 } from './value-object.base';
-export type { Repository } from './repository.port';
+export type { Repository } from './repository.base';
 export type { UseCase } from './use-case.base';
-export { generateId } from './generate-id.util';
 export type {
   DomainError,
   DomainErrorBase,
