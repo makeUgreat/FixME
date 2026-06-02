@@ -11,6 +11,7 @@ import tseslint from 'typescript-eslint';
 import domain from './plugins/domain.mjs';
 import mapper from './plugins/mapper.mjs';
 import naming from './plugins/naming.mjs';
+import style from './plugins/style.mjs';
 import test from './plugins/test.mjs';
 
 const tsconfigRootDir = fileURLToPath(new URL('..', import.meta.url));
@@ -44,6 +45,7 @@ export default tseslint.config(
   {
     plugins: {
       neverthrow: fixupPluginRules(neverthrow),
+      style,
       'unused-imports': unusedImports,
     },
     rules: {
@@ -90,6 +92,7 @@ export default tseslint.config(
       ],
       'no-restricted-syntax': ['error', noTypeScriptEnum],
       'neverthrow/must-use-result': 'error',
+      'style/prefer-inline-satisfies': 'warn',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'error',
@@ -108,6 +111,7 @@ export default tseslint.config(
     rules: {
       'neverthrow/must-use-result': 'off',
       'test/korean-test-case-name': 'error',
+      'test/integration-adapter-target-file-name': 'error',
       'test/integration-file-location': 'error',
       'test/integration-describe-name': 'error',
       'test/no-direct-integration-bootstrap': 'error',
@@ -136,9 +140,11 @@ export default tseslint.config(
       'mapper/no-error-contract-in-mapper': 'error',
       'mapper/no-nest-in-application-error': 'error',
       'mapper/no-nest-in-application-mapper': 'error',
+      'mapper/prefer-application-error-of': 'error',
       'domain/factory-result-return': 'error',
       'domain/no-direct-new': 'error',
       'domain/domain-error-shape': 'error',
+      'domain/prefer-domain-error-of': 'error',
       'domain/split-multiple-validation-errors': 'error',
       'check-file/filename-naming-convention': [
         'error',

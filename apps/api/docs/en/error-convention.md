@@ -43,6 +43,16 @@ the exact reason in a stable code. The shared `DomainError` type provides a
 common vocabulary across domains; each domain owns its exact error codes and any
 structured `details` it needs.
 
+When declaring domain error contracts, use the shared `DomainErrorOf` helper
+from `@libs/ddd`. Do not spell out `DomainErrorBase<'kind', ...>` or a
+handwritten `{ kind; code; message; details }` type outside the shared DDD error
+type file. `DomainErrorOf` keeps `DomainErrorKind` as the single source of broad
+categories while allowing each domain to narrow its own `owner`, `reason`, and
+`details`. For example, use
+`DomainErrorOf<typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION, 'correction', 'original_text_empty', DomainInvariantViolationDetails>`.
+Use the shared `DomainErrorCode` helper instead of hand-writing the template
+literal code type.
+
 Use `kind` for broad handling:
 
 | Kind                    | Meaning                                                                   |
@@ -97,6 +107,35 @@ Application code should decide whether a lower-layer failure is meaningful to th
 user, retriable, forbidden, unavailable, or unexpected. That decision belongs at
 the layer with enough context to make it.
 
+Do not copy lower-layer `message`, `code`, or raw `details` into an application
+error by default. Application errors should expose the use case's stable meaning.
+Keep lower-layer diagnostics in logs or dedicated internal context when needed,
+not in the public application contract.
+
+Use the shared `ApplicationErrorKind` vocabulary for broad application failure
+handling. Start with the smallest stable set and add a new kind only when
+multiple use cases need the same orchestration-level meaning. Application error
+contracts should use the shared `ApplicationErrorOf` helper from `@libs/layer`,
+while each use case owns its exact `owner`, `reason`, and `details`. Application
+error codes should use `{owner}.{reason}`; keep the broad category in `kind`.
+
+Use these application error kinds for broad handling:
+
+| Kind                      | Meaning                                                                  |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `validation_failed`       | The command, query, or translated domain result failed validation.       |
+| `dependency_unavailable`  | A required repository, provider, service, or external dependency failed. |
+| `not_found`               | A required application resource was not found.                           |
+| `state_conflict`          | The request conflicts with current application or workflow state.        |
+| `permission_denied`       | The authenticated actor is not allowed to perform the use case.          |
+| `authentication_required` | The use case requires an authenticated actor, but none is available.     |
+| `operation_not_allowed`   | Application workflow or policy does not allow the operation.             |
+| `rate_limited`            | The use case cannot proceed because a rate limit was reached.            |
+| `unexpected`              | The failure cannot be meaningfully classified at the boundary.           |
+
+Do not use HTTP status names such as `bad_request` or `internal_server_error` as
+application error kinds. HTTP mapping belongs in presentation error mappers.
+
 ## Infrastructure Errors
 
 Infrastructure errors are usually technology-shaped: database constraint errors,
@@ -121,6 +160,16 @@ exception-filter boundary.
 
 Expose stable error codes. Treat messages as user-facing text only when they are
 safe and intentional. Keep internal diagnostics in logs.
+
+Application and domain errors may keep precise internal codes such as
+`create_correction.command_invalid` or `correction.original_text_empty`. HTTP
+responses should expose the stable public reason code, such as
+`validation_failed`, `dependency_unavailable`, or `not_found`, instead of leaking
+the internal owner prefix. Keep the precise internal code in logs or other
+server-side diagnostics when it is needed for troubleshooting.
+
+Do not reuse domain developer messages as client-facing HTTP messages. Translate
+them to protocol-safe copy at the application or presentation boundary.
 
 HTTP status mapping should follow the meaning of the error, not the source file
 where it occurred. For example, a domain state conflict usually maps differently

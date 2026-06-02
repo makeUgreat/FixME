@@ -65,7 +65,7 @@ For restore, express the domain state change on the aggregate, such as `restore`
 - Use plural names for arrays and collections: `mistakes`, `records`, `users`.
 - Use `id` only inside the owning object scope. Outside that scope, qualify it: `userId`, `postId`.
 - Use `At` for timestamps: `createdAt`, `updatedAt`, `expiresAt`.
-- Use `Params`, `Props`, `Options`, `Result`, and `Payload` by meaning. Use `RequestDto` and `ResponseDto` only at API DTO boundaries.
+- Use `Params`, `Props`, `Options`, `Result`, `Payload`, `Request`, and `Response` by meaning.
 
 ## File Suffixes
 
@@ -73,29 +73,61 @@ Use file suffixes to describe the file's role, not its implementation detail.
 
 | Suffix | Use when |
 | --- | --- |
-| `.type.ts` | The file exports only types or interfaces. |
+| `.type.ts` | The file exports only loose helper types or interfaces and no narrower suffix fits. |
 | `.constant.ts` | The file owns constants or enum-like `as const` data for one concept. |
 | `.util.ts` | The file exports stateless helper functions. |
-| `.base.ts` | The file exports an abstract or base class intended for inheritance. |
-| `.port.ts` | The file defines a layer boundary abstraction. |
+| `.base.ts` | The file exports foundational shared contracts, base types, or abstract/base classes. |
 | `.mapper.ts` | The file exports a mapper class or mapper implementation. |
 | `.error.ts` | The file owns feature, use case, or domain error unions. |
+| `.request.ts` | The file owns a protocol boundary request shape. |
+| `.response.ts` | The file owns a protocol boundary response shape. |
+| `.controller.ts` | The file exports a controller class. |
+| `.filter.ts` | The file exports a framework or protocol filter class. |
+| `.command.ts` | The file owns a CQRS command. |
+| `.command-handler.ts` | The file exports a CQRS command handler. |
 | `index.ts` | The file is a public barrel or package/lib entrypoint. |
 
-Prefer `.type.ts` over `.interface.ts`. TypeScript `interface` is a type-level
-construct, while the file suffix should describe the role of the whole file.
+Prefer `.type.ts` over `.interface.ts` only for loose type collections.
+If a narrower suffix such as `.base.ts`, `.error.ts`, `.request.ts`, or
+`.response.ts` describes the file, use that narrower suffix.
+TypeScript `interface` is a type-level construct, while the file suffix should describe the role of the whole file.
 Use singular `.constant.ts`, even when the file exports multiple constants,
 because the suffix describes the file role.
 
-## Ports And Infrastructure
+## Mapper Files And Types
 
-Port implementation files follow `{port-name}.{technology}.ts`. Implementation classes use `TechnologyPrefix + RoleName`.
+Use `Mapper` for layer boundary translation. Do not introduce a separate role
+name such as `Translator` for error translation.
 
-| Port type        | Port file                 | Implementation file          | Implementation class    |
+- Mapper files use `{subject}.mapper.ts`. Keep source, target, protocol, and
+  category words inside the hyphenated subject.
+- Type names should include conversion direction when the mapper performs a
+  semantic error conversion.
+- Error mapper file names use `-error.mapper.ts` while the class name names
+  the conversion direction, such as
+  `CreateCorrectionDomainErrorToApplicationErrorMapper`.
+
+Examples:
+
+| Boundary | File | Class |
+| --- | --- | --- |
+| Persistence record <-> domain model | `correction-persistence.mapper.ts` | `CorrectionPersistenceMapper` |
+| Domain error -> application error | `create-correction-error.mapper.ts` | `CreateCorrectionDomainErrorToApplicationErrorMapper` |
+| Application error -> HTTP error | `correction-http-error.mapper.ts` | `CorrectionHttpErrorMapper` |
+| Application result -> HTTP response | `create-correction-http-response.mapper.ts` | `CreateCorrectionHttpResponseMapper` |
+
+## Boundary Abstractions And Infrastructure
+
+Boundary abstraction files do not use a `Port` suffix in file names or type
+names. Shared foundational boundaries use `.base.ts`; repository boundaries use
+`.repository.ts`. Implementation files follow `{boundary-name}.{technology}.ts`.
+Implementation classes use `TechnologyPrefix + RoleName`.
+
+| Boundary type    | Boundary file             | Implementation file          | Implementation class    |
 | ---------------- | ------------------------- | ---------------------------- | ----------------------- |
-| `Logger`         | `logger.port.ts`          | `logger.winston.ts`          | `WinstonLogger`         |
-| `TokenProvider`  | `token-provider.port.ts`  | `token-provider.jwt.ts`      | `JwtTokenProvider`      |
-| `PostRepository` | `post.repository.port.ts` | `post.repository.typeorm.ts` | `TypeormPostRepository` |
+| `Logger`         | `logger.base.ts`          | `logger.winston.ts`          | `WinstonLogger`         |
+| `TokenProvider`  | `token-provider.base.ts`  | `token-provider.jwt.ts`      | `JwtTokenProvider`      |
+| `PostRepository` | `post.repository.ts`      | `post.repository.typeorm.ts` | `TypeormPostRepository` |
 
 ## DI Tokens
 
@@ -103,18 +135,19 @@ Collect DI tokens in `{module}.tokens.ts` and export `Symbol` values.
 
 - Constant name: `SCREAMING_SNAKE_CASE`, such as `ACCOUNT_REPOSITORY`.
 - Symbol description: `snake_case`, such as `Symbol('account_repository')`.
-- Tokens and ports map one-to-one: `TOKEN_PROVIDER` -> `TokenProvider` -> `token-provider.port.ts`.
+- Tokens and boundary abstractions map one-to-one: `TOKEN_PROVIDER` -> `TokenProvider` -> `token-provider.base.ts`.
 
 ```typescript
 export const ACCOUNT_REPOSITORY = Symbol('account_repository');
 export const TOKEN_PROVIDER = Symbol('token_provider');
 ```
 
-## DTOs And Controllers
+## Requests, Responses, And Controllers
 
-- Feature response DTOs belong near the controller that owns the protocol boundary.
-- Shared response DTOs may be introduced under `src/libs/api/` only when multiple modules need the same stable API shape.
-- Controller files include the protocol: `{module}.{protocol}.controller.ts`, such as `post.http.controller.ts` -> `PostHttpController`.
+- Feature request and response types belong near the controller that owns the protocol boundary.
+- Shared response types may be introduced under `src/libs/api/` only when multiple modules need the same stable API shape.
+- Controller files include the protocol: `{module-protocol}.controller.ts`, such as `post-http.controller.ts` -> `PostHttpController`.
+- Protocol-specific request, response, and error files do not use a `Dto` suffix. Put the protocol inside the hyphenated subject when the shape is protocol-specific, such as `create-correction.request.ts`, `create-correction-http.response.ts`, and `correction-http-error.mapper.ts`.
 
 ## Test Helpers
 

@@ -7,7 +7,7 @@ ESLint-enforced test checks are summarized in the
 
 ## Common Review Rules
 
-- Use a subdirectory close to the target being tested. Example: `apps/api/test/metrics/metrics.service.spec.ts`
+- Use the standard directory for the test type. Unit tests live under `__tests__` in the target file's directory. Integration tests live under `apps/api/test/{domain}/`.
 - Use the target name in `describe()`.
 - Each `it()` should call one unit of work and verify one specific endpoint of behavior.
 - Keep status code, body, and header assertions in the same `it()` when they verify the same execution result.
@@ -21,7 +21,7 @@ ESLint-enforced test checks are summarized in the
 ## Unit Tests
 
 - Run unit tests with `pnpm api:test:unit`.
-- Prefer placing unit tests next to the target file. Tests that need shared harnesses, fixtures, or cross-cutting setup may live under `apps/api/test/{domain}/`.
+- Place unit tests in a `__tests__` directory inside the target file's directory. Example: `apps/api/src/modules/corrections/domain/__tests__/mistake.vo.spec.ts`
 - Target pure services, functions, and small units of business logic.
 - Do not use an HTTP server, actual Nest application bootstrap, or external I/O.
 - Create required dependencies directly or replace them with lightweight mocks/stubs.
@@ -41,6 +41,9 @@ ESLint-enforced test checks are summarized in the
 - Run integration tests with `pnpm api:test:integration`.
 - Use integration tests to verify interactions that unit tests cannot cover, such as config-to-rule wiring, dependency injection wiring, framework bootstrap, routing, and controller responses.
 - If a test uses hard-to-control elements such as an actual network, REST API, system time, file system, or database, separate it as an integration test instead of a unit test.
+- Treat integration tests as adapter contract tests for boundaries that face external protocols or persistence.
+- Split integration spec files by adapter target. For example, use `corrections-http.controller.integration-spec.ts` for an HTTP controller adapter and `correction.repository.memory.integration-spec.ts` or `correction.repository.prisma.integration-spec.ts` for repository persistence adapters.
+- Do not use integration tests to repeat every domain or application invariant. Keep detailed domain and application rule coverage in unit tests, and use integration tests for observable boundary behavior such as request and response shape, validation pipe behavior, dependency injection wiring, framework routing, and repository save/find contracts.
 - For Nest app integration tests, use `app.inject()` as the standard Fastify request approach.
 - Nest app integration test files should create the app in `beforeEach` and close it with `app.close()` in `afterEach`.
 - The outer `describe()` should name the integrated target.

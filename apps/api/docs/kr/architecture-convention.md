@@ -10,7 +10,7 @@
 - Presentation code는 application result와 error를 protocol-safe response로 변환한다.
 - Shared `libs`는 application module이나 bootstrap code에 의존하면 안 된다.
 
-Domain file은 Nest, HTTP exception, application service, infrastructure adapter, presentation DTO, mapper implementation을 import하지 않는다.
+Domain file은 Nest, HTTP exception, application service, infrastructure adapter, presentation request/response type, mapper implementation을 import하지 않는다.
 Application file은 infrastructure 또는 presentation adapter에 의존하지 않는다.
 Infrastructure file은 presentation file에 의존하지 않는다.
 
@@ -26,18 +26,23 @@ Domain model은 domain에 필요한 behavior와 state를 노출해야 한다. Pe
 
 Mapper는 layer boundary를 명시적으로 유지한다. 한 layer의 model을 다른 layer의 model로 변환하며, persistence, transport, framework serialization concern을 domain model에 넣지 않는다.
 
-공유 mapper interface는 `@libs/layer`에서 사용한다.
+공유 mapper contract는 `@libs/layer`에서 사용한다.
 
-| Interface | Boundary |
+| Contract | Boundary |
 | --- | --- |
+| `ApplicationMapper` | Generic application-layer input -> application-layer output |
 | `PersistenceMapper` | Infrastructure persistence record <-> domain model |
-| `ApplicationErrorMapper` | Domain error -> application error |
-| `PresentationMapper` | Application 또는 domain-safe output -> response DTO |
-| `PresentationErrorMapper` | Application error -> HTTP-safe response body와 status code |
+| `DomainErrorToApplicationErrorMapper` | Domain error -> application error |
+| `PresentationMapper` | Generic presentation-layer input -> presentation-layer output |
 
-Application mapper는 domain result 또는 error를 application result 또는 error로 변환할 수 있다. `CreateCorrectionErrorMapper`처럼 담당 use case나 workflow를 드러내는 이름을 사용하고, Nest 또는 HTTP type을 import하지 않는다.
+Application mapper는 domain result 또는 error를 application result 또는 error로 변환할 수 있다. 더 좁은 shared contract가 없을 때는 넓은 application mapper contract로 `ApplicationMapper`를 사용한다. Nest 또는 HTTP type을 import하지 않는다.
+Domain error to application error mapper는 shared `DomainErrorToApplicationErrorMapper` abstract class를 상속하고 domain error `kind` handler를 빠짐없이 선언한다. 그래서 새로운 error kind가 추가되면 명시적인 application error mapping이 필요하다.
 
 Mapper logic은 shape translation과 error meaning translation에 머물러야 한다. Business decision을 mapper에 두지 않는다.
+
+더 좁은 shared contract가 없을 때는 넓은 presentation mapper contract로 `PresentationMapper`를 사용한다. Adapter-specific presentation mapper는 `PresentationHttpErrorMapper`처럼 더 좁은 abstract class 아래에 두고, `toException` 같은 adapter-native method를 노출할 수 있다.
+
+Protocol-safe success response는 해당 response를 반환하는 feature presentation adapter가 소유한다. 여러 module이 같은 안정적인 response shape를 필요로 할 때만 shared response type을 도입한다.
 
 ## 정적 검사
 
@@ -50,4 +55,4 @@ ESLint로 강제되는 architecture와 mapper 검사는 [API ESLint rules README
 ## 테스트
 
 Architecture-sensitive behavior는 가장 작은 유용한 수준에서 테스트해야 한다.
-Mapper test는 exact input/output shape를 검증하는 pure unit test여야 하며, 안전한 `details` field가 보존되는지와 presentation error mapper의 HTTP status mapping을 함께 확인한다.
+Mapper test는 exact input/output shape를 검증하는 pure unit test여야 하며, 안전한 `details` field가 보존되는지와 HTTP 같은 protocol을 대상으로 하는 mapper의 transport-specific status mapping을 함께 확인한다.

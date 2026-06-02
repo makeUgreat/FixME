@@ -6,6 +6,7 @@ import noDomainModelSerializationRule from '../../eslint/rules/mapper/no-domain-
 import noErrorContractInMapperRule from '../../eslint/rules/mapper/no-error-contract-in-mapper.mjs';
 import noNestInApplicationErrorRule from '../../eslint/rules/mapper/no-nest-in-application-error.mjs';
 import noNestInApplicationMapperRule from '../../eslint/rules/mapper/no-nest-in-application-mapper.mjs';
+import preferApplicationErrorOfRule from '../../eslint/rules/mapper/prefer-application-error-of.mjs';
 
 const implementsLayerMapperRuleModule =
   implementsLayerMapperRule as Rule.RuleModule;
@@ -17,6 +18,7 @@ const noNestInApplicationErrorRuleModule =
   noNestInApplicationErrorRule as Rule.RuleModule;
 const noNestInApplicationMapperRuleModule =
   noNestInApplicationMapperRule as Rule.RuleModule;
+const preferApplicationErrorOfRuleModule = preferApplicationErrorOfRule;
 
 interface LintMapperRuleOptions {
   code: string;
@@ -137,6 +139,25 @@ describe('mapper ESLint rules', () => {
       });
 
       expect(messages).toHaveLength(0);
+    });
+
+    it('application error mapper가 DomainErrorToApplicationErrorMapper를 구현하면 위반으로 보고한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/application/commands/create-correction-error.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CreateCorrectionDomainErrorToApplicationErrorMapper implements DomainErrorToApplicationErrorMapper<Error, object> {}
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(firstMessage(messages)).toMatchObject({
+        ruleId: 'mapper/implements-layer-mapper',
+        message:
+          'Mapper class CreateCorrectionDomainErrorToApplicationErrorMapper must extend DomainErrorToApplicationErrorMapper.',
+      });
     });
 
     it('application error mapper가 DomainErrorToApplicationErrorMapper를 상속하지 않으면 위반으로 보고한다', () => {
@@ -323,6 +344,92 @@ describe('mapper ESLint rules', () => {
           export interface CreateCorrectionError {
             readonly code: string;
           }
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+  });
+
+  describe('prefer-application-error-of', () => {
+    it('ApplicationErrorOf를 사용하면 통과한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/application/commands/create-correction.error.ts',
+        ruleName: 'prefer-application-error-of',
+        rule: preferApplicationErrorOfRuleModule,
+        code: `
+          import { APPLICATION_ERROR_KIND, type ApplicationErrorOf } from '@libs/layer';
+
+          export type CreateCorrectionValidationFailedError =
+            ApplicationErrorOf<
+              typeof APPLICATION_ERROR_KIND.VALIDATION_FAILED,
+              'create_correction',
+              'command_invalid'
+            >;
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('ApplicationErrorBase에 kind를 직접 넣으면 위반으로 보고한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/application/commands/create-correction.error.ts',
+        ruleName: 'prefer-application-error-of',
+        rule: preferApplicationErrorOfRuleModule,
+        code: `
+          import { type ApplicationErrorBase } from '@libs/layer';
+
+          export type CreateCorrectionValidationFailedError =
+            ApplicationErrorBase<'validation_failed', 'create_correction.command_invalid'>;
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(firstMessage(messages)).toMatchObject({
+        ruleId: 'mapper/prefer-application-error-of',
+        message:
+          'Use ApplicationErrorOf<Kind, Owner, Reason, Details> instead of spelling out the validation_failed application error shape.',
+      });
+    });
+
+    it('application error shape를 type literal로 직접 쓰면 위반으로 보고한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/application/commands/create-correction.error.ts',
+        ruleName: 'prefer-application-error-of',
+        rule: preferApplicationErrorOfRuleModule,
+        code: `
+          export type CreateCorrectionDependencyUnavailableError = {
+            readonly kind: 'dependency_unavailable';
+            readonly code: 'create_correction.persistence_unavailable';
+            readonly message: string;
+            readonly details: unknown;
+          };
+        `,
+      });
+
+      expect(messages).toHaveLength(1);
+      expect(firstMessage(messages)).toMatchObject({
+        ruleId: 'mapper/prefer-application-error-of',
+        message:
+          'Use ApplicationErrorOf<Kind, Owner, Reason, Details> instead of spelling out the dependency_unavailable application error shape.',
+      });
+    });
+
+    it('application error contract가 아니면 검사하지 않는다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/presentation/correction-http-error.mapper.ts',
+        ruleName: 'prefer-application-error-of',
+        rule: preferApplicationErrorOfRuleModule,
+        code: `
+          type ResponseError = {
+            readonly kind: 'validation_failed';
+            readonly code: string;
+          };
         `,
       });
 
