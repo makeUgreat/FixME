@@ -141,10 +141,10 @@ describe('mapper ESLint rules', () => {
       });
     });
 
-    it('infrastructure mapper가 PersistenceMapper를 구현하지 않으면 위반으로 보고한다', () => {
+    it('infrastructure persistence mapper가 PersistenceAggregateMapper를 상속하지 않으면 위반으로 보고한다', () => {
       const messages = lintMapperRule({
         filename:
-          'src/modules/corrections/infrastructure/correction.persistence.mapper.ts',
+          'src/modules/corrections/infrastructure/persistence/postgres-drizzle/correction-persistence.mapper.ts',
         ruleName: 'implements-layer-mapper',
         rule: implementsLayerMapperRuleModule,
         code: `
@@ -156,8 +156,36 @@ describe('mapper ESLint rules', () => {
       expect(firstMessage(messages)).toMatchObject({
         ruleId: 'mapper/implements-layer-mapper',
         message:
-          'Mapper class CorrectionPersistenceMapper must implement PersistenceMapper.',
+          'Mapper class CorrectionPersistenceMapper must extend PersistenceAggregateMapper.',
       });
+    });
+
+    it('infrastructure mapper가 PersistenceAggregateMapper를 상속하면 통과한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/infrastructure/persistence/postgres-drizzle/correction-persistence.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CorrectionPersistenceMapper extends PersistenceAggregateMapper<Correction, CorrectionRow, InsertCorrectionRow, Error> {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('persistence가 아닌 infrastructure mapper는 aggregate persistence contract를 요구하지 않는다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/infrastructure/messaging/sqs/correction-message.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CorrectionMessageMapper {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
     });
 
     it('application error mapper가 DomainErrorToApplicationErrorMapper를 상속하면 통과한다', () => {
@@ -168,6 +196,20 @@ describe('mapper ESLint rules', () => {
         rule: implementsLayerMapperRuleModule,
         code: `
           class CreateCorrectionDomainErrorToApplicationErrorMapper extends DomainErrorToApplicationErrorMapper<Error, object> {}
+        `,
+      });
+
+      expect(messages).toHaveLength(0);
+    });
+
+    it('domain error가 아닌 application error mapper가 ApplicationMapper를 구현하면 통과한다', () => {
+      const messages = lintMapperRule({
+        filename:
+          'src/modules/corrections/application/commands/create-correction-error.mapper.ts',
+        ruleName: 'implements-layer-mapper',
+        rule: implementsLayerMapperRuleModule,
+        code: `
+          class CreateCorrectionRepositoryErrorToApplicationErrorMapper implements ApplicationMapper<Error, object> {}
         `,
       });
 

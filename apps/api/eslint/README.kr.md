@@ -41,6 +41,7 @@
 | Rule                                    | Level | Scope                                    | Check                                                                                                                                |
 | --------------------------------------- | ----- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `naming/type-name-matches-file-name`    | error | 일부 support file을 제외한 `src/**/*.ts` | 인식 가능한 role suffix가 있는 source file은 파일명에 맞는 type name을 선언해야 한다. 예: `user-profile.entity.ts` -> `UserProfile`. |
+| `naming/repository-method-prefix`       | error | `src/**/*.repository.ts`                 | Repository method는 `save`, `findById`, `listByUserId`, `existsById`처럼 지원되는 `By` qualifier prefix를 사용해야 한다.             |
 | `check-file/filename-naming-convention` | error | `src/**/*.ts`                            | Source filename은 lowercase kebab-style segment를 사용해야 한다.                                                                     |
 | `@typescript-eslint/naming-convention`  | error | 모든 lint 대상 file                      | Variable, parameter, member, type-like declaration은 설정된 casing rule을 따라야 한다.                                               |
 
@@ -69,7 +70,7 @@ Mapper boundary 원칙은 [아키텍처 컨벤션](../docs/kr/architecture-conve
 
 | Rule                                   | Level | Scope         | Check                                                                                                                           |
 | -------------------------------------- | ----- | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure, application error, HTTP presentation error, generic presentation mapper class는 layer-specific mapper contract를 사용해야 한다. |
+| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure aggregate persistence, application error, HTTP presentation error, generic presentation mapper class는 specific mapper contract를 사용해야 한다. Domain error가 아닌 application error mapper는 `ApplicationMapper`를 구현할 수 있다. |
 | `mapper/no-domain-model-serialization` | error | `src/**/*.ts` | Domain model은 `toResponse`, `toRecord`, `toDto`, `toJSON`, `fromRecord` 같은 boundary serialization method를 정의하면 안 된다. |
 | `mapper/no-error-contract-in-mapper`   | error | `src/**/*.ts` | Mapper file은 error contract type을 export하면 안 되며, application error contract는 `.error.ts` file에 둔다.                   |
 | `mapper/no-nest-in-application-error`  | error | `src/**/*.ts` | Application error contract file은 Nest 또는 HTTP type을 import하면 안 된다.                                                     |

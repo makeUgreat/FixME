@@ -41,6 +41,7 @@ See the [naming convention](../docs/en/naming-convention.md) for naming intent.
 | Rule                                    | Level | Scope                                      | Check                                                                                                                       |
 | --------------------------------------- | ----- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `naming/type-name-matches-file-name`    | error | `src/**/*.ts` except ignored support files | Files with recognized role suffixes must declare the matching type name, such as `user-profile.entity.ts` -> `UserProfile`. |
+| `naming/repository-method-prefix`       | error | `src/**/*.repository.ts`                   | Repository methods must use `save` or a supported `By`-qualified prefix such as `findById`, `listByUserId`, or `existsById`. |
 | `check-file/filename-naming-convention` | error | `src/**/*.ts`                              | Source filenames must use lowercase kebab-style segments.                                                                   |
 | `@typescript-eslint/naming-convention`  | error | All linted files                           | Variables, parameters, members, and type-like declarations must follow the configured casing rules.                         |
 
@@ -69,7 +70,7 @@ mapper boundary principles.
 
 | Rule                                   | Level | Scope         | Check                                                                                                                              |
 | -------------------------------------- | ----- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure, application error, HTTP presentation error, and generic presentation mapper classes must use their layer-specific mapper contract. |
+| `mapper/implements-layer-mapper`       | error | `src/**/*.ts` | Infrastructure aggregate persistence, application error, HTTP presentation error, and generic presentation mapper classes must use their specific mapper contract; non-domain application error mappers may implement `ApplicationMapper`. |
 | `mapper/no-domain-model-serialization` | error | `src/**/*.ts` | Domain models must not define boundary serialization methods such as `toResponse`, `toRecord`, `toDto`, `toJSON`, or `fromRecord`. |
 | `mapper/no-error-contract-in-mapper`   | error | `src/**/*.ts` | Mapper files must not export error contract types; application error contracts belong in `.error.ts` files.                        |
 | `mapper/no-nest-in-application-error`  | error | `src/**/*.ts` | Application error contract files must not import Nest or HTTP types.                                                               |
