@@ -43,7 +43,13 @@ Name methods by the layer's responsibility so technical language does not leak i
 - Use case names describe user-facing application actions. The public method is `execute`.
 - Infrastructure code may use external API/library names internally, such as TypeORM `findOneBy` or HTTP `post`, but do not expose them through domain or application ports.
 
-Repository prefixes need explicit rules because they encode result shape and failure behavior.
+Repository prefixes apply to `.repository.ts` files only. A repository is an
+aggregate persistence boundary, not a generic name for every storage-like
+adapter. Message queues, caches, object storage, and SDK adapters should use
+role-specific names such as publisher, consumer, cache, or storage.
+
+Repository prefixes need explicit rules because they encode result shape and
+failure behavior.
 
 | Prefix      | Use when                                                           |
 | ----------- | ------------------------------------------------------------------ |
@@ -55,9 +61,11 @@ Repository prefixes need explicit rules because they encode result shape and fai
 | `existsByX` | Return a boolean existence check.                                  |
 | `deleteByX` | Physically remove the record. Use only when hard delete is valid.  |
 
-Do not add `update` to the base repository. Modify the aggregate and call `save`.
+Do not add `update` to repository boundaries. Modify the aggregate and call `save`.
 For soft delete, express the domain state change on the aggregate, such as `markAsDeleted`, then persist it with `save`.
 For restore, express the domain state change on the aggregate, such as `restore`, then persist it with `save`.
+Do not expose ambiguous repository methods such as `create`, `insert`,
+`update`, `upsert`, `fetch`, `load`, `query`, or `read`.
 
 ## Variables And Types
 
@@ -79,6 +87,8 @@ Use file suffixes to describe the file's role, not its implementation detail.
 | `.base.ts` | The file exports foundational shared contracts, base types, or abstract/base classes. |
 | `.mapper.ts` | The file exports a mapper class or mapper implementation. |
 | `.error.ts` | The file owns feature, use case, or domain error unions. |
+| `.schema.ts` | The file owns runtime validation schemas, such as Zod schemas. |
+| `.table.ts` | The file owns database table definitions, such as Drizzle tables. |
 | `.request.ts` | The file owns a protocol boundary request shape. |
 | `.response.ts` | The file owns a protocol boundary response shape. |
 | `.controller.ts` | The file exports a controller class. |
@@ -108,16 +118,24 @@ name such as `Translator` for error translation.
   `CreateCorrectionDomainErrorToApplicationErrorMapper`.
 - Shared `.base.ts` mapper files may expose a stable shared contract whose name
   describes the conversion direction rather than repeating the file subject.
+- Shared layer helper directories carry layer, adapter, or protocol context.
+  Keep shared helper file names focused on the local role, such as
+  `application/error-mapper.base.ts`,
+  `presentation/http/error-mapper.base.ts`, and
+  `infrastructure/persistence/aggregate-mapper.base.ts`. Public type names keep
+  the full semantic context.
 
 Examples:
 
 | Boundary | File | Class |
 | --- | --- | --- |
-| Persistence record <-> domain model | `correction-persistence.mapper.ts` | `CorrectionPersistenceMapper` |
+| Persistence model <-> domain model | `correction-persistence.mapper.ts` | `CorrectionPersistenceMapper` |
 | Domain error -> application error | `create-correction-error.mapper.ts` | `CreateCorrectionDomainErrorToApplicationErrorMapper` |
 | Application error -> HTTP error | `correction-http-error.mapper.ts` | `CorrectionHttpErrorMapper` |
 | Application result -> HTTP response | `create-correction-http-response.mapper.ts` | `CreateCorrectionHttpResponseMapper` |
-| Shared domain error -> application error contract | `application-error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
+| Shared domain error -> application error contract | `application/error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
+| Shared HTTP presentation error contract | `presentation/http/error-mapper.base.ts` | `PresentationHttpErrorMapper` |
+| Shared persistence aggregate base | `infrastructure/persistence/aggregate-mapper.base.ts` | `PersistenceAggregateMapper` |
 
 ## Boundary Abstractions And Infrastructure
 
@@ -131,6 +149,38 @@ Implementation classes use `TechnologyPrefix + RoleName`.
 | `Logger`         | `logger.base.ts`          | `logger.winston.ts`          | `WinstonLogger`         |
 | `TokenProvider`  | `token-provider.base.ts`  | `token-provider.jwt.ts`      | `JwtTokenProvider`      |
 | `PostRepository` | `post.repository.ts`      | `post.repository.typeorm.ts` | `TypeormPostRepository` |
+
+When an infrastructure adapter has multiple files, put the technology in the
+directory name and keep file names role-based. For example, use
+`persistence/postgres-drizzle/correction.repository.ts`,
+`correction.table.ts`, `correction-persistence.mapper.ts`, and
+`correction-json.schema.ts`.
+
+Use storage-neutral names in shared infrastructure contracts:
+`PersistenceInput`, `PersistenceOutput`, and `PersistenceModel`. Do not use DB
+terms such as `Row` or `Table` in shared persistence contracts.
+
+Use adapter-native names inside concrete storage adapters:
+
+| Storage adapter | Type terms | File terms |
+| --- | --- | --- |
+| DB | `Row`, `InsertRow`, `UpdateRow`, `Table` | `.table.ts` |
+| Message queue | `Payload`, `Message` | `.schema.ts` for runtime validation |
+| Object storage | `StoredObject`, `ObjectKey` | role-specific files such as `.storage.ts` |
+| Cache | `CacheEntry`, `CacheKey` | role-specific files such as `.cache.ts` |
+
+For Drizzle-inferred DB types, use names such as `CorrectionRow`,
+`InsertCorrectionRow`, and `UpdateCorrectionRow`. Avoid `NewCorrectionRow`
+because `New` does not name the write operation. Do not use DAO as a
+domain/application boundary name.
+
+Use `Schema` only for runtime validation schemas such as Zod schemas, plus
+explicit migration registry files such as `database.schema.ts`. Drizzle table
+definitions use `.table.ts`, not `.schema.ts`.
+
+Avoid `Record` for persistence model names. `Record` is reserved for the
+TypeScript utility type or ordinary object dictionaries, such as
+`Record<string, unknown>`.
 
 ## DI Tokens
 

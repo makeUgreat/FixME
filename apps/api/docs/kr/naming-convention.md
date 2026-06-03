@@ -42,6 +42,11 @@ ESLint로 강제되는 네이밍 검사는 [API ESLint rules README](../../eslin
 - Use case 이름은 사용자 관점의 application action을 설명한다. public method는 `execute`다.
 - Infrastructure code는 TypeORM `findOneBy`나 HTTP `post`처럼 외부 API/library 이름을 내부에서 사용할 수 있지만, domain 또는 application port를 통해 노출하지 않는다.
 
+Repository prefix는 `.repository.ts` 파일에만 적용한다. Repository는 aggregate
+persistence boundary이며, storage처럼 보이는 모든 adapter의 일반 이름이 아니다.
+Message queue, cache, object storage, SDK adapter는 publisher, consumer, cache,
+storage 같은 role-specific name을 사용한다.
+
 Repository prefix는 결과 형태와 실패 동작을 담고 있으므로 명시적인 규칙이 필요하다.
 
 | Prefix | 사용할 때 |
@@ -54,9 +59,11 @@ Repository prefix는 결과 형태와 실패 동작을 담고 있으므로 명�
 | `existsByX` | boolean existence check를 반환한다. |
 | `deleteByX` | record를 물리적으로 제거한다. hard delete가 유효할 때만 사용한다. |
 
-기본 repository에 `update`를 추가하지 않는다. aggregate를 변경한 뒤 `save`를 호출한다.
+Repository boundary에 `update`를 추가하지 않는다. aggregate를 변경한 뒤 `save`를 호출한다.
 Soft delete는 `markAsDeleted`처럼 aggregate의 domain state change로 표현한 뒤 `save`로 persist한다.
 Restore는 `restore`처럼 aggregate의 domain state change로 표현한 뒤 `save`로 persist한다.
+`create`, `insert`, `update`, `upsert`, `fetch`, `load`, `query`, `read`처럼
+의미가 모호한 repository method는 노출하지 않는다.
 
 ## 변수와 타입
 
@@ -78,6 +85,8 @@ Restore는 `restore`처럼 aggregate의 domain state change로 표현한 뒤 `sa
 | `.base.ts` | foundational shared contract, base type, abstract/base class를 export하는 파일. |
 | `.mapper.ts` | mapper class 또는 mapper implementation을 export하는 파일. |
 | `.error.ts` | feature, use case, domain의 error union을 소유하는 파일. |
+| `.schema.ts` | Zod schema 같은 runtime validation schema를 소유하는 파일. |
+| `.table.ts` | Drizzle table 같은 database table definition을 소유하는 파일. |
 | `.request.ts` | protocol boundary request shape를 소유하는 파일. |
 | `.response.ts` | protocol boundary response shape를 소유하는 파일. |
 | `.controller.ts` | controller class를 export하는 파일. |
@@ -102,16 +111,23 @@ Layer boundary translation에는 `Mapper`를 사용한다. Error translation에
 - Error mapper file name은 `-error.mapper.ts`를 사용하고, class name은
   `CreateCorrectionDomainErrorToApplicationErrorMapper`처럼 변환 방향을 드러낸다.
 - Shared `.base.ts` mapper file은 file subject를 반복하기보다 변환 방향을 설명하는 안정적인 shared contract 이름을 노출할 수 있다.
+- Shared layer helper directory는 layer, adapter, protocol context를 담는다.
+  Shared helper file name은 `application/error-mapper.base.ts`,
+  `presentation/http/error-mapper.base.ts`,
+  `infrastructure/persistence/aggregate-mapper.base.ts`처럼 local role에
+  집중한다. Public type name은 전체 semantic context를 유지한다.
 
 예:
 
 | Boundary | File | Class |
 | --- | --- | --- |
-| Persistence record <-> domain model | `correction-persistence.mapper.ts` | `CorrectionPersistenceMapper` |
+| Persistence model <-> domain model | `correction-persistence.mapper.ts` | `CorrectionPersistenceMapper` |
 | Domain error -> application error | `create-correction-error.mapper.ts` | `CreateCorrectionDomainErrorToApplicationErrorMapper` |
 | Application error -> HTTP error | `correction-http-error.mapper.ts` | `CorrectionHttpErrorMapper` |
 | Application result -> HTTP response | `create-correction-http-response.mapper.ts` | `CreateCorrectionHttpResponseMapper` |
-| Shared domain error -> application error contract | `application-error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
+| Shared domain error -> application error contract | `application/error-mapper.base.ts` | `DomainErrorToApplicationErrorMapper` |
+| Shared HTTP presentation error contract | `presentation/http/error-mapper.base.ts` | `PresentationHttpErrorMapper` |
+| Shared persistence aggregate base | `infrastructure/persistence/aggregate-mapper.base.ts` | `PersistenceAggregateMapper` |
 
 ## Boundary Abstraction과 Infrastructure
 
@@ -125,6 +141,38 @@ Boundary abstraction file은 file name이나 type name에 `Port` suffix를 붙�
 | `Logger` | `logger.base.ts` | `logger.winston.ts` | `WinstonLogger` |
 | `TokenProvider` | `token-provider.base.ts` | `token-provider.jwt.ts` | `JwtTokenProvider` |
 | `PostRepository` | `post.repository.ts` | `post.repository.typeorm.ts` | `TypeormPostRepository` |
+
+Infrastructure adapter가 여러 파일로 나뉘면 technology는 directory name에 두고
+file name은 role 중심으로 유지한다. 예:
+`persistence/postgres-drizzle/correction.repository.ts`,
+`correction.table.ts`, `correction-persistence.mapper.ts`,
+`correction-json.schema.ts`.
+
+Shared infrastructure contract에는 storage-neutral name을 사용한다:
+`PersistenceInput`, `PersistenceOutput`, `PersistenceModel`. Shared
+persistence contract에는 `Row`, `Table` 같은 DB 용어를 사용하지 않는다.
+
+Concrete storage adapter 내부에서는 adapter-native name을 사용한다.
+
+| Storage adapter | Type terms | File terms |
+| --- | --- | --- |
+| DB | `Row`, `InsertRow`, `UpdateRow`, `Table` | `.table.ts` |
+| Message queue | `Payload`, `Message` | runtime validation에는 `.schema.ts` |
+| Object storage | `StoredObject`, `ObjectKey` | `.storage.ts` 같은 role-specific file |
+| Cache | `CacheEntry`, `CacheKey` | `.cache.ts` 같은 role-specific file |
+
+Drizzle에서 추론한 DB type에는 `CorrectionRow`, `InsertCorrectionRow`,
+`UpdateCorrectionRow` 같은 이름을 사용한다. `NewCorrectionRow`는 write
+operation을 드러내지 않으므로 피한다. DAO를 domain/application boundary
+이름으로 사용하지 않는다.
+
+`Schema`는 Zod schema 같은 runtime validation schema와
+`database.schema.ts` 같은 명시적인 migration registry file에만 사용한다.
+Drizzle table definition은 `.schema.ts`가 아니라 `.table.ts`를 사용한다.
+
+Persistence model 이름에는 `Record`를 사용하지 않는다. `Record`는
+`Record<string, unknown>` 같은 TypeScript utility type 또는 일반 object
+dictionary 용도로 남긴다.
 
 ## DI Token
 

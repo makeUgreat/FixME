@@ -145,6 +145,41 @@ Do not let technology-shaped errors leak into domain or application contracts.
 Catch or contain them near the infrastructure boundary, then translate them into
 an application-level meaning when the caller can make a useful decision.
 
+Infrastructure error contracts should use the shared `InfrastructureErrorOf`
+helper from `@libs/layer`. Use adapter-neutral `kind` values that describe the
+failure meaning, not the dependency type:
+
+| Kind             | Meaning                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| `unavailable`    | A required infrastructure dependency is not available.      |
+| `timeout`        | A required infrastructure dependency timed out.             |
+| `conflict`       | The operation conflicts with dependency state.              |
+| `invalid_data`   | Data from or stored in a dependency has an invalid shape.   |
+| `restore_failed` | Persisted data could not be restored into the expected model. |
+| `bad_response`   | An external dependency returned an unusable response.       |
+| `unexpected`     | The failure cannot be meaningfully classified here.         |
+
+Use `code` for source-specific precision, such as
+`correction_repository.save_unavailable` or
+`openai_client.response_invalid`. Do not encode adapter names such as database,
+Redis, S3, or HTTP into `kind`.
+
+Infrastructure errors include top-level `source` metadata for where the failure
+occurred. Keep `code` in the stable `{owner}.{reason}` format. For now,
+`source` only contains the existing infrastructure boundary,
+`boundary: 'persistence'`, and the concrete `adapter`. Keep `details` for
+failure-specific safe payload only.
+
+Persistence errors are a narrower infrastructure error family. Persistence
+contracts should use `PersistenceErrorOf` from `@libs/layer`, and
+`PersistenceErrorBase` must extend `InfrastructureErrorBase`. Persistence
+sources always use `boundary: 'persistence'` and include an `adapter`.
+
+Infrastructure error values returned through `Result` must not include raw
+causes, SDK errors, SQL details, stack traces, provider payloads, secrets, or
+other unsafe dependency diagnostics. Keep those diagnostics in logging or a
+separate internal diagnostic policy.
+
 It is acceptable for infrastructure code to use exceptions internally when the
 dependency API is exception-based. The convention is about what crosses the
 boundary, not about pretending external libraries are pure.
