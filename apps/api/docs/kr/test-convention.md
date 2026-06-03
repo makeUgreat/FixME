@@ -2,7 +2,7 @@
 
 API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리한다. 실행 속도와 검증 범위를 기준으로 단위 테스트를 먼저 선호한다. 프레임워크 설정, 모듈 연결, Nest 애플리케이션 부트스트랩, 라우팅, 실제 HTTP 응답처럼 여러 실제 컴포넌트가 함께 동작하는지 검증해야 할 때 통합 테스트를 작성한다.
 
-ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/README.kr.md#test-rules)에 정리한다.
+현재 활성화된 test convention ESLint 검사는 없다.
 
 ## 공통 리뷰 규칙
 
@@ -41,7 +41,7 @@ ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/REA
 - config-to-rule wiring, dependency injection wiring, framework bootstrap, routing, controller response처럼 단위 테스트로 다룰 수 없는 상호작용을 검증할 때 통합 테스트를 사용한다.
 - 실제 네트워크, REST API, 시스템 시간, 파일 시스템, 데이터베이스처럼 통제하기 어려운 요소를 사용하는 테스트는 단위 테스트가 아니라 통합 테스트로 분리한다.
 - 통합 테스트는 외부 protocol 또는 persistence와 맞닿은 boundary adapter의 계약 테스트로 본다.
-- Integration spec file은 adapter target별로 분리한다. 예: HTTP controller adapter는 `corrections-http.controller.integration-spec.ts`, repository persistence adapter는 `correction.repository.memory.integration-spec.ts` 또는 `correction.repository.prisma.integration-spec.ts`를 사용한다. App bootstrap이나 ESLint harness 검사 같은 system-level target은 rule implementation에 special-case로 넣지 않고 ESLint rule 설정에 명시해야 한다.
+- Integration spec file은 adapter target별로 분리한다. 예: HTTP controller adapter는 `corrections-http.controller.integration-spec.ts`, repository persistence adapter는 `correction.repository.memory.integration-spec.ts` 또는 `correction.repository.prisma.integration-spec.ts`를 사용한다.
 - 모든 domain 또는 application invariant를 통합 테스트에서 반복하지 않는다. 상세한 domain/application rule은 단위 테스트에 두고, 통합 테스트는 request/response shape, validation pipe 동작, dependency injection wiring, framework routing, repository save/find contract처럼 boundary에서 관찰 가능한 동작을 검증한다.
 - Nest 앱 통합 테스트는 표준 Fastify 요청 방식으로 `app.inject()`를 사용한다.
 - Nest 앱 통합 테스트 파일은 `beforeEach`에서 app을 만들고 `afterEach`에서 `app.close()`로 닫아야 한다.
@@ -54,7 +54,7 @@ ESLint로 강제되는 test 검사는 [API ESLint rules README](../../eslint/REA
 ## 명령어
 
 ```bash
-pnpm api:lint:check       # 정적 컨벤션 검사
+pnpm api:lint:check       # 현재 ESLint 검사
 pnpm api:test:unit        # 단위 테스트
 pnpm api:test             # 모든 Vitest 테스트
 pnpm api:test:integration # 통합 테스트
