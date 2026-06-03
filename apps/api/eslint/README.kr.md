@@ -1,6 +1,0 @@
-# API ESLint 규칙
-
-현재 활성화된 project-specific 또는 convention-enforcing ESLint 규칙은 없습니다.
-
-ESLint 설정은 나중에 규칙을 다시 추가할 수 있도록 실행 가능한 상태로 유지합니다.
-현재 이 디렉터리에 local rule 구현은 남겨두지 않습니다.

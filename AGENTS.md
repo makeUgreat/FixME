@@ -1,5 +1,5 @@
 # Project Conventions
 
-No project conventions are currently defined.
+Use English convention documents as authoritative.
 
-Add convention links here when project rules are introduced again.
+- [Documentation Convention Index](docs/en/index.md)
