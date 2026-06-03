@@ -2,8 +2,7 @@
 
 The API app uses Vitest and separates unit tests from integration tests. Prefer unit tests first based on execution speed and verification scope. Write integration tests when the test must verify multiple real components working together, such as framework configuration, module wiring, Nest application bootstrap, routing, or actual HTTP responses.
 
-ESLint-enforced test checks are summarized in the
-[API ESLint rules README](../../eslint/README.md#test-rules).
+No test convention ESLint checks are currently enabled.
 
 ## Common Review Rules
 
@@ -42,7 +41,7 @@ ESLint-enforced test checks are summarized in the
 - Use integration tests to verify interactions that unit tests cannot cover, such as config-to-rule wiring, dependency injection wiring, framework bootstrap, routing, and controller responses.
 - If a test uses hard-to-control elements such as an actual network, REST API, system time, file system, or database, separate it as an integration test instead of a unit test.
 - Treat integration tests as adapter contract tests for boundaries that face external protocols or persistence.
-- Split integration spec files by adapter target. For example, use `corrections-http.controller.integration-spec.ts` for an HTTP controller adapter and `correction.repository.memory.integration-spec.ts` or `correction.repository.prisma.integration-spec.ts` for repository persistence adapters. System-level targets such as app bootstrap or ESLint harness checks must be explicitly listed in the ESLint rule configuration instead of being special-cased in the rule implementation.
+- Split integration spec files by adapter target. For example, use `corrections-http.controller.integration-spec.ts` for an HTTP controller adapter and `correction.repository.memory.integration-spec.ts` or `correction.repository.prisma.integration-spec.ts` for repository persistence adapters.
 - Do not use integration tests to repeat every domain or application invariant. Keep detailed domain and application rule coverage in unit tests, and use integration tests for observable boundary behavior such as request and response shape, validation pipe behavior, dependency injection wiring, framework routing, and repository save/find contracts.
 - For Nest app integration tests, use `app.inject()` as the standard Fastify request approach.
 - Nest app integration test files should create the app in `beforeEach` and close it with `app.close()` in `afterEach`.
@@ -55,7 +54,7 @@ ESLint-enforced test checks are summarized in the
 ## Commands
 
 ```bash
-pnpm api:lint:check       # Static convention checks
+pnpm api:lint:check       # Current ESLint checks
 pnpm api:test:unit        # Unit tests
 pnpm api:test             # All Vitest tests
 pnpm api:test:integration # Integration tests
