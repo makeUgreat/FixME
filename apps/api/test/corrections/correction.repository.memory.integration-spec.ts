@@ -8,7 +8,7 @@ import {
   type CorrectionRepository,
   Mistake,
 } from '../../src/modules/corrections/domain';
-import { MemoryCorrectionRepository } from '../../src/modules/corrections/infrastructure/correction.repository.memory';
+import { MemoryCorrectionRepository } from '../../src/modules/corrections/infrastructure/persistence/memory/correction.repository';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
 const createCorrection = (params?: {
@@ -60,15 +60,27 @@ describe('MemoryCorrectionRepository (integration)', () => {
     const repository = new MemoryCorrectionRepository();
     const correction = createCorrection();
 
-    await repository.save(correction);
+    const saveResult = await repository.save(correction);
+    const findResult = await repository.findById(correction.id);
 
-    await expect(repository.findById(correction.id)).resolves.toBe(correction);
+    expect(saveResult.isOk()).toBe(true);
+    expect(findResult.isOk()).toBe(true);
+
+    if (findResult.isOk()) {
+      expect(findResult.value).toBe(correction);
+    }
   });
 
   it('없는 id로 조회하면 null을 반환한다', async () => {
     const repository = new MemoryCorrectionRepository();
 
-    await expect(repository.findById('unknown-correction')).resolves.toBeNull();
+    const result = await repository.findById('unknown-correction');
+
+    expect(result.isOk()).toBe(true);
+
+    if (result.isOk()) {
+      expect(result.value).toBeNull();
+    }
   });
 
   it('같은 id로 다시 저장하면 마지막 aggregate를 반환한다', async () => {
@@ -79,9 +91,18 @@ describe('MemoryCorrectionRepository (integration)', () => {
       correctedText: 'Is this meant for handling concurrency?',
     });
 
-    await repository.save(first);
-    await repository.save(second);
+    const firstSaveResult = await repository.save(first);
+    const secondSaveResult = await repository.save(second);
 
-    await expect(repository.findById('correction-1')).resolves.toBe(second);
+    expect(firstSaveResult.isOk()).toBe(true);
+    expect(secondSaveResult.isOk()).toBe(true);
+
+    const result = await repository.findById('correction-1');
+
+    expect(result.isOk()).toBe(true);
+
+    if (result.isOk()) {
+      expect(result.value).toBe(second);
+    }
   });
 });

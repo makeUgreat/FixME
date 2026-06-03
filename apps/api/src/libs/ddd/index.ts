@@ -13,7 +13,6 @@ export {
   type Primitives,
   type ValueObjectProps,
 } from './value-object.base';
-export type { Repository } from './repository.base';
 export type { UseCase } from './use-case.base';
 export type {
   DomainError,

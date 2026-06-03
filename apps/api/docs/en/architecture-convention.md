@@ -20,6 +20,31 @@ infrastructure adapters, presentation request/response types, or mapper implemen
 Application files must not depend on infrastructure or presentation adapters.
 Infrastructure files must not depend on presentation files.
 
+## Infrastructure Storage Adapters
+
+Group storage adapters by storage kind first and technology second:
+`infrastructure/persistence/postgres-drizzle`,
+`infrastructure/persistence/memory`, `infrastructure/messaging/sqs`, or
+`infrastructure/object-storage/s3`.
+
+Repository boundaries stay in the domain layer. Shared infrastructure contracts
+must use storage-neutral persistence terms instead of DB-only terms. Use
+`PersistenceInput`, `PersistenceOutput`, and `PersistenceModel` for shared
+contracts. Keep adapter-native terms such as table, row, payload, message,
+object, or cache entry inside the adapter that owns that storage type.
+Domain-owned repository ports may import shared infrastructure error contracts
+from `@libs/layer` to describe adapter failure results, but those contracts must
+stay adapter-neutral and must not expose raw dependency details.
+Repository ports backed by storage adapters should prefer shared persistence
+error contracts such as `PersistenceErrorOf`; concrete adapters fill in
+top-level `source` metadata with the persistence boundary and concrete adapter.
+
+Shared database clients may live under `src/libs/database`, but shared database
+code must not import feature module schemas. If a migration tool needs one
+schema entrypoint, add an app-level schema registry, such as
+`src/database/database.schema.ts`, that imports module-owned table definitions
+for migration generation only.
+
 ## Domain Models
 
 Domain models should expose behavior and state needed by the domain. They should
@@ -36,12 +61,17 @@ Mappers keep layer boundaries explicit. They translate one layer's model into
 another layer's model without putting persistence, transport, or framework
 serialization concerns into domain models.
 
-Use the shared mapper contracts from `@libs/layer`.
+Use the shared layer mapper contracts from `@libs/layer`.
+
+Shared layer helper files are grouped by the layer, protocol, or adapter concern
+they belong to: `application`, `presentation/http`, and
+`infrastructure/persistence`.
+Keep the public import surface at `@libs/layer` unless a lower-level file needs
+an internal relative import.
 
 | Contract                  | Boundary                                                    |
 | ------------------------- | ----------------------------------------------------------- |
 | `ApplicationMapper`       | Generic application-layer input -> application-layer output |
-| `PersistenceMapper`       | Infrastructure persistence record <-> domain model          |
 | `DomainErrorToApplicationErrorMapper` | Domain error -> application error              |
 | `PresentationMapper`      | Generic presentation-layer input -> presentation-layer output |
 
@@ -66,6 +96,15 @@ may expose adapter-native methods such as `toException`.
 Protocol-safe success responses should be owned by the feature presentation
 adapter that returns them. Introduce a shared response type only when multiple
 modules need the same stable response shape.
+
+Persistence mappers are infrastructure adapter details rather than layer-level
+mapper contracts. Aggregate persistence mappers may use the shared
+`PersistenceAggregateMapper`, which provides the `toPersistence` / `toAggregate`
+contract and shared parsing helpers. Its generic names should stay
+storage-neutral, such as `PersistenceOutput` and `PersistenceInput`. A DB
+implementation may bind those generic parameters to adapter-native types such as
+`CorrectionRow` and `InsertCorrectionRow`, but the shared base class itself must
+not use DB-only terms such as row or table.
 
 ## Static Checks
 

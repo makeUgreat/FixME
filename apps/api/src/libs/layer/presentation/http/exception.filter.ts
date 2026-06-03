@@ -5,8 +5,8 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { type PresentationHttpError } from './presentation-http-error.base';
-import { PresentationHttpException } from './presentation-http.exception';
+import { type PresentationHttpError } from './error.base';
+import { PresentationHttpException } from './http.exception';
 
 type HttpResponse = {
   status(statusCode: number): {

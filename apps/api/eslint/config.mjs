@@ -139,6 +139,7 @@ export default tseslint.config(
       'check-file': checkFile,
     },
     rules: {
+      'naming/repository-method-prefix': 'error',
       'naming/type-name-matches-file-name': 'error',
       'mapper/implements-layer-mapper': 'error',
       'mapper/no-domain-model-serialization': 'error',

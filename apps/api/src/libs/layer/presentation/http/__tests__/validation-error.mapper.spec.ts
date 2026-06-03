@@ -1,7 +1,7 @@
 import { HttpStatus, type ValidationError } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { PresentationHttpException } from '../presentation-http.exception';
-import { HttpValidationErrorMapper } from '../http-validation-error.mapper';
+import { PresentationHttpException } from '../http.exception';
+import { HttpValidationErrorMapper } from '../validation-error.mapper';
 
 describe('HttpValidationErrorMapper', () => {
   const mapper = new HttpValidationErrorMapper();

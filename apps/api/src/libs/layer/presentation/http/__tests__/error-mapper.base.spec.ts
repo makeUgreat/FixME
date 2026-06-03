@@ -1,8 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { type ApplicationErrorBase } from '../application-error.base';
-import { PresentationHttpException } from '../presentation-http.exception';
-import { PresentationHttpErrorMapper } from '../presentation-http-error-mapper.base';
+import { type ApplicationErrorBase } from '../../../application/error.base';
+import { PresentationHttpErrorMapper } from '../error-mapper.base';
+import { PresentationHttpException } from '../http.exception';
 
 class TestPresentationHttpErrorMapper extends PresentationHttpErrorMapper<ApplicationErrorBase> {}
 

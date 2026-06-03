@@ -13,8 +13,19 @@ const DIRECTIONAL_ERROR_MAPPER_TYPE_NAMES_BY_SOURCE = {
   domain: ['DomainErrorMapper', 'DomainErrorToApplicationErrorMapper'],
 };
 
-const SHARED_BASE_TYPE_NAMES_BY_FILE_SUBJECT = new Map([
-  ['application-error-mapper', ['DomainErrorToApplicationErrorMapper']],
+const SHARED_BASE_TYPE_NAMES_BY_PATH_SUFFIX = new Map([
+  ['/application/error.base.ts', ['ApplicationErrorBase']],
+  ['/infrastructure/error.base.ts', ['InfrastructureErrorBase']],
+  [
+    '/application/error-mapper.base.ts',
+    ['DomainErrorToApplicationErrorMapper'],
+  ],
+  ['/presentation/http/error-mapper.base.ts', ['PresentationHttpErrorMapper']],
+  [
+    '/infrastructure/persistence/aggregate-mapper.base.ts',
+    ['PersistenceAggregateMapper'],
+  ],
+  ['/infrastructure/persistence/error.base.ts', ['PersistenceErrorBase']],
 ]);
 
 function isClassOrInterface(node) {
@@ -31,8 +42,8 @@ function isIgnoredHelperDeclaration(name) {
   return IGNORED_TYPE_SUFFIXES.some((suffix) => name.endsWith(suffix));
 }
 
-function getFileSubject(match) {
-  return match.nameParts.join('.');
+function normalizePath(filename) {
+  return filename.replaceAll('\\', '/');
 }
 
 function getExpectedTypeName(filename) {
@@ -43,6 +54,34 @@ function getExpectedTypeName(filename) {
   }
 
   return toPascalCase(match.nameParts.join('.')) + match.typeSuffix;
+}
+
+function getStorageAdapterTechnology(filename) {
+  const normalizedFilename = normalizePath(filename);
+  const match = normalizedFilename.match(
+    /\/infrastructure\/(?:persistence|messaging|object-storage)\/([^/]+)\/[^/]+[.]repository[.]ts$/u,
+  );
+
+  return match?.[1];
+}
+
+function getPresentationProtocol(filename) {
+  const normalizedFilename = normalizePath(filename);
+  const match = normalizedFilename.match(/\/presentation\/([^/]+)\//u);
+
+  return match?.[1];
+}
+
+function getSharedBaseTypeNames(filename) {
+  const normalizedFilename = normalizePath(filename);
+
+  for (const [pathSuffix, typeNames] of SHARED_BASE_TYPE_NAMES_BY_PATH_SUFFIX) {
+    if (normalizedFilename.endsWith(pathSuffix)) {
+      return typeNames;
+    }
+  }
+
+  return [];
 }
 
 function getAllowedTypeNames(filename) {
@@ -59,6 +98,20 @@ function getAllowedTypeNames(filename) {
     allowedNames.push(expectedName + 'Base');
   }
 
+  if (match.role === 'repository') {
+    const technology = getStorageAdapterTechnology(filename);
+
+    if (technology) {
+      allowedNames.push(toPascalCase(technology) + expectedName);
+    }
+  }
+
+  const presentationProtocol = getPresentationProtocol(filename);
+
+  if (presentationProtocol) {
+    allowedNames.push(toPascalCase(presentationProtocol) + expectedName);
+  }
+
   if (match.role === 'mapper' && match.nameParts.at(-1)?.endsWith('-error')) {
     const namePartsWithoutErrorSuffix = match.nameParts.slice();
     namePartsWithoutErrorSuffix[namePartsWithoutErrorSuffix.length - 1] =
@@ -73,10 +126,7 @@ function getAllowedTypeNames(filename) {
   }
 
   if (match.role === 'base') {
-    allowedNames.push(
-      ...(SHARED_BASE_TYPE_NAMES_BY_FILE_SUBJECT.get(getFileSubject(match)) ??
-        []),
-    );
+    allowedNames.push(...getSharedBaseTypeNames(filename));
   }
 
   return allowedNames;

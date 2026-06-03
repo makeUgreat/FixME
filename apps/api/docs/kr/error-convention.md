@@ -105,6 +105,41 @@ Infrastructure error는 보통 technology-shaped다: database constraint error, 
 
 Technology-shaped error가 domain 또는 application contract로 새어 나가게 하지 않는다. Infrastructure boundary 가까이에서 catch하거나 contain한 뒤, caller가 유용한 결정을 할 수 있을 때 application-level meaning으로 변환한다.
 
+Infrastructure error contract는 `@libs/layer`의 shared
+`InfrastructureErrorOf` helper를 사용한다. `kind`는 adapter 종류가 아니라
+failure meaning을 설명하는 adapter-neutral 값이어야 한다.
+
+| Kind             | 의미                                                               |
+| ---------------- | ------------------------------------------------------------------ |
+| `unavailable`    | 필요한 infrastructure dependency를 사용할 수 없다.                 |
+| `timeout`        | 필요한 infrastructure dependency가 timeout되었다.                  |
+| `conflict`       | Operation이 dependency state와 충돌한다.                           |
+| `invalid_data`   | Dependency에서 오거나 dependency에 저장된 data shape가 유효하지 않다. |
+| `restore_failed` | 저장된 data를 기대한 model로 복원할 수 없다.                       |
+| `bad_response`   | External dependency가 사용할 수 없는 response를 반환했다.          |
+| `unexpected`     | 이 boundary에서 failure를 의미 있게 분류할 수 없다.                |
+
+Source-specific precision은 `code`에 둔다. 예를 들어
+`correction_repository.save_unavailable` 또는
+`openai_client.response_invalid`처럼 표현한다. Database, Redis, S3, HTTP 같은
+adapter 이름을 `kind`에 encode하지 않는다.
+
+Infrastructure error는 failure가 발생한 위치를 설명하는 top-level `source`
+metadata를 포함한다. `code`는 안정적인 `{owner}.{reason}` 형식으로 유지한다.
+현재 `source`에는 이미 존재하는 infrastructure boundary인
+`boundary: 'persistence'`와 concrete `adapter`만 둔다. `details`는
+failure-specific safe payload에만 사용한다.
+
+Persistence error는 더 좁은 infrastructure error family다. Persistence contract는
+`@libs/layer`의 `PersistenceErrorOf`를 사용해야 하며,
+`PersistenceErrorBase`는 `InfrastructureErrorBase`를 상속해야 한다. Persistence
+source는 항상 `boundary: 'persistence'`를 사용하고 `adapter`를 포함한다.
+
+`Result`로 반환되는 infrastructure error value에는 raw cause, SDK error, SQL
+detail, stack trace, provider payload, secret, 기타 unsafe dependency diagnostic을
+포함하지 않는다. 그런 diagnostic은 logging 또는 별도 internal diagnostic 정책에
+둔다.
+
 Dependency API가 exception 기반이라면 infrastructure code 내부에서 exception을 사용하는 것은 괜찮다. 이 컨벤션은 boundary를 무엇이 통과하는지에 관한 것이지, external library가 pure하다고 가장하자는 것이 아니다.
 
 ## API Error

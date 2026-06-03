@@ -1,13 +1,15 @@
 const EXPECTED_INTERFACE_BY_MAPPER = [
   {
-    pathPattern: /\/infrastructure\/.*[.]mapper[.]ts$/,
+    pathPattern: /\/infrastructure\/persistence\/.*[.]mapper[.]ts$/,
     namePattern: /Mapper$/,
-    interfaceName: 'PersistenceMapper',
+    interfaceName: 'PersistenceAggregateMapper',
+    relationship: 'extend',
   },
   {
     pathPattern: /\/application\/.*error[.]mapper[.]ts$/,
     namePattern: /Mapper$/,
     interfaceName: 'DomainErrorToApplicationErrorMapper',
+    alternateInterfaceNames: ['ApplicationMapper'],
     relationship: 'extend',
   },
   {
@@ -67,6 +69,12 @@ function implementsInterface(node, interfaceName) {
   );
 }
 
+function implementsAnyInterface(node, interfaceNames) {
+  return interfaceNames.some((interfaceName) =>
+    implementsInterface(node, interfaceName),
+  );
+}
+
 function getExtendedClassName(superClass) {
   if (!superClass) {
     return undefined;
@@ -117,6 +125,13 @@ const implementsLayerMapperRule = {
 
     const expectedRelationship = getExpectedRelationship(expectedInterface);
     const interfaceName = expectedInterface.interfaceName;
+    const alternateInterfaceNames =
+      expectedInterface.alternateInterfaceNames ?? [];
+    const interfaceNames = [
+      interfaceName,
+      ...alternateInterfaceNames,
+    ];
+    const baseNames = expectedInterface.alternateBaseNames ?? [];
 
     return {
       ClassDeclaration(node) {
@@ -130,9 +145,11 @@ const implementsLayerMapperRule = {
           EXTENDABLE_MAPPER_BY_INTERFACE.get(interfaceName);
         const satisfiesContract =
           expectedRelationship === 'extend'
-            ? extendsClass(node, interfaceName)
-            : implementsInterface(node, interfaceName) ||
-              extendsClass(node, extendsAllowedBase);
+            ? extendsClass(node, interfaceName) ||
+              implementsAnyInterface(node, alternateInterfaceNames)
+            : implementsAnyInterface(node, interfaceNames) ||
+              extendsClass(node, extendsAllowedBase) ||
+              baseNames.some((baseName) => extendsClass(node, baseName));
 
         if (satisfiesContract) {
           return;

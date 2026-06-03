@@ -1,6 +1,6 @@
 import { type DomainErrorBase } from '@libs/ddd';
-import { type ApplicationErrorBase } from './application-error.base';
-import { type ApplicationMapper } from './mapper.type';
+import { type ApplicationMapper } from '../mapper.type';
+import { type ApplicationErrorBase } from './error.base';
 
 export type DomainErrorToApplicationErrorHandlers<
   DomainError extends DomainErrorBase,

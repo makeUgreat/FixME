@@ -1,6 +1,7 @@
 import { DOMAIN_ERROR_KIND } from '@libs/ddd';
 import {
   APPLICATION_ERROR_KIND,
+  type ApplicationMapper,
   DomainErrorToApplicationErrorMapper,
   type DomainErrorToApplicationErrorHandlers,
   type ValidationFailedDetails,
@@ -9,9 +10,11 @@ import {
   type CorrectionDomainError,
   type CorrectionFeedbackDomainError,
   type CorrectionMetadataDomainError,
+  type CorrectionRepositoryError,
   type MistakeDomainError,
 } from '../../domain';
 import {
+  type CreateCorrectionDependencyUnavailableError,
   type CreateCorrectionError,
   type CreateCorrectionValidationFailedError,
 } from './create-correction.error';
@@ -78,6 +81,27 @@ export class CreateCorrectionDomainErrorToApplicationErrorMapper extends DomainE
         return `metadata.${field}`;
       default:
         return field;
+    }
+  }
+}
+
+export class CreateCorrectionRepositoryErrorToApplicationErrorMapper implements ApplicationMapper<
+  CorrectionRepositoryError,
+  CreateCorrectionError
+> {
+  toApplication(
+    error: CorrectionRepositoryError,
+  ): CreateCorrectionDependencyUnavailableError {
+    switch (error.code) {
+      case 'correction_repository.save_unavailable':
+      case 'correction_repository.find_unavailable':
+      case 'correction_repository.restore_failed':
+        return {
+          kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
+          code: 'create_correction.persistence_unavailable',
+          message: 'Correction could not be saved',
+          details: {},
+        };
     }
   }
 }

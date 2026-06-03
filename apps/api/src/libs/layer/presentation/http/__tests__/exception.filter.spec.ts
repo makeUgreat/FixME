@@ -5,9 +5,9 @@ import {
   type ArgumentsHost,
 } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
-import { HttpExceptionFilter } from '../http-exception.filter';
-import { type PresentationHttpError } from '../presentation-http-error.base';
-import { PresentationHttpException } from '../presentation-http.exception';
+import { type PresentationHttpError } from '../error.base';
+import { HttpExceptionFilter } from '../exception.filter';
+import { PresentationHttpException } from '../http.exception';
 
 function createHost() {
   const send = vi.fn();
