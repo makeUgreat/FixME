@@ -1,8 +1,8 @@
 import { HttpStatus, type ValidationError } from '@nestjs/common';
-import { APPLICATION_ERROR_KIND } from './application-error.base';
-import { type PresentationMapper } from './mapper.type';
-import { type ValidationFailedDetails } from './presentation-http-error.base';
-import { PresentationHttpException } from './presentation-http.exception';
+import { APPLICATION_ERROR_KIND } from '../../application/error.base';
+import { type PresentationMapper } from '../../mapper.type';
+import { type ValidationFailedDetails } from './error.base';
+import { PresentationHttpException } from './http.exception';
 
 export class HttpValidationErrorMapper implements PresentationMapper<
   ValidationError[],

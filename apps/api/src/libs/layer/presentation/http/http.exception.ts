@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { type PresentationHttpError } from './presentation-http-error.base';
+import { type PresentationHttpError } from './error.base';
 
 export class PresentationHttpException<
   Code extends string = string,

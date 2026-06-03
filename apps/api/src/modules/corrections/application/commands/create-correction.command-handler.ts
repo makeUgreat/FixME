@@ -13,11 +13,11 @@ import {
   CreateCorrectionCommand,
   type CreateCorrectionResult,
 } from './create-correction.command';
+import { type CreateCorrectionError } from './create-correction.error';
 import {
-  type CreateCorrectionDependencyUnavailableError,
-  type CreateCorrectionError,
-} from './create-correction.error';
-import { CreateCorrectionDomainErrorToApplicationErrorMapper } from './create-correction-error.mapper';
+  CreateCorrectionDomainErrorToApplicationErrorMapper,
+  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+} from './create-correction-error.mapper';
 
 @CommandHandler(CreateCorrectionCommand)
 export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCorrectionCommand> {
@@ -25,6 +25,7 @@ export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCor
     @Inject(CORRECTION_REPOSITORY)
     private readonly correctionRepository: CorrectionRepository,
     private readonly domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
+    private readonly repositoryErrorMapper: CreateCorrectionRepositoryErrorToApplicationErrorMapper,
   ) {}
 
   async execute(
@@ -65,18 +66,12 @@ export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCor
       },
     }).match(
       async (correction) => {
-        try {
-          await this.correctionRepository.save(correction);
-        } catch {
-          return err({
-            kind: 'dependency_unavailable',
-            code: 'create_correction.persistence_unavailable',
-            message: 'Correction could not be saved',
-            details: {},
-          } satisfies CreateCorrectionDependencyUnavailableError);
-        }
+        const saveResult = await this.correctionRepository.save(correction);
 
-        return ok({ correctionId });
+        return saveResult.match(
+          () => ok({ correctionId }),
+          (error) => err(this.repositoryErrorMapper.toApplication(error)),
+        );
       },
       (error) =>
         Promise.resolve(err(this.domainErrorMapper.toApplicationError(error))),

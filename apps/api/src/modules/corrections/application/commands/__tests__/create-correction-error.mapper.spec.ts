@@ -6,10 +6,15 @@ import {
 } from '@libs/ddd';
 import {
   APPLICATION_ERROR_KIND,
+  PERSISTENCE_ERROR_KIND,
   type DomainErrorToApplicationErrorHandlers,
   type ApplicationErrorOf,
 } from '@libs/layer';
-import { CreateCorrectionDomainErrorToApplicationErrorMapper } from '../create-correction-error.mapper';
+import { type CorrectionRepositoryError } from '../../../domain';
+import {
+  CreateCorrectionDomainErrorToApplicationErrorMapper,
+  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+} from '../create-correction-error.mapper';
 
 type ExhaustiveTestDomainError =
   | DomainErrorOf<
@@ -118,6 +123,56 @@ describe('CreateCorrectionDomainErrorToApplicationErrorMapper', () => {
           ],
         },
       });
+    });
+  });
+});
+
+describe('CreateCorrectionRepositoryErrorToApplicationErrorMapper', () => {
+  const mapper = new CreateCorrectionRepositoryErrorToApplicationErrorMapper();
+
+  describe('toApplicationError', () => {
+    it('저장소 오류를 application 의존성 실패 오류로 변환한다', () => {
+      const repositoryErrors: CorrectionRepositoryError[] = [
+        {
+          kind: PERSISTENCE_ERROR_KIND.UNAVAILABLE,
+          code: 'correction_repository.save_unavailable',
+          source: {
+            boundary: 'persistence',
+            adapter: 'postgres_drizzle',
+          },
+          message: 'Correction could not be saved',
+          details: {},
+        },
+        {
+          kind: PERSISTENCE_ERROR_KIND.UNAVAILABLE,
+          code: 'correction_repository.find_unavailable',
+          source: {
+            boundary: 'persistence',
+            adapter: 'postgres_drizzle',
+          },
+          message: 'Correction could not be found',
+          details: {},
+        },
+        {
+          kind: PERSISTENCE_ERROR_KIND.RESTORE_FAILED,
+          code: 'correction_repository.restore_failed',
+          source: {
+            boundary: 'persistence',
+            adapter: 'postgres_drizzle',
+          },
+          message: 'Correction could not be restored',
+          details: {},
+        },
+      ];
+
+      for (const repositoryError of repositoryErrors) {
+        expect(mapper.toApplication(repositoryError)).toEqual({
+          kind: 'dependency_unavailable',
+          code: 'create_correction.persistence_unavailable',
+          message: 'Correction could not be saved',
+          details: {},
+        });
+      }
     });
   });
 });

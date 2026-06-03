@@ -1,12 +1,22 @@
-import { describe, expect, it, vi } from 'vitest';
-import { type Correction, type CorrectionRepository } from '../../../domain';
+import { describe, expect, it, type Mock, vi } from 'vitest';
+import { PERSISTENCE_ERROR_KIND } from '@libs/layer';
+import { err, ok } from '@libs/result';
+import {
+  type CorrectionRepository,
+  type CorrectionRepositorySaveUnavailableError,
+} from '../../../domain';
 import {
   type CorrectionMistakeInput,
   CreateCorrectionCommand,
   type CreateCorrectionCommandProps,
 } from '../create-correction.command';
-import { CreateCorrectionDomainErrorToApplicationErrorMapper } from '../create-correction-error.mapper';
+import {
+  CreateCorrectionDomainErrorToApplicationErrorMapper,
+  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+} from '../create-correction-error.mapper';
 import { CreateCorrectionCommandHandler } from '../create-correction.command-handler';
+
+type SaveCorrectionMock = Mock<CorrectionRepository['save']>;
 
 const createCommand = (
   overrides: Partial<CreateCorrectionCommandProps> = {},
@@ -33,11 +43,11 @@ const createCommand = (
   });
 
 const createHandler = (
-  saveCorrection = vi.fn((correction: Correction) =>
-    Promise.resolve(correction),
+  saveCorrection: SaveCorrectionMock = vi.fn<CorrectionRepository['save']>(
+    (correction) => Promise.resolve(ok(correction)),
   ),
 ) => {
-  const findCorrectionById = vi.fn(() => Promise.resolve(null));
+  const findCorrectionById = vi.fn(() => Promise.resolve(ok(null)));
   const correctionRepository: CorrectionRepository = {
     save: saveCorrection,
     findById: findCorrectionById,
@@ -49,8 +59,20 @@ const createHandler = (
     handler: new CreateCorrectionCommandHandler(
       correctionRepository,
       new CreateCorrectionDomainErrorToApplicationErrorMapper(),
+      new CreateCorrectionRepositoryErrorToApplicationErrorMapper(),
     ),
   };
+};
+
+const saveUnavailableError: CorrectionRepositorySaveUnavailableError = {
+  kind: PERSISTENCE_ERROR_KIND.UNAVAILABLE,
+  code: 'correction_repository.save_unavailable',
+  source: {
+    boundary: 'persistence',
+    adapter: 'postgres_drizzle',
+  },
+  message: 'Correction could not be saved',
+  details: {},
 };
 
 describe('CreateCorrectionCommandHandler', () => {
@@ -261,8 +283,8 @@ describe('CreateCorrectionCommandHandler', () => {
     });
 
     it('저장소 저장에 실패하면 의존성 실패 Result를 반환한다', async () => {
-      const saveCorrection = vi.fn(() =>
-        Promise.reject(new Error('connection failed')),
+      const saveCorrection = vi.fn<CorrectionRepository['save']>(() =>
+        Promise.resolve(err(saveUnavailableError)),
       );
       const { handler } = createHandler(saveCorrection);
 

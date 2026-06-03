@@ -22,6 +22,9 @@
     "api:test:debug": "pnpm --filter @fixme/api test:debug",
     "api:test:integration": "pnpm --filter @fixme/api test:integration",
     "api:deps:check": "pnpm --filter @fixme/api deps:check",
+    "api:db:generate": "pnpm --filter @fixme/api db:generate",
+    "api:db:migrate": "pnpm --filter @fixme/api db:migrate",
+    "api:db:studio": "pnpm --filter @fixme/api db:studio",
     "api:harness:local": "pnpm --filter @fixme/api harness:local",
     "api:harness:pr": "pnpm --filter @fixme/api harness:pr",
     "api:deps:graph": "pnpm --filter @fixme/api deps:graph"

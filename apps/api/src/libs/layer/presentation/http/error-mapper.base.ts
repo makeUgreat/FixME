@@ -1,12 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
-import { type PresentationMapper } from './mapper.type';
 import {
   APPLICATION_ERROR_KIND,
   type ApplicationErrorBase,
   type ApplicationErrorKind,
-} from './application-error.base';
-import { type PresentationHttpError } from './presentation-http-error.base';
-import { PresentationHttpException } from './presentation-http.exception';
+} from '../../application/error.base';
+import { type PresentationMapper } from '../../mapper.type';
+import { type PresentationHttpError } from './error.base';
+import { PresentationHttpException } from './http.exception';
 
 export abstract class PresentationHttpErrorMapper<
   ApplicationError extends ApplicationErrorBase,
