@@ -36,23 +36,24 @@ The target API source map is:
 
 ```text
 src/
-  foundation/
+  main.ts
+  core/
   layer-kernels/
     domain/
     application/
     infrastructure/
     presentation/
   shared-kernel/
-  composition-root/
+  bootstrap/
     nest/
       app.module.ts
-      main.ts
+      start-nest-app.ts
       config/
       filters/
       interceptors/
       guards/
       pipes/
-  bounded-contexts/
+  contexts/
     {context-name}/
       domain/
       application/
@@ -63,20 +64,9 @@ src/
 This map is intentionally high-level.
 Subdirectories inside each context may differ by feature, adapter type, or framework need.
 
-## Current Compatibility Names
-
-Current source code may still use transitional names until the source tree is renamed.
-Interpret these directories by architectural role, not as separate architecture concepts.
-
-| Target concept | Current compatibility names |
-| --- | --- |
-| `bounded-contexts/{context-name}` | `src/modules/{module-name}` |
-| `foundation` and `layer-kernels/*` | `src/libs/result`, `src/libs/id`, `src/libs/ddd`, `src/libs/layer/*` |
-| database-related infrastructure or wiring | `src/database`, `src/libs/database` |
-
 ## Directory Reading Rules
 
 - Do not read the directory tree as only a technical folder layout.
 - First identify the DDD model boundary: bounded context or shared kernel.
-- Then identify the dependency boundary: foundation, layer-kernel, bounded-context layer, shared-kernel, or composition-root.
+- Then identify the dependency boundary: core, layer-kernel, context layer, shared-kernel, or bootstrap.
 - Use the related convention documents for detailed placement, import, and wiring rules.

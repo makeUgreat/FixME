@@ -32,7 +32,7 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 ## 단위 테스트
 
 - 단위 테스트는 `pnpm api:test:unit`으로 실행한다.
-- 단위 테스트는 테스트 대상 파일이 있는 디렉터리 안의 `__tests__` 디렉터리에 둔다. 예: `apps/api/src/modules/corrections/domain/__tests__/mistake.vo.spec.ts`
+- 단위 테스트는 테스트 대상 파일이 있는 디렉터리 안의 `__tests__` 디렉터리에 둔다. 예: `apps/api/src/contexts/corrections/domain/__tests__/mistake.vo.spec.ts`
 - 순수 서비스, 함수, 작은 비즈니스 로직 단위를 대상으로 한다.
 - HTTP 서버, 실제 Nest 애플리케이션 부트스트랩, 외부 I/O를 사용하지 않는다.
 - 필요한 dependency는 직접 만들거나 가벼운 mock/stub으로 대체한다.

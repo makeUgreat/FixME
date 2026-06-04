@@ -26,7 +26,7 @@ Runtime wiring은 source dependency rule을 약화시키면 안 된다.
 flowchart TB
   subgraph bootstrap[Bootstrap]
     direction LR
-    compositionRoot[Composition Root / NestJS Bootstrap]
+    bootstrapRoot[Bootstrap / NestJS Runtime Wiring]
   end
 
   subgraph inboundRow[Inbound Adapter]
@@ -54,10 +54,10 @@ flowchart TB
     domain[Domain Model]
   end
 
-  compositionRoot -. registers .-> controllers
-  compositionRoot -. constructs .-> usecases
-  compositionRoot -. binds .-> ports
-  compositionRoot -. registers .-> adapters
+  bootstrapRoot -. registers .-> controllers
+  bootstrapRoot -. constructs .-> usecases
+  bootstrapRoot -. binds .-> ports
+  bootstrapRoot -. registers .-> adapters
 
   controllers -->|calls| usecases
   usecases --> domain
@@ -66,19 +66,20 @@ flowchart TB
   adapters -. implement .-> ports
 ```
 
-## Composition Root
+## Bootstrap
 
-- `composition-root`는 application bootstrap과 runtime wiring code를 담는다.
-- NestJS root module, `main.ts`, runtime config loading, global filter, interceptor, guard, pipe, app-level provider wiring에 사용한다.
-- `composition-root`는 bounded context, adapter, layer kernel, `foundation`, framework, external runtime library에 의존할 수 있다.
-- `composition-root`는 business rule을 담으면 안 된다.
-- `composition-root` 외부의 production code는 `composition-root`를 import하면 안 된다.
+- `bootstrap`는 application bootstrap과 runtime wiring code를 담는다.
+- `src/main.ts`는 bootstrap runtime code에 위임하는 얇은 process entrypoint로 둔다.
+- `bootstrap`는 NestJS root module, bootstrap function, runtime config loading, global filter, interceptor, guard, pipe, app-level provider wiring에 사용한다.
+- `bootstrap`는 bounded context, adapter, layer kernel, `core`, framework, external runtime library에 의존할 수 있다.
+- `bootstrap`는 business rule을 담으면 안 된다.
+- 얇은 `src/main.ts` entrypoint를 제외한 `bootstrap` 외부의 production code는 `bootstrap`를 import하면 안 된다.
 
 ## NestJS DI
 
-- NestJS DI는 `composition-root`, presentation adapter, infrastructure adapter에서 runtime wiring으로 사용할 수 있다.
+- NestJS DI는 `bootstrap`, presentation adapter, infrastructure adapter에서 runtime wiring으로 사용할 수 있다.
 - NestJS DI 때문에 domain 또는 application core에서 NestJS로 source dependency가 생기면 안 된다.
-- Framework decorator와 provider registration은 application core가 아니라 `composition-root`, presentation adapter, infrastructure adapter에서 사용한다.
+- Framework decorator와 provider registration은 application core가 아니라 `bootstrap`, presentation adapter, infrastructure adapter에서 사용한다.
 - Provider factory 또는 동등한 wiring을 사용해 application core에 framework import를 추가하지 않고 application use case를 생성한다.
 - Application use case는 explicit dependency로 생성되는 plain TypeScript class로 유지하는 것이 좋다.
 
@@ -88,7 +89,7 @@ flowchart TB
 - port는 모든 interface, error type, DTO, mapper, shared contract를 뜻하지 않는다.
 - Runtime wiring은 inner source file이 outer implementation을 import하지 않게 유지하면서 outer implementation을 inner port에 연결할 수 있다.
 - Infrastructure adapter는 application port를 구현할 수 있다.
-- `composition-root` 또는 adapter wiring이 각 port를 만족하는 implementation을 등록한다.
+- `bootstrap` 또는 adapter wiring이 각 port를 만족하는 implementation을 등록한다.
 - runtime wiring을 이유로 domain 또는 application core에 금지된 import를 추가하면 안 된다.
 
 ## Non-Port Contracts

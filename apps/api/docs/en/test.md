@@ -31,7 +31,7 @@ No test convention ESLint checks are currently enabled.
 ## Unit Tests
 
 - Run unit tests with `pnpm api:test:unit`.
-- Place unit tests in a `__tests__` directory inside the target file's directory. Example: `apps/api/src/modules/corrections/domain/__tests__/mistake.vo.spec.ts`
+- Place unit tests in a `__tests__` directory inside the target file's directory. Example: `apps/api/src/contexts/corrections/domain/__tests__/mistake.vo.spec.ts`
 - Target pure services, functions, and small units of business logic.
 - Do not use an HTTP server, actual Nest application bootstrap, or external I/O.
 - Create required dependencies directly or replace them with lightweight mocks/stubs.

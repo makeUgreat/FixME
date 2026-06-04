@@ -30,7 +30,7 @@ flowchart TB
 
   application[Application]
   domain[Domain]
-  foundation[Foundation]
+  core[Core]
 
   subgraph kernels[Layer Kernels]
     direction TB
@@ -43,23 +43,23 @@ flowchart TB
   presentation --> application
   infrastructure --> application
   application --> domain
-  domain --> foundation
+  domain --> core
 
   presentation --> presentationKernel
   infrastructure --> infrastructureKernel
   application --> applicationKernel
   domain --> domainKernel
-  presentationKernel --> foundation
-  infrastructureKernel --> foundation
-  applicationKernel --> foundation
-  domainKernel --> foundation
+  presentationKernel --> core
+  infrastructureKernel --> core
+  applicationKernel --> core
+  domainKernel --> core
 ```
 
-The core source direction is:
+The primary source direction is:
 
 ```text
-presentation -> application -> domain -> foundation
-infrastructure -> application -> domain -> foundation
+presentation -> application -> domain -> core
+infrastructure -> application -> domain -> core
 ```
 
 ## Forbidden Shortcuts
@@ -68,31 +68,31 @@ infrastructure -> application -> domain -> foundation
 domain -/-> application
 domain -/-> infrastructure
 domain -/-> presentation
-domain -/-> composition-root
+domain -/-> bootstrap
 application core -/-> infrastructure implementations
 application core -/-> presentation DTOs
 application core -/-> framework decorators
-application core -/-> composition-root concrete types
+application core -/-> bootstrap concrete types
 ```
 
 ## Source Direction
 
-- `foundation` does not depend on any project layer.
-- Layer-kernel directories may depend on `foundation`.
-- `domain` may depend on `foundation` and `layer-kernels/domain`.
-- `application` may depend on `foundation`, `domain`, and `layer-kernels/application`.
-- `infrastructure` may depend on `foundation`, `domain`, `application`, `layer-kernels/infrastructure`, and external libraries when implementing adapters.
-- `presentation` may depend on `foundation`, `application`, `layer-kernels/presentation`, and framework libraries when handling external protocols.
-- Production code outside `composition-root` MUST NOT import `composition-root`.
-- Domain code MUST NOT import `composition-root`, NestJS, database, HTTP, SDK, infrastructure, presentation, or application code.
-- Application core MUST NOT import infrastructure implementations, presentation DTOs, framework decorators, framework DI APIs, or composition-root concrete types.
+- `core` does not depend on any project layer.
+- Layer-kernel directories may depend on `core`.
+- `domain` may depend on `core` and `layer-kernels/domain`.
+- `application` may depend on `core`, `domain`, and `layer-kernels/application`.
+- `infrastructure` may depend on `core`, `domain`, `application`, `layer-kernels/infrastructure`, and external libraries when implementing adapters.
+- `presentation` may depend on `core`, `application`, `layer-kernels/presentation`, and framework libraries when handling external protocols.
+- Production code outside `bootstrap` MUST NOT import `bootstrap`, except the thin `src/main.ts` entrypoint.
+- Domain code MUST NOT import `bootstrap`, NestJS, database, HTTP, SDK, infrastructure, presentation, or application code.
+- Application core MUST NOT import infrastructure implementations, presentation DTOs, framework decorators, framework DI APIs, or bootstrap concrete types.
 
-## Foundation
+## Core
 
-- `foundation` contains pure primitives that have no layer, framework, bounded context, or business vocabulary.
+- `core` contains pure primitives that have no layer, framework, bounded context, or business vocabulary.
 - Examples include `Result`, `Option`, `BaseError`, `assertNever`, and generic guards.
-- Any layer MAY depend on `foundation`.
-- `foundation` MUST NOT depend on project layers, frameworks, external SDKs, or business concepts.
+- Any layer MAY depend on `core`.
+- `core` MUST NOT depend on project layers, frameworks, external SDKs, or business concepts.
 
 ## Domain Layer
 
@@ -100,7 +100,7 @@ application core -/-> composition-root concrete types
 - Use it for entities, value objects, aggregates, domain services, domain events, and domain errors.
 - Domain code MUST NOT know application, infrastructure, presentation, framework, database, HTTP, or SDK details.
 - Domain code SHOULD express pure business behavior and invariants.
-- Domain code may depend on `foundation` and `layer-kernels/domain`.
+- Domain code may depend on `core` and `layer-kernels/domain`.
 
 ## Application Layer
 
@@ -111,7 +111,7 @@ application core -/-> composition-root concrete types
 - Application code MUST NOT know presentation request or response DTO shapes.
 - Application core MUST NOT depend on framework decorators or framework DI APIs.
 - Application code MAY convert domain errors and port errors into application or use case errors.
-- Application core may depend on `foundation`, domain code, and `layer-kernels/application`.
+- Application core may depend on `core`, domain code, and `layer-kernels/application`.
 
 ## Infrastructure Layer
 
@@ -137,7 +137,7 @@ application core -/-> composition-root concrete types
 - `layer-kernels/application` contains common application-layer contracts only.
 - `layer-kernels/infrastructure` contains common infrastructure adapter policy only.
 - `layer-kernels/presentation` contains common presentation-layer policy only.
-- Layer-kernel directories MAY depend on `foundation`.
-- Layer-kernel directories MUST NOT depend on bounded contexts, composition-root code, framework code, or outer layers.
+- Layer-kernel directories MAY depend on `core`.
+- Layer-kernel directories MUST NOT depend on bounded contexts, bootstrap code, framework code, or outer layers.
 - Kernel directories MUST NOT become generic utility buckets.
 - Feature-specific policy belongs inside the owning bounded context.
