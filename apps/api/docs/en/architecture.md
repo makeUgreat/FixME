@@ -13,12 +13,16 @@ related:
 
 # API Architecture Convention
 
-API architecture rules are split across two axes:
+This document is the API architecture map.
+Use the linked documents for detailed rules.
+
+API architecture is described across two axes:
 
 - DDD model boundaries define where a model, language, and responsibility are valid.
 - Dependency and layer boundaries define which code may depend on which other code.
 
-Read both axes before adding a new bounded context, moving domain code, or introducing shared code.
+Read the DDD rules when model ownership, domain language, or shared domain concepts change.
+Read the source dependency and runtime wiring rules when imports, layer placement, provider wiring, or framework boundaries change.
 
 ## Related Documents
 
@@ -28,7 +32,7 @@ Read both axes before adding a new bounded context, moving domain code, or intro
 
 ## Target Structure
 
-The target API source structure is:
+The target API source map is:
 
 ```text
 src/
@@ -49,48 +53,30 @@ src/
       guards/
       pipes/
   bounded-contexts/
-    corrections/
-      domain/
-      application/
-        commands/
-        queries/
-      infrastructure/
-        persistence/
-          postgres-drizzle/
-        messaging/
-        external/
-      presentation/
-        http/
-          controllers/
-          dto/
-          mappers/
-    users/
+    {context-name}/
       domain/
       application/
       infrastructure/
       presentation/
 ```
 
-Current code may still use transitional directories such as `src/modules/*`, `src/libs/ddd`, `src/libs/layer/*`, `src/libs/result`, and `src/database`.
-Treat those directories as compatibility names for the architecture concepts in this convention until the source tree is renamed.
+This map is intentionally high-level.
+Subdirectories inside each context may differ by feature, adapter type, or framework need.
+
+## Current Compatibility Names
+
+Current source code may still use transitional names until the source tree is renamed.
+Interpret these directories by architectural role, not as separate architecture concepts.
+
+| Target concept | Current compatibility names |
+| --- | --- |
+| `bounded-contexts/{context-name}` | `src/modules/{module-name}` |
+| `foundation` and `layer-kernels/*` | `src/libs/result`, `src/libs/id`, `src/libs/ddd`, `src/libs/layer/*` |
+| database-related infrastructure or wiring | `src/database`, `src/libs/database` |
 
 ## Directory Reading Rules
 
 - Do not read the directory tree as only a technical folder layout.
 - First identify the DDD model boundary: bounded context or shared kernel.
 - Then identify the dependency boundary: foundation, layer-kernel, bounded-context layer, shared-kernel, or composition-root.
-- `bounded-contexts/{context}` directories represent DDD model boundaries in the target structure.
-- NestJS modules and other implementation modules are code wiring units inside a bounded context. They are not separate DDD model boundaries by default.
-- `composition-root` is not a business layer. It only bootstraps the app and wires runtime modules.
-
-## Common Directory Rules
-
-- Do not use `common` or `shared` as a large catch-all directory.
-- Put layer-free primitives in `foundation`.
-- Put layer-specific shared policy under `layer-kernels/`.
-- Put domain-layer common policy in `layer-kernels/domain`.
-- Put application-layer common contracts in `layer-kernels/application`.
-- Put infrastructure-layer common adapter policy in `layer-kernels/infrastructure`.
-- Put presentation-layer common policy in `layer-kernels/presentation`.
-- Put feature-specific rules inside the owning bounded context.
-- Keep `shared-kernel` empty except for `.gitkeep` unless multiple bounded contexts intentionally share a small domain model.
+- Use the related convention documents for detailed placement, import, and wiring rules.
