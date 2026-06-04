@@ -40,7 +40,7 @@ describe('eslint.config.mjs (integration)', () => {
 
   it('source 파일에는 적용된 ESLint 규칙이 없다', async () => {
     const config = await calculateConfigForFile(
-      'src/modules/corrections/domain/correction.aggregate.ts',
+      'src/contexts/corrections/domain/correction.aggregate.ts',
     );
 
     expect(getConfiguredRules(config)).toEqual({});

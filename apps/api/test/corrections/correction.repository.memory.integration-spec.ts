@@ -1,14 +1,16 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../src/app.module';
-import { CORRECTION_REPOSITORY } from '../../src/modules/corrections/corrections.tokens';
+import { AppModule } from '../../src/bootstrap/nest/app.module';
+import {
+  CORRECTION_REPOSITORY,
+  type CorrectionRepository,
+} from '../../src/contexts/corrections/application/ports';
 import {
   Correction,
   CorrectionFeedback,
-  type CorrectionRepository,
   Mistake,
-} from '../../src/modules/corrections/domain';
-import { MemoryCorrectionRepository } from '../../src/modules/corrections/infrastructure/persistence/memory/correction.repository';
+} from '../../src/contexts/corrections/domain';
+import { CorrectionMemoryRepository } from '../../src/contexts/corrections/infrastructure/persistence/memory/correction.repository';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
 const createCorrection = (params?: {
@@ -39,7 +41,7 @@ const createCorrection = (params?: {
   })._unsafeUnwrap();
 };
 
-describe('MemoryCorrectionRepository (integration)', () => {
+describe('CorrectionMemoryRepository (integration)', () => {
   let app: NestFastifyApplication;
 
   beforeEach(async () => {
@@ -53,11 +55,11 @@ describe('MemoryCorrectionRepository (integration)', () => {
   it('CORRECTION_REPOSITORY token이 memory repository로 resolve된다', () => {
     const repository = app.get<CorrectionRepository>(CORRECTION_REPOSITORY);
 
-    expect(repository).toBeInstanceOf(MemoryCorrectionRepository);
+    expect(repository).toBeInstanceOf(CorrectionMemoryRepository);
   });
 
   it('저장한 correction을 id로 조회하면 같은 aggregate를 반환한다', async () => {
-    const repository = new MemoryCorrectionRepository();
+    const repository = new CorrectionMemoryRepository();
     const correction = createCorrection();
 
     const saveResult = await repository.save(correction);
@@ -72,7 +74,7 @@ describe('MemoryCorrectionRepository (integration)', () => {
   });
 
   it('없는 id로 조회하면 null을 반환한다', async () => {
-    const repository = new MemoryCorrectionRepository();
+    const repository = new CorrectionMemoryRepository();
 
     const result = await repository.findById('unknown-correction');
 
@@ -84,7 +86,7 @@ describe('MemoryCorrectionRepository (integration)', () => {
   });
 
   it('같은 id로 다시 저장하면 마지막 aggregate를 반환한다', async () => {
-    const repository = new MemoryCorrectionRepository();
+    const repository = new CorrectionMemoryRepository();
     const first = createCorrection({ id: 'correction-1' });
     const second = createCorrection({
       id: 'correction-1',

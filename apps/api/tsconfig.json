@@ -16,8 +16,10 @@
     "baseUrl": "./",
     "paths": {
       "@api/*": ["src/*"],
-      "@libs/*": ["src/libs/*"],
-      "@modules/*": ["src/modules/*"]
+      "@contexts/*": ["src/contexts/*"],
+      "@bootstrap/*": ["src/bootstrap/*"],
+      "@core/*": ["src/core/*"],
+      "@layer-kernels/*": ["src/layer-kernels/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
@@ -27,5 +29,5 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "drizzle/**/*.ts"]
 }
