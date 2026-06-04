@@ -37,23 +37,24 @@ API source의 목표 map은 다음과 같다.
 
 ```text
 src/
-  foundation/
+  main.ts
+  core/
   layer-kernels/
     domain/
     application/
     infrastructure/
     presentation/
   shared-kernel/
-  composition-root/
+  bootstrap/
     nest/
       app.module.ts
-      main.ts
+      start-nest-app.ts
       config/
       filters/
       interceptors/
       guards/
       pipes/
-  bounded-contexts/
+  contexts/
     {context-name}/
       domain/
       application/
@@ -64,20 +65,9 @@ src/
 이 map은 의도적으로 high-level로 둔다.
 각 context 내부의 subdirectory는 feature, adapter type, framework need에 따라 달라질 수 있다.
 
-## 현재 호환 이름
-
-현재 source code는 source tree가 rename되기 전까지 전환기 이름을 계속 사용할 수 있다.
-이 디렉터리는 별도 architecture concept가 아니라 architectural role에 따라 해석한다.
-
-| Target concept | Current compatibility names |
-| --- | --- |
-| `bounded-contexts/{context-name}` | `src/modules/{module-name}` |
-| `foundation` and `layer-kernels/*` | `src/libs/result`, `src/libs/id`, `src/libs/ddd`, `src/libs/layer/*` |
-| database-related infrastructure or wiring | `src/database`, `src/libs/database` |
-
 ## 디렉터리 읽기 규칙
 
 - 디렉터리 트리를 단순한 기술적 folder layout으로만 읽지 않는다.
 - 먼저 DDD 모델 경계를 식별한다: bounded context 또는 shared kernel.
-- 그다음 dependency boundary를 식별한다: foundation, layer-kernel, bounded-context layer, shared-kernel, composition-root.
+- 그다음 dependency boundary를 식별한다: core, layer-kernel, context layer, shared-kernel, bootstrap.
 - 상세 placement, import, wiring 규칙은 관련 convention document를 사용한다.

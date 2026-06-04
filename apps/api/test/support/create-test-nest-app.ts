@@ -4,10 +4,8 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-import {
-  HttpExceptionFilter,
-  HttpValidationErrorMapper,
-} from '../../src/libs/layer';
+import { HttpExceptionFilter } from '../../src/bootstrap/nest/filters/http-exception.filter';
+import { HttpValidationErrorMapper } from '../../src/bootstrap/nest/pipes/http-validation-error.mapper';
 
 export async function createTestNestApp(
   rootModule: Type<unknown>,

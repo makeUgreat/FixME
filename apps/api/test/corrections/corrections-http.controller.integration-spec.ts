@@ -1,8 +1,8 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { type PresentationHttpError } from '@libs/layer';
+import { type PresentationHttpError } from '@layer-kernels/presentation';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../src/app.module';
-import { type CreateCorrectionHttpResponse } from '../../src/modules/corrections/presentation/create-correction-http.response';
+import { AppModule } from '../../src/bootstrap/nest/app.module';
+import { type CreateCorrectionHttpResponse } from '../../src/contexts/corrections/presentation/http/create-correction/response';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
 interface ValidationErrorResponse {

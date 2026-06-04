@@ -6,9 +6,9 @@ import {
   Correction,
   CorrectionFeedback,
   Mistake,
-} from '../../src/modules/corrections/domain';
-import { CorrectionPersistenceMapper } from '../../src/modules/corrections/infrastructure/persistence/postgres-drizzle/correction-persistence.mapper';
-import { PostgresDrizzleCorrectionRepository } from '../../src/modules/corrections/infrastructure/persistence/postgres-drizzle/correction.repository';
+} from '../../src/contexts/corrections/domain';
+import { CorrectionPersistenceMapper } from '../../src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction-persistence.mapper';
+import { CorrectionPostgresDrizzleRepository } from '../../src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction.repository';
 
 const itIfDatabaseUrl = process.env.DATABASE_URL ? it : it.skip;
 
@@ -40,15 +40,15 @@ const createCorrection = (params?: {
   })._unsafeUnwrap();
 };
 
-describe('PostgresDrizzleCorrectionRepository (integration)', () => {
+describe('CorrectionPostgresDrizzleRepository (integration)', () => {
   let pool: Pool;
   let database: NodePgDatabase;
-  let repository: PostgresDrizzleCorrectionRepository;
+  let repository: CorrectionPostgresDrizzleRepository;
 
   beforeEach(async () => {
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     database = drizzle({ client: pool });
-    repository = new PostgresDrizzleCorrectionRepository(
+    repository = new CorrectionPostgresDrizzleRepository(
       database,
       new CorrectionPersistenceMapper(),
     );

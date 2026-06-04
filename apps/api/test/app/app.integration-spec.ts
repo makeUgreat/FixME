@@ -1,6 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../src/app.module';
+import { AppModule } from '../../src/bootstrap/nest/app.module';
 import { createTestNestApp } from '../support/create-test-nest-app';
 
 describe('AppModule (integration)', () => {
