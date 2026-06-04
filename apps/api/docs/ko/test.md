@@ -1,3 +1,15 @@
+---
+title: API 테스트 컨벤션
+lang: ko
+audience: both
+applies_to:
+  - apps/api
+source: ../en/test.md
+last_synced: 2026-06-04
+related:
+  - ./index.md
+---
+
 # 테스트 컨벤션
 
 API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리한다. 실행 속도와 검증 범위를 기준으로 단위 테스트를 먼저 선호한다. 프레임워크 설정, 모듈 연결, Nest 애플리케이션 부트스트랩, 라우팅, 실제 HTTP 응답처럼 여러 실제 컴포넌트가 함께 동작하는지 검증해야 할 때 통합 테스트를 작성한다.
