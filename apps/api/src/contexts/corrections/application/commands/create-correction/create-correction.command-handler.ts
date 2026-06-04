@@ -1,11 +1,7 @@
-import { Inject } from '@nestjs/common';
-import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { generateId } from '@core/id';
 import { err, ok, type Result } from '@core/result';
-import {
-  CORRECTION_REPOSITORY,
-  type CorrectionRepository,
-} from '../../ports';
+import { type CommandHandler } from '@layer-kernels/application';
+import { type CorrectionRepository } from '../../ports';
 import {
   Correction,
   CorrectionFeedback,
@@ -21,10 +17,10 @@ import {
   CreateCorrectionRepositoryErrorToApplicationErrorMapper,
 } from './create-correction-error.mapper';
 
-@CommandHandler(CreateCorrectionCommand)
-export class CreateCorrectionCommandHandler implements ICommandHandler<CreateCorrectionCommand> {
+export class CreateCorrectionCommandHandler
+  implements CommandHandler<CreateCorrectionCommand>
+{
   constructor(
-    @Inject(CORRECTION_REPOSITORY)
     private readonly correctionRepository: CorrectionRepository,
     private readonly domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
     private readonly repositoryErrorMapper: CreateCorrectionRepositoryErrorToApplicationErrorMapper,

@@ -3,16 +3,17 @@ import {
   Module,
   type ModuleMetadata,
 } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
 import { CorrectionCommandsModule } from './commands/commands.module';
 
 @Module({})
 export class CorrectionsApplicationModule {
   static register(imports: ModuleMetadata['imports'] = []): DynamicModule {
+    const commandsModule = CorrectionCommandsModule.register(imports);
+
     return {
       module: CorrectionsApplicationModule,
-      imports: [CqrsModule, CorrectionCommandsModule.register(imports)],
-      exports: [CqrsModule],
+      imports: [commandsModule],
+      exports: [commandsModule],
     };
   }
 }
