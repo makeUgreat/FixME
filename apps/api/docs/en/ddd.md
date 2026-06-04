@@ -27,33 +27,31 @@ They are not only folder names.
 
 - An implementation module is a practical code wiring or framework module unit.
 - An implementation module is not automatically a DDD bounded context.
-- In the target structure, `bounded-contexts/{context}` is the model boundary and implementation modules live inside that boundary.
-- NestJS modules SHOULD wire the bounded context's application, infrastructure, and presentation parts without becoming the domain model boundary themselves.
 - Other bounded contexts SHOULD interact through public application contracts, IDs, DTOs, events, or ports instead of reaching into internal domain objects.
 
 ## Shared Kernel
 
 - `shared-kernel` contains the small part of the domain model intentionally shared by multiple bounded contexts.
 - Shared-kernel code has business meaning.
-- Shared-kernel changes require agreement from every context that depends on it.
+- Review shared-kernel changes with the affected context owners.
 - `shared-kernel` MUST NOT be used as a generic duplication-removal directory.
 - Prefer duplication over a premature shared kernel when the shared concept is unstable or context-specific.
-- Use shared kernel only for small, stable domain concepts such as `Money`, `Currency`, `EmailAddress`, or `DateRange`.
-- Keep `shared-kernel` empty except for `.gitkeep` when there are not multiple bounded contexts sharing a domain concept.
+- Prefer shared kernel for small, stable domain concepts such as `Money`, `Currency`, or `DateRange`.
+- Do not create shared-kernel code until multiple bounded contexts intentionally share a stable domain concept.
 
 ## Domain Model Building Blocks
 
 - Aggregates protect consistency boundaries and expose behavior through the aggregate root.
 - Entities have identity and lifecycle.
 - Value objects describe immutable domain values and validate their own invariants.
-- Repositories represent domain persistence needs as contracts, not database implementation details.
+- When repositories belong to the domain layer, they represent domain persistence needs as contracts, not database implementation details.
 - Domain services contain business rules that do not naturally belong to one entity or value object.
 - Domain events describe meaningful business facts that already happened.
 - Domain errors describe business rule failures and should not contain transport, database, or framework details.
 
 ## Review Rules
 
-- Check whether a new shared abstraction is really a stable domain concept before placing it in `shared-kernel` or `layer-kernels/domain`.
+- Check whether a new shared abstraction is really a stable domain concept before making it shared domain code.
 - Check whether a bounded context's public language is leaking another context's internal model.
 - Check whether a domain object is expressing business behavior instead of acting as a database row or request DTO.
 - Check whether communication across model boundaries uses IDs, DTOs, events, ports, or anti-corruption mapping.
