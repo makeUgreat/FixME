@@ -1,5 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { Body, Controller, Inject, Post } from '@nestjs/common';
+import {
+  CORRECTIONS_COMMAND_BUS,
+  type CorrectionsCommandBus,
+} from '../../application/command-bus.token';
 import { CreateCorrectionCommand } from '../../application/commands/create-correction/create-correction.command';
 import { CreateCorrectionHttpErrorMapper } from './create-correction/error.mapper';
 import { CreateCorrectionHttpRequest } from './create-correction/request';
@@ -8,7 +11,8 @@ import { type CreateCorrectionHttpResponse } from './create-correction/response'
 @Controller('corrections')
 export class CorrectionsHttpController {
   constructor(
-    private readonly commandBus: CommandBus,
+    @Inject(CORRECTIONS_COMMAND_BUS)
+    private readonly commandBus: CorrectionsCommandBus,
     private readonly errorMapper: CreateCorrectionHttpErrorMapper,
   ) {}
 

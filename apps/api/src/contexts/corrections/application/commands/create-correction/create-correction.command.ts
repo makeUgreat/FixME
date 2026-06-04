@@ -1,5 +1,5 @@
-import { Command } from '@nestjs/cqrs';
 import { type Result } from '@core/result';
+import { Command } from '@layer-kernels/application';
 import { MISTAKE_TYPES, type CorrectionId, type MistakeType } from '../../../domain';
 import { type CreateCorrectionError } from './create-correction.error';
 

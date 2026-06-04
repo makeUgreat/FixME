@@ -1,11 +1,19 @@
-import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
+import {
+  type DynamicModule,
+  Module,
+  type ModuleMetadata,
+} from '@nestjs/common';
 import { CreateCorrectionHttpErrorMapper } from './create-correction/error.mapper';
 import { CorrectionsHttpController } from './corrections.controller';
 
-@Module({
-  imports: [CqrsModule],
-  controllers: [CorrectionsHttpController],
-  providers: [CreateCorrectionHttpErrorMapper],
-})
-export class CorrectionHttpModule {}
+@Module({})
+export class CorrectionHttpModule {
+  static register(imports: ModuleMetadata['imports'] = []): DynamicModule {
+    return {
+      module: CorrectionHttpModule,
+      imports,
+      controllers: [CorrectionsHttpController],
+      providers: [CreateCorrectionHttpErrorMapper],
+    };
+  }
+}

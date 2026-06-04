@@ -3,7 +3,10 @@ import {
   Module,
   type ModuleMetadata,
 } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
+import {
+  CORRECTION_REPOSITORY,
+  type CorrectionRepository,
+} from '../../ports';
 import {
   CreateCorrectionDomainErrorToApplicationErrorMapper,
   CreateCorrectionRepositoryErrorToApplicationErrorMapper,
@@ -15,12 +18,30 @@ export class CreateCorrectionCommandModule {
   static register(imports: ModuleMetadata['imports'] = []): DynamicModule {
     return {
       module: CreateCorrectionCommandModule,
-      imports: [CqrsModule, ...(imports ?? [])],
+      imports,
       providers: [
-        CreateCorrectionCommandHandler,
         CreateCorrectionDomainErrorToApplicationErrorMapper,
         CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+        {
+          provide: CreateCorrectionCommandHandler,
+          inject: [
+            CORRECTION_REPOSITORY,
+            CreateCorrectionDomainErrorToApplicationErrorMapper,
+            CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+          ],
+          useFactory: (
+            correctionRepository: CorrectionRepository,
+            domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
+            repositoryErrorMapper: CreateCorrectionRepositoryErrorToApplicationErrorMapper,
+          ): CreateCorrectionCommandHandler =>
+            new CreateCorrectionCommandHandler(
+              correctionRepository,
+              domainErrorMapper,
+              repositoryErrorMapper,
+            ),
+        },
       ],
+      exports: [CreateCorrectionCommandHandler],
     };
   }
 }

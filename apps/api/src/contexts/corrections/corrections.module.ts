@@ -6,9 +6,12 @@ import { CorrectionsPresentationModule } from './presentation/presentation.modul
 const correctionsApplicationModule = CorrectionsApplicationModule.register([
   CorrectionsInfrastructureModule.register(),
 ]);
+const correctionsPresentationModule = CorrectionsPresentationModule.register([
+  correctionsApplicationModule,
+]);
 
 @Module({
-  imports: [correctionsApplicationModule, CorrectionsPresentationModule],
+  imports: [correctionsApplicationModule, correctionsPresentationModule],
   exports: [correctionsApplicationModule],
 })
 export class CorrectionsModule {}
