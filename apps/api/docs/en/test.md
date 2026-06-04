@@ -1,3 +1,14 @@
+---
+title: API Test Convention
+lang: en
+audience: both
+applies_to:
+  - apps/api
+translation: ../ko/test.md
+related:
+  - ./index.md
+---
+
 # Test Convention
 
 The API app uses Vitest and separates unit tests from integration tests. Prefer unit tests first based on execution speed and verification scope. Write integration tests when the test must verify multiple real components working together, such as framework configuration, module wiring, Nest application bootstrap, routing, or actual HTTP responses.
