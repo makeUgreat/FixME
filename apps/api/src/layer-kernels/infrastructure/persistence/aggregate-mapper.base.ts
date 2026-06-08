@@ -15,19 +15,19 @@ export abstract class PersistenceAggregateMapper<
   Aggregate,
   PersistenceOutput,
   PersistenceInput,
-  RestoreError,
+  RestoreErrorValue,
 > {
   abstract toPersistence(aggregate: Aggregate): PersistenceInput;
 
   abstract toAggregate(
     persistenceOutput: PersistenceOutput,
-  ): Result<Aggregate, RestoreError>;
+  ): Result<Aggregate, RestoreErrorValue>;
 
-  protected parsePersistenceValue<T, Error extends RestoreError>(
+  protected parsePersistenceValue<T, ErrorValue extends RestoreErrorValue>(
     parser: SafePersistenceParser<T>,
     value: unknown,
-    toError: () => Error,
-  ): Result<T, Error> {
+    toError: () => ErrorValue,
+  ): Result<T, ErrorValue> {
     const parsed = parser.safeParse(value);
 
     return parsed.success ? ok(parsed.data) : err(toError());

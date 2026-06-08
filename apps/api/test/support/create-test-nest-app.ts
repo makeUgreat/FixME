@@ -23,7 +23,8 @@ export async function createTestNestApp(
       forbidNonWhitelisted: true,
       transform: true,
       whitelist: true,
-      exceptionFactory: (errors) => validationErrorMapper.toException(errors),
+      exceptionFactory: (exceptions) =>
+        validationErrorMapper.toException(exceptions),
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());

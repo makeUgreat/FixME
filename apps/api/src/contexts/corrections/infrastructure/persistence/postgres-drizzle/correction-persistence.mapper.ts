@@ -1,5 +1,5 @@
 import {
-  PERSISTENCE_ERROR_KIND,
+  INFRASTRUCTURE_ERROR_KIND,
   PersistenceAggregateMapper,
 } from '@layer-kernels/infrastructure';
 import { type Result } from '@core/result';
@@ -127,7 +127,7 @@ export class CorrectionPersistenceMapper extends PersistenceAggregateMapper<
       correctionFeedbackJsonSchema,
       value,
       () => ({
-        kind: PERSISTENCE_ERROR_KIND.INVALID_DATA,
+        kind: INFRASTRUCTURE_ERROR_KIND.INVALID_DATA,
         code: 'correction_persistence.feedback_json_invalid',
         source: {
           boundary: 'persistence',
@@ -143,7 +143,7 @@ export class CorrectionPersistenceMapper extends PersistenceAggregateMapper<
     value: unknown,
   ): Result<MistakeJson[], CorrectionPersistenceError> {
     return this.parsePersistenceValue(mistakesJsonSchema, value, () => ({
-      kind: PERSISTENCE_ERROR_KIND.INVALID_DATA,
+      kind: INFRASTRUCTURE_ERROR_KIND.INVALID_DATA,
       code: 'correction_persistence.mistakes_json_invalid',
       source: {
         boundary: 'persistence',
@@ -161,7 +161,7 @@ export class CorrectionPersistenceMapper extends PersistenceAggregateMapper<
       providerMetadataJsonSchema,
       value,
       () => ({
-        kind: PERSISTENCE_ERROR_KIND.INVALID_DATA,
+        kind: INFRASTRUCTURE_ERROR_KIND.INVALID_DATA,
         code: 'correction_persistence.provider_metadata_json_invalid',
         source: {
           boundary: 'persistence',

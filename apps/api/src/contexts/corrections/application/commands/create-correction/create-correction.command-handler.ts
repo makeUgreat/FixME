@@ -12,18 +12,12 @@ import {
   type CreateCorrectionResult,
 } from './create-correction.command';
 import { type CreateCorrectionError } from './create-correction.error';
-import {
-  CreateCorrectionDomainErrorToApplicationErrorMapper,
-  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
-} from './create-correction-error.mapper';
 
 export class CreateCorrectionCommandHandler
   implements CommandHandler<CreateCorrectionCommand>
 {
   constructor(
     private readonly correctionRepository: CorrectionRepository,
-    private readonly domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
-    private readonly repositoryErrorMapper: CreateCorrectionRepositoryErrorToApplicationErrorMapper,
   ) {}
 
   async execute(
@@ -39,8 +33,7 @@ export class CreateCorrectionCommandHandler
     return result.match(
       ({ feedback, mistakes }) =>
         this.createAndSaveCorrection(command, feedback, mistakes),
-      (error) =>
-        Promise.resolve(err(this.domainErrorMapper.toApplicationError(error))),
+      (error) => Promise.resolve(err(error)),
     );
   }
 
@@ -68,11 +61,10 @@ export class CreateCorrectionCommandHandler
 
         return saveResult.match(
           () => ok({ correctionId }),
-          (error) => err(this.repositoryErrorMapper.toApplication(error)),
+          (error) => err(error),
         );
       },
-      (error) =>
-        Promise.resolve(err(this.domainErrorMapper.toApplicationError(error))),
+      (error) => Promise.resolve(err(error)),
     );
   }
 }

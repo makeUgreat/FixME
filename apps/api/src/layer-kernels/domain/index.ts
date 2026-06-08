@@ -17,9 +17,10 @@ export type {
   DomainError,
   DomainErrorBase,
   DomainErrorCode,
+  DomainErrorDetailsFor,
   DomainErrorKind,
   DomainErrorOf,
-  DomainInvariantViolationDetails,
+  DomainValidationDetails,
 } from './error.base';
 export { DOMAIN_ERROR_KIND } from './error.base';
 export type { EntityDomainError } from './entity.error';

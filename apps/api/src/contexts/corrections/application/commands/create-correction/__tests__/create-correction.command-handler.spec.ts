@@ -1,7 +1,7 @@
 import { describe, expect, it, type Mock, vi } from 'vitest';
 import { err, ok } from '@core/result';
+import { APPLICATION_ERROR_KIND } from '@layer-kernels/application';
 import {
-  CORRECTION_REPOSITORY_ERROR_KIND,
   type CorrectionRepository,
   type CorrectionRepositorySaveUnavailableError,
 } from '../../../ports';
@@ -10,10 +10,6 @@ import {
   CreateCorrectionCommand,
   type CreateCorrectionCommandProps,
 } from '../create-correction.command';
-import {
-  CreateCorrectionDomainErrorToApplicationErrorMapper,
-  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
-} from '../create-correction-error.mapper';
 import { CreateCorrectionCommandHandler } from '../create-correction.command-handler';
 
 type SaveCorrectionMock = Mock<CorrectionRepository['save']>;
@@ -56,16 +52,12 @@ const createHandler = (
   return {
     correctionRepository,
     saveCorrection,
-    handler: new CreateCorrectionCommandHandler(
-      correctionRepository,
-      new CreateCorrectionDomainErrorToApplicationErrorMapper(),
-      new CreateCorrectionRepositoryErrorToApplicationErrorMapper(),
-    ),
+    handler: new CreateCorrectionCommandHandler(correctionRepository),
   };
 };
 
 const saveUnavailableError: CorrectionRepositorySaveUnavailableError = {
-  kind: CORRECTION_REPOSITORY_ERROR_KIND.UNAVAILABLE,
+  kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
   code: 'correction_repository.save_unavailable',
   message: 'Correction could not be saved',
   details: {},
@@ -123,20 +115,13 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('validation_failed');
-        if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.command_invalid');
-          expect(result.error.details).toEqual({
-            fields: [
-              {
-                path: 'feedback.inferredIntent',
-                messages: [
-                  'Correction feedback inferred intent cannot be empty',
-                ],
-              },
-            ],
-          });
-        }
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe(
+          'correction_feedback.inferred_intent_empty',
+        );
+        expect(result.error.details).toEqual({
+          fields: ['inferredIntent'],
+        });
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -158,18 +143,11 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('validation_failed');
-        if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.command_invalid');
-          expect(result.error.details).toEqual({
-            fields: [
-              {
-                path: 'feedback.explanation',
-                messages: ['Correction feedback explanation cannot be empty'],
-              },
-            ],
-          });
-        }
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe('correction_feedback.explanation_empty');
+        expect(result.error.details).toEqual({
+          fields: ['explanation'],
+        });
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -192,18 +170,11 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('validation_failed');
-        if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.command_invalid');
-          expect(result.error.details).toEqual({
-            fields: [
-              {
-                path: 'mistakes.types',
-                messages: ['Mistake types are invalid'],
-              },
-            ],
-          });
-        }
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe('mistake.types_invalid');
+        expect(result.error.details).toEqual({
+          fields: ['types'],
+        });
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -221,26 +192,13 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('validation_failed');
-        if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.command_invalid');
-          expect(result.error.details).toEqual({
-            fields: [
-              {
-                path: 'correctedText',
-                messages: [
-                  'Correction mistakes cannot be empty when text is corrected',
-                ],
-              },
-              {
-                path: 'mistakes',
-                messages: [
-                  'Correction mistakes cannot be empty when text is corrected',
-                ],
-              },
-            ],
-          });
-        }
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe(
+          'correction.mistakes_empty_for_corrected_text',
+        );
+        expect(result.error.details).toEqual({
+          fields: ['correctedText', 'mistakes'],
+        });
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -261,18 +219,11 @@ describe('CreateCorrectionCommandHandler', () => {
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        expect(result.error.kind).toBe('validation_failed');
-        if (result.error.kind === 'validation_failed') {
-          expect(result.error.code).toBe('create_correction.command_invalid');
-          expect(result.error.details).toEqual({
-            fields: [
-              {
-                path: 'metadata.model',
-                messages: ['Correction metadata model cannot be empty'],
-              },
-            ],
-          });
-        }
+        expect(result.error.kind).toBe('invariant_violation');
+        expect(result.error.code).toBe('correction_metadata.model_empty');
+        expect(result.error.details).toEqual({
+          fields: ['model'],
+        });
       }
 
       expect(saveCorrection).not.toHaveBeenCalled();
@@ -290,9 +241,7 @@ describe('CreateCorrectionCommandHandler', () => {
 
       if (result.isErr()) {
         expect(result.error.kind).toBe('dependency_unavailable');
-        expect(result.error.code).toBe(
-          'create_correction.persistence_unavailable',
-        );
+        expect(result.error.code).toBe('correction_repository.save_unavailable');
         expect(result.error.details).toEqual({});
       }
 

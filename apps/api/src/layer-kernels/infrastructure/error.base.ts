@@ -31,7 +31,7 @@ export interface InfrastructureErrorSource {
 export interface InfrastructureErrorBase<
   Kind extends InfrastructureErrorKind = InfrastructureErrorKind,
   Code extends string = string,
-  Details = unknown,
+  Details = InfrastructureErrorDetailsFor<Kind>,
   Source extends InfrastructureErrorSource = InfrastructureErrorSource,
 > {
   readonly kind: Kind;
@@ -45,7 +45,7 @@ export type InfrastructureErrorOf<
   Kind extends InfrastructureErrorKind,
   Owner extends string,
   Reason extends string,
-  Details = unknown,
+  Details = InfrastructureErrorDetailsFor<Kind>,
   Source extends InfrastructureErrorSource = InfrastructureErrorSource,
 > = InfrastructureErrorBase<
   Kind,
@@ -55,3 +55,13 @@ export type InfrastructureErrorOf<
 >;
 
 export type EmptyInfrastructureErrorDetails = Record<string, never>;
+
+export type InfrastructureInvalidDataDetails = {
+  readonly fields: string[];
+};
+
+export type InfrastructureErrorDetailsFor<
+  Kind extends InfrastructureErrorKind,
+> = Kind extends typeof INFRASTRUCTURE_ERROR_KIND.INVALID_DATA
+  ? InfrastructureInvalidDataDetails
+  : EmptyInfrastructureErrorDetails;

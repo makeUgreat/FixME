@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CORRECTION_REPOSITORY_ERROR_KIND } from '../../../../application/ports';
+import { APPLICATION_ERROR_KIND } from '@layer-kernels/application';
 import { Correction, CorrectionFeedback, Mistake } from '../../../../domain';
 import { type PostgresDrizzle } from '../postgres.type';
 import { CorrectionPersistenceMapper } from '../correction-persistence.mapper';
@@ -103,7 +103,7 @@ describe('CorrectionPostgresDrizzleRepository', () => {
 
       if (result.isErr()) {
         expect(result.error).toEqual({
-          kind: CORRECTION_REPOSITORY_ERROR_KIND.UNAVAILABLE,
+          kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
           code: 'correction_repository.save_unavailable',
           message: 'Correction could not be saved',
           details: {},
@@ -127,7 +127,7 @@ describe('CorrectionPostgresDrizzleRepository', () => {
 
       if (result.isErr()) {
         expect(result.error).toEqual({
-          kind: CORRECTION_REPOSITORY_ERROR_KIND.UNAVAILABLE,
+          kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
           code: 'correction_repository.find_unavailable',
           message: 'Correction could not be found',
           details: {},
@@ -168,7 +168,7 @@ describe('CorrectionPostgresDrizzleRepository', () => {
 
       if (result.isErr()) {
         expect(result.error).toEqual({
-          kind: CORRECTION_REPOSITORY_ERROR_KIND.RESTORE_FAILED,
+          kind: APPLICATION_ERROR_KIND.UNEXPECTED,
           code: 'correction_repository.restore_failed',
           message: 'Correction could not be restored',
           details: {},

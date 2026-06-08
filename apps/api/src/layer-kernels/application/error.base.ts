@@ -42,14 +42,22 @@ export type ApplicationErrorOf<
   Kind extends ApplicationErrorKind,
   Owner extends string,
   Reason extends string,
-  Details = unknown,
+  Details = ApplicationErrorDetailsFor<Kind>,
 > = ApplicationErrorBase<Kind, ApplicationErrorCode<Owner, Reason>, Details>;
 
-export type ValidationFailedFieldDetail = {
-  path: string;
-  messages: string[];
+export type ApplicationValidationFieldDetail = {
+  readonly path: string;
+  readonly messages: string[];
 };
 
-export type ValidationFailedDetails = {
-  fields: ValidationFailedFieldDetail[];
+export type ApplicationValidationDetails = {
+  readonly fields: ApplicationValidationFieldDetail[];
 };
+
+export type ValidationFailedFieldDetail = ApplicationValidationFieldDetail;
+export type ValidationFailedDetails = ApplicationValidationDetails;
+
+export type ApplicationErrorDetailsFor<Kind extends ApplicationErrorKind> =
+  Kind extends typeof APPLICATION_ERROR_KIND.VALIDATION_FAILED
+    ? ApplicationValidationDetails
+    : unknown;

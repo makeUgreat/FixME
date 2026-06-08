@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PERSISTENCE_ERROR_KIND } from '@layer-kernels/infrastructure';
+import { INFRASTRUCTURE_ERROR_KIND } from '@layer-kernels/infrastructure';
 import {
   Correction,
   CorrectionFeedback,
@@ -126,7 +126,7 @@ describe('CorrectionPersistenceMapper', () => {
 
       if (result.isErr()) {
         expect(result.error).toEqual({
-          kind: PERSISTENCE_ERROR_KIND.INVALID_DATA,
+          kind: INFRASTRUCTURE_ERROR_KIND.INVALID_DATA,
           code: 'correction_persistence.feedback_json_invalid',
           source: {
             boundary: 'persistence',
