@@ -111,7 +111,7 @@ application core -/-> bootstrap concrete types
 - Application code는 infrastructure implementation detail을 알면 안 된다.
 - Application code는 presentation request 또는 response DTO shape를 알면 안 된다.
 - Application core는 framework decorator 또는 framework DI API에 의존하면 안 된다.
-- Application code는 domain error와 port error를 application 또는 use case error로 변환할 수 있다.
+- Application code는 domain error와 port error를 application 또는 use case error으로 변환할 수 있다.
 - Application core는 `core`, domain code, `layer-kernels/application`에 의존할 수 있다.
 
 ## Infrastructure Layer
@@ -119,7 +119,7 @@ application core -/-> bootstrap concrete types
 - infrastructure layer는 technical adapter를 구현한다.
 - database, ORM, external API, file system, message broker, SDK, persistence code에 사용한다.
 - Infrastructure code는 application-owned port 또는 domain/application contract를 구현한다.
-- Adapter code는 Prisma, TypeORM, HTTP client, SDK, Drizzle error 같은 technology-specific error를 port 또는 infrastructure error로 변환한다.
+- Adapter code는 Prisma, TypeORM, HTTP client, SDK, Drizzle error 같은 technology-specific error를 port 또는 infrastructure error으로 변환한다.
 - Infrastructure code는 framework와 external library에 의존할 수 있다.
 - Infrastructure code는 presentation code를 알 필요가 없다.
 
@@ -128,8 +128,8 @@ application core -/-> bootstrap concrete types
 - presentation layer는 external request와 response의 entry point다.
 - controller, resolver, request DTO, response DTO, protocol mapper, HTTP error mapper에 사용한다.
 - Presentation code는 application use case를 호출한다.
-- Presentation code는 application error를 protocol response로 변환하고 masking policy를 적용한다.
-- Presentation code는 domain 또는 infrastructure error를 client에 직접 노출하지 않는 것이 좋다.
+- Presentation code는 application error을 protocol response로 변환하고 masking policy를 적용한다.
+- Presentation code는 domain 또는 infrastructure error을 client에 직접 노출하지 않는 것이 좋다.
 - Presentation code는 framework와 protocol library에 의존할 수 있다.
 
 ## Kernel Directories
