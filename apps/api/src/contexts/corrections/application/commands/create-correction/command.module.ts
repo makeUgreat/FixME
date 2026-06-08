@@ -7,10 +7,6 @@ import {
   CORRECTION_REPOSITORY,
   type CorrectionRepository,
 } from '../../ports';
-import {
-  CreateCorrectionDomainErrorToApplicationErrorMapper,
-  CreateCorrectionRepositoryErrorToApplicationErrorMapper,
-} from './create-correction-error.mapper';
 import { CreateCorrectionCommandHandler } from './create-correction.command-handler';
 
 @Module({})
@@ -20,25 +16,13 @@ export class CreateCorrectionCommandModule {
       module: CreateCorrectionCommandModule,
       imports,
       providers: [
-        CreateCorrectionDomainErrorToApplicationErrorMapper,
-        CreateCorrectionRepositoryErrorToApplicationErrorMapper,
         {
           provide: CreateCorrectionCommandHandler,
-          inject: [
-            CORRECTION_REPOSITORY,
-            CreateCorrectionDomainErrorToApplicationErrorMapper,
-            CreateCorrectionRepositoryErrorToApplicationErrorMapper,
-          ],
+          inject: [CORRECTION_REPOSITORY],
           useFactory: (
             correctionRepository: CorrectionRepository,
-            domainErrorMapper: CreateCorrectionDomainErrorToApplicationErrorMapper,
-            repositoryErrorMapper: CreateCorrectionRepositoryErrorToApplicationErrorMapper,
           ): CreateCorrectionCommandHandler =>
-            new CreateCorrectionCommandHandler(
-              correctionRepository,
-              domainErrorMapper,
-              repositoryErrorMapper,
-            ),
+            new CreateCorrectionCommandHandler(correctionRepository),
         },
       ],
       exports: [CreateCorrectionCommandHandler],

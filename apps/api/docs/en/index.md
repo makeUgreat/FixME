@@ -6,6 +6,7 @@ applies_to:
   - apps/api
 translation: ../ko/index.md
 related:
+  - ./error.md
   - ./architecture.md
   - ./source-dependency.md
   - ./static-analysis.md
@@ -27,8 +28,9 @@ When changing public project Markdown documents, also read the repository docume
 
 ## Routing
 
+- API error definitions, mapping, masking, propagation, or failure contract reviews: read [API Error Policy](./error.md).
 - `apps/api` architecture, DDD boundaries, or source structure: read [API Architecture Convention](./architecture.md).
 - Import direction, layer boundaries, framework imports, or source dependency checks: read [Source Dependency Convention](./source-dependency.md).
-- Static analysis config, lint rule ownership, dependency-cruiser rule scope, file scope, or exception policy: read [Static Analysis Convention for apps/api](./static-analysis.md).
+- Static analysis config, lint rule ownership, dependency-cruiser rule scope, file scope, or error policy: read [Static Analysis Convention for apps/api](./static-analysis.md).
 - NestJS DI, provider registration, module wiring, bootstrap flow, or port binding: read [Runtime Wiring Convention](./runtime-wiring.md).
 - `apps/api` test files, test structure, or test command selection: read [Test Convention](./test.md).

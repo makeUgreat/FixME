@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ok, type Result } from '@core/result';
 import {
   type CorrectionRepository,
-  type CorrectionRepositoryError,
+  type CorrectionRepositoryFindError,
+  type CorrectionRepositorySaveError,
 } from '../../../application/ports';
-import {
-  type Correction,
-} from '../../../domain';
+import { type Correction } from '../../../domain';
 
 @Injectable()
 export class CorrectionMemoryRepository implements CorrectionRepository {
@@ -14,7 +13,7 @@ export class CorrectionMemoryRepository implements CorrectionRepository {
 
   save(
     correction: Correction,
-  ): Promise<Result<Correction, CorrectionRepositoryError>> {
+  ): Promise<Result<Correction, CorrectionRepositorySaveError>> {
     this.corrections.set(correction.id, correction);
 
     return Promise.resolve(ok(correction));
@@ -22,7 +21,7 @@ export class CorrectionMemoryRepository implements CorrectionRepository {
 
   findById(
     correctionId: string,
-  ): Promise<Result<Correction | null, CorrectionRepositoryError>> {
+  ): Promise<Result<Correction | null, CorrectionRepositoryFindError>> {
     return Promise.resolve(ok(this.corrections.get(correctionId) ?? null));
   }
 }

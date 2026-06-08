@@ -5,8 +5,9 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/architecture.md
-last_synced: 2026-06-04
+last_synced: 2026-06-08
 related:
+  - ./error.md
   - ./ddd.md
   - ./source-dependency.md
   - ./runtime-wiring.md
@@ -24,9 +25,11 @@ API architecture는 두 축으로 설명한다.
 
 model ownership, domain language, shared domain concept가 바뀌는 경우 DDD 규칙을 읽는다.
 import, layer placement, provider wiring, framework boundary가 바뀌는 경우 source dependency 및 runtime wiring 규칙을 읽는다.
+error, exception, 또는 system error를 정의, 변환, masking, 노출하는 경우 error policy를 읽는다.
 
 ## 관련 문서
 
+- [API 오류 정책](./error.md): error meaning, category, transformation, structure, unexpected system error handling 규칙.
 - [DDD 컨벤션](./ddd.md): bounded context, implementation module, shared kernel, domain model 규칙.
 - [Source Dependency 컨벤션](./source-dependency.md): import direction, layer boundary, framework import 규칙.
 - [Runtime Wiring 컨벤션](./runtime-wiring.md): NestJS DI, provider registration, bootstrap, port binding 규칙.

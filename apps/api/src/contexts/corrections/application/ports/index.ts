@@ -1,10 +1,12 @@
 export { CORRECTION_REPOSITORY } from './correction-repository.token';
 export {
-  CORRECTION_REPOSITORY_ERROR_KIND,
-  type CorrectionRepository,
   type CorrectionRepositoryError,
-  type CorrectionRepositoryErrorKind,
+  type CorrectionRepositoryFindError,
   type CorrectionRepositoryFindUnavailableError,
   type CorrectionRepositoryRestoreFailedError,
+  type CorrectionRepositorySaveError,
   type CorrectionRepositorySaveUnavailableError,
+} from './correction-repository.error';
+export {
+  type CorrectionRepository,
 } from './correction.repository';

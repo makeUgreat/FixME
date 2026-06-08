@@ -1,7 +1,6 @@
 import {
   DOMAIN_ERROR_KIND,
   type DomainErrorOf,
-  type DomainInvariantViolationDetails,
   type EntityDomainError,
 } from '@layer-kernels/domain';
 
@@ -9,43 +8,36 @@ export type CorrectionDomainError =
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'original_text_empty',
-      DomainInvariantViolationDetails
+      'original_text_empty'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'corrected_text_empty',
-      DomainInvariantViolationDetails
+      'corrected_text_empty'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'feedback_invalid',
-      DomainInvariantViolationDetails
+      'feedback_invalid'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'mistakes_invalid',
-      DomainInvariantViolationDetails
+      'mistakes_invalid'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'metadata_invalid',
-      DomainInvariantViolationDetails
+      'metadata_invalid'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'metadata_correction_id_mismatch',
-      DomainInvariantViolationDetails
+      'metadata_correction_id_mismatch'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'correction',
-      'mistakes_empty_for_corrected_text',
-      DomainInvariantViolationDetails
+      'mistakes_empty_for_corrected_text'
     >
   | EntityDomainError;

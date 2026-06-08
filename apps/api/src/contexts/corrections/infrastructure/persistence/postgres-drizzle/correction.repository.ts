@@ -1,17 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { err, ok, type Result } from '@core/result';
+import { APPLICATION_ERROR_KIND } from '@layer-kernels/application';
 import {
-  CORRECTION_REPOSITORY_ERROR_KIND,
   type CorrectionRepository,
-  type CorrectionRepositoryError,
+  type CorrectionRepositoryFindError,
   type CorrectionRepositoryFindUnavailableError,
   type CorrectionRepositoryRestoreFailedError,
+  type CorrectionRepositorySaveError,
   type CorrectionRepositorySaveUnavailableError,
 } from '../../../application/ports';
-import {
-  type Correction,
-} from '../../../domain';
+import { type Correction } from '../../../domain';
 import { CorrectionPersistenceMapper } from './correction-persistence.mapper';
 import { corrections, type CorrectionRow } from './correction.table';
 import { POSTGRES_DRIZZLE } from './postgres.tokens';
@@ -27,7 +26,7 @@ export class CorrectionPostgresDrizzleRepository implements CorrectionRepository
 
   async save(
     correction: Correction,
-  ): Promise<Result<Correction, CorrectionRepositoryError>> {
+  ): Promise<Result<Correction, CorrectionRepositorySaveError>> {
     try {
       const row = this.mapper.toPersistence(correction);
 
@@ -57,7 +56,7 @@ export class CorrectionPostgresDrizzleRepository implements CorrectionRepository
 
   async findById(
     correctionId: string,
-  ): Promise<Result<Correction | null, CorrectionRepositoryError>> {
+  ): Promise<Result<Correction | null, CorrectionRepositoryFindError>> {
     let row: CorrectionRow | undefined;
 
     try {
@@ -86,7 +85,7 @@ export class CorrectionPostgresDrizzleRepository implements CorrectionRepository
 
   private createSaveUnavailableError(): CorrectionRepositorySaveUnavailableError {
     return {
-      kind: CORRECTION_REPOSITORY_ERROR_KIND.UNAVAILABLE,
+      kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
       code: 'correction_repository.save_unavailable',
       message: 'Correction could not be saved',
       details: {},
@@ -95,7 +94,7 @@ export class CorrectionPostgresDrizzleRepository implements CorrectionRepository
 
   private createFindUnavailableError(): CorrectionRepositoryFindUnavailableError {
     return {
-      kind: CORRECTION_REPOSITORY_ERROR_KIND.UNAVAILABLE,
+      kind: APPLICATION_ERROR_KIND.DEPENDENCY_UNAVAILABLE,
       code: 'correction_repository.find_unavailable',
       message: 'Correction could not be found',
       details: {},
@@ -104,7 +103,7 @@ export class CorrectionPostgresDrizzleRepository implements CorrectionRepository
 
   private createRestoreFailedError(): CorrectionRepositoryRestoreFailedError {
     return {
-      kind: CORRECTION_REPOSITORY_ERROR_KIND.RESTORE_FAILED,
+      kind: APPLICATION_ERROR_KIND.UNEXPECTED,
       code: 'correction_repository.restore_failed',
       message: 'Correction could not be restored',
       details: {},

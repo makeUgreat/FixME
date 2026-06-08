@@ -4,19 +4,19 @@ import { type PresentationHttpError } from '@layer-kernels/presentation';
 export class PresentationHttpException<
   Code extends string = string,
 > extends HttpException {
-  constructor(readonly error: PresentationHttpError<Code>) {
-    super(error, error.statusCode);
+  constructor(readonly body: PresentationHttpError<Code>) {
+    super(body, body.statusCode);
   }
 
   get statusCode(): PresentationHttpError<Code>['statusCode'] {
-    return this.error.statusCode;
+    return this.body.statusCode;
   }
 
   get code(): Code {
-    return this.error.code;
+    return this.body.code;
   }
 
   get details(): object | undefined {
-    return this.error.details;
+    return this.body.details;
   }
 }

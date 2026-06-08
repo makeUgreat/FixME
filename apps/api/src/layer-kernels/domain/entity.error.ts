@@ -1,31 +1,26 @@
 import {
   DOMAIN_ERROR_KIND,
   type DomainErrorOf,
-  type DomainInvariantViolationDetails,
 } from './error.base';
 
 export type EntityDomainError =
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'entity',
-      'props_empty',
-      DomainInvariantViolationDetails
+      'props_empty'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'entity',
-      'props_not_object',
-      DomainInvariantViolationDetails
+      'props_not_object'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'entity',
-      'props_too_many',
-      DomainInvariantViolationDetails
+      'props_too_many'
     >
   | DomainErrorOf<
       typeof DOMAIN_ERROR_KIND.INVARIANT_VIOLATION,
       'entity',
-      'updated_at_before_created_at',
-      DomainInvariantViolationDetails
+      'updated_at_before_created_at'
     >;

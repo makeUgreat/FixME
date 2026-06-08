@@ -7,19 +7,19 @@ describe('CreateCorrectionHttpErrorMapper', () => {
   const mapper = new CreateCorrectionHttpErrorMapper();
 
   describe('toException', () => {
-    it('application 오류를 correction HTTP exception으로 변환한다', () => {
-      const error = {
+    it('repository 저장 오류를 correction HTTP exception으로 변환한다', () => {
+      const repositoryError = {
         kind: 'dependency_unavailable',
-        code: 'create_correction.persistence_unavailable',
+        code: 'correction_repository.save_unavailable',
         message: 'Correction could not be saved',
         details: {},
       } as const;
 
-      const exception = mapper.toException(error);
+      const exception = mapper.toException(repositoryError);
 
       expect(exception).toBeInstanceOf(PresentationHttpException);
       expect(exception.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
-      expect(exception.error).toEqual({
+      expect(exception.body).toEqual({
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         code: 'dependency_unavailable',
         message: 'Service temporarily unavailable',
@@ -28,24 +28,19 @@ describe('CreateCorrectionHttpErrorMapper', () => {
   });
 
   describe('validation_failed', () => {
-    it('검증 실패를 Bad Request exception으로 변환한다', () => {
+    it('domain 검증 실패를 Bad Request exception으로 변환한다', () => {
       const exception = mapper.toException({
-        kind: 'validation_failed',
-        code: 'create_correction.command_invalid',
-        message: 'Correction request is invalid',
+        kind: 'invariant_violation',
+        code: 'correction_feedback.inferred_intent_empty',
+        message: 'Correction feedback inferred intent cannot be empty',
         details: {
-          fields: [
-            {
-              path: 'feedback.inferredIntent',
-              messages: ['Correction feedback inferred intent cannot be empty'],
-            },
-          ],
+          fields: ['inferredIntent'],
         },
       });
 
       expect(exception).toBeInstanceOf(PresentationHttpException);
       expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-      expect(exception.error).toEqual({
+      expect(exception.body).toEqual({
         statusCode: HttpStatus.BAD_REQUEST,
         code: 'validation_failed',
         message: 'Request validation failed',
@@ -62,24 +57,15 @@ describe('CreateCorrectionHttpErrorMapper', () => {
 
     it('검증 실패 details는 허용된 public field만 노출한다', () => {
       const exception = mapper.toException({
-        kind: 'validation_failed',
-        code: 'create_correction.command_invalid',
-        message: 'Correction request is invalid',
+        kind: 'invariant_violation',
+        code: 'correction_metadata.provider_metadata_invalid',
+        message: 'Correction metadata provider metadata must be a plain object',
         details: {
-          fields: [
-            {
-              path: 'metadata.providerMetadata',
-              messages: ['Internal provider metadata validation failed'],
-            },
-            {
-              path: 'metadata.providerMetadata.apiKey',
-              messages: ['Invalid API key sk-secret'],
-            },
-          ],
+          fields: ['providerMetadata', 'providerMetadata.apiKey'],
         },
       });
 
-      expect(exception.error).toEqual({
+      expect(exception.body).toEqual({
         statusCode: HttpStatus.BAD_REQUEST,
         code: 'validation_failed',
         message: 'Request validation failed',
