@@ -12,7 +12,7 @@ import {
 import {
   CREATE_CORRECTION_MISTAKE_TYPES,
   type CorrectionMistakeInput,
-} from '../../../application/commands/create-correction/create-correction.command';
+} from '@contexts/corrections/application/commands/create-correction/create-correction.command';
 
 export class CorrectionFeedbackHttpRequest {
   @IsString()

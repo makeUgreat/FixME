@@ -1,6 +1,9 @@
 # API ESLint 규칙
 
-현재 활성화된 프로젝트 전용 또는 컨벤션 강제 ESLint 규칙은 없습니다.
+## 활성화된 규칙
 
-ESLint 설정은 나중에 규칙을 다시 추가할 수 있도록 실행 가능한 상태로 유지합니다.
-현재 이 디렉터리에 로컬 규칙 구현은 남겨두지 않습니다.
+- `api-local/import-path-style`: production `src` import가 source boundary를 넘을 때 설정된 tsconfig path alias를 사용하도록 강제한다.
+
+## 로컬 규칙 구현
+
+Local rule implementation은 `apps/api/eslint/rules/` 아래에 둔다.

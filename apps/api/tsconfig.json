@@ -15,7 +15,6 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@api/*": ["src/*"],
       "@contexts/*": ["src/contexts/*"],
       "@bootstrap/*": ["src/bootstrap/*"],
       "@core/*": ["src/core/*"],

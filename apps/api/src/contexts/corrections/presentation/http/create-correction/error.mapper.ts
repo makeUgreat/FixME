@@ -2,7 +2,7 @@ import { type ValidationFailedDetails } from '@layer-kernels/application';
 import {
   type CreateCorrectionDomainError,
   type CreateCorrectionError,
-} from '../../../application/commands/create-correction/create-correction.error';
+} from '@contexts/corrections/application/commands/create-correction/create-correction.error';
 import { PresentationHttpErrorMapper } from '../error-mapper.base';
 
 const PUBLIC_VALIDATION_MESSAGE_BY_PATH = {

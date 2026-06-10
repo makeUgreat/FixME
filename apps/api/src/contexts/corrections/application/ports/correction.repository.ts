@@ -1,5 +1,5 @@
 import { type Result } from '@core/result';
-import { type Correction, type CorrectionId } from '../../domain';
+import { type Correction, type CorrectionId } from '@contexts/corrections/domain';
 import {
   type CorrectionRepositoryFindError,
   type CorrectionRepositorySaveError,

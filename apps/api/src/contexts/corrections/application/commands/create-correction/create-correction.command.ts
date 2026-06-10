@@ -1,6 +1,6 @@
 import { type Result } from '@core/result';
+import { MISTAKE_TYPES, type CorrectionId, type MistakeType } from '@contexts/corrections/domain';
 import { Command } from '@layer-kernels/application';
-import { MISTAKE_TYPES, type CorrectionId, type MistakeType } from '../../../domain';
 import { type CreateCorrectionError } from './create-correction.error';
 
 export const CREATE_CORRECTION_MISTAKE_TYPES = MISTAKE_TYPES;

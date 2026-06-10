@@ -1,12 +1,12 @@
 import { generateId } from '@core/id';
 import { err, ok, type Result } from '@core/result';
+import { type CorrectionRepository } from '@contexts/corrections/application/ports';
 import { type CommandHandler } from '@layer-kernels/application';
-import { type CorrectionRepository } from '../../ports';
 import {
   Correction,
   CorrectionFeedback,
   Mistake,
-} from '../../../domain';
+} from '@contexts/corrections/domain';
 import {
   CreateCorrectionCommand,
   type CreateCorrectionResult,

@@ -96,4 +96,46 @@ module.exports = [
       path: '^src/contexts/(?!$1/)[^/]+/(domain|infrastructure|presentation)/',
     },
   },
+  {
+    name: 'api-not-to-layer-kernel-internals',
+    severity: 'error',
+    comment:
+      'Production code outside layer kernels must import layer-kernel contracts through the kernel public surface. ' +
+      `See ${docs.sourceDependency}#import-path-policy.`,
+    from: {
+      path: '^src/',
+      pathNot: '^src/layer-kernels/',
+    },
+    to: {
+      path: '^src/layer-kernels/[^/]+/(?!index[.]ts$)',
+    },
+  },
+  {
+    name: 'api-not-to-domain-internals',
+    severity: 'error',
+    comment:
+      'Production code outside a domain directory must import domain contracts through the domain public surface. ' +
+      `See ${docs.sourceDependency}#import-path-policy.`,
+    from: {
+      path: '^src/',
+      pathNot: '^src/contexts/[^/]+/domain/',
+    },
+    to: {
+      path: '^src/contexts/[^/]+/domain/(?!index[.]ts$)',
+    },
+  },
+  {
+    name: 'api-not-to-application-port-internals',
+    severity: 'error',
+    comment:
+      'Production code outside application ports must import port contracts through the ports public surface. ' +
+      `See ${docs.sourceDependency}#import-path-policy.`,
+    from: {
+      path: '^src/',
+      pathNot: '^src/contexts/[^/]+/application/ports/',
+    },
+    to: {
+      path: '^src/contexts/[^/]+/application/ports/(?!index[.]ts$)',
+    },
+  },
 ];

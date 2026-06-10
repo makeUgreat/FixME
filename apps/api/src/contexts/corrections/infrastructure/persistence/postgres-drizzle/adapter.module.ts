@@ -2,7 +2,7 @@ import { Module, type OnApplicationShutdown } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { CORRECTION_REPOSITORY } from '../../../application/ports';
+import { CORRECTION_REPOSITORY } from '@contexts/corrections/application/ports';
 import { CorrectionPersistenceMapper } from './correction-persistence.mapper';
 import { CorrectionPostgresDrizzleRepository } from './correction.repository';
 import { POSTGRES_DRIZZLE, POSTGRES_POOL } from './postgres.tokens';
