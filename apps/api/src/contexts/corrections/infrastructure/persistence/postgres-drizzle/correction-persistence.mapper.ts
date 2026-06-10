@@ -9,7 +9,7 @@ import {
   CorrectionMetadata,
   Mistake,
   type CorrectionProps,
-} from '../../../domain';
+} from '@contexts/corrections/domain';
 import {
   correctionFeedbackJsonSchema,
   mistakesJsonSchema,

@@ -89,6 +89,20 @@ application core -/-> bootstrap concrete types
 - Domain code MUST NOT import `bootstrap`, NestJS, database, HTTP, SDK, infrastructure, presentation, or application code. Enforced by [`api-domain-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs) and [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 - Application core MUST NOT import infrastructure implementations, presentation DTOs, framework decorators, framework DI APIs, or bootstrap concrete types. Enforced by [`api-application-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs) and [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 
+## Import Path Policy
+
+- Project path aliases are declared only in [`apps/api/tsconfig.json`](../../tsconfig.json).
+- TypeScript, Vitest, and dependency-cruiser MUST consume `tsconfig.json` instead of redefining project alias meaning.
+- Path aliases represent stable architectural boundaries, not general path-shortening conveniences.
+- Keep aliases limited to named source boundaries such as `@core/*`, `@layer-kernels/*`, `@contexts/*`, and `@bootstrap/*`.
+- Do not add broad aliases such as `@api/*`, `@src/*`, or `@/*`.
+- Production `src` imports MUST use alias imports when crossing source boundaries covered by `@core/*`, `@layer-kernels/*`, `@contexts/*`, or `@bootstrap/*`. Enforced by `api-local/import-path-style`.
+- Prefer relative imports inside the same local implementation area.
+- Use `index.ts` files as public surfaces for intentionally exported contracts, not as default folder decoration.
+- Cross-boundary imports SHOULD target a public surface when one exists.
+- Production imports into layer kernels, context domain code, and application ports MUST use their public surfaces. Enforced by [`api-not-to-layer-kernel-internals`](../../dependency-cruiser/rules/source-dependency.cjs), [`api-not-to-domain-internals`](../../dependency-cruiser/rules/source-dependency.cjs), and [`api-not-to-application-port-internals`](../../dependency-cruiser/rules/source-dependency.cjs).
+- Deep imports into another context or layer internals are forbidden unless this document explicitly allows the dependency.
+
 ## Core
 
 - `core` contains pure primitives that have no layer, framework, bounded context, or business vocabulary.

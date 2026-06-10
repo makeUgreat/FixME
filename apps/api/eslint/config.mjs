@@ -2,8 +2,14 @@
 import { fileURLToPath } from 'node:url';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import importPathStyle from './rules/import-path-style.mjs';
 
 const tsconfigRootDir = fileURLToPath(new URL('..', import.meta.url));
+const apiLocalRules = {
+  rules: {
+    'import-path-style': importPathStyle,
+  },
+};
 
 export default tseslint.config(
   {
@@ -24,5 +30,15 @@ export default tseslint.config(
       },
     },
     rules: {},
+  },
+  {
+    files: ['src/**/*.ts'],
+    ignores: ['src/**/__tests__/**/*.ts', 'src/**/*.{spec,test}.ts'],
+    plugins: {
+      'api-local': apiLocalRules,
+    },
+    rules: {
+      'api-local/import-path-style': 'error',
+    },
   },
 );

@@ -9,8 +9,8 @@ import {
   type CorrectionRepositoryRestoreFailedError,
   type CorrectionRepositorySaveError,
   type CorrectionRepositorySaveUnavailableError,
-} from '../../../application/ports';
-import { type Correction } from '../../../domain';
+} from '@contexts/corrections/application/ports';
+import { type Correction } from '@contexts/corrections/domain';
 import { CorrectionPersistenceMapper } from './correction-persistence.mapper';
 import { corrections, type CorrectionRow } from './correction.table';
 import { POSTGRES_DRIZZLE } from './postgres.tokens';

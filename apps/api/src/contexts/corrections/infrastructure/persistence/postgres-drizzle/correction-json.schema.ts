@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MISTAKE_TYPES } from '../../../domain';
+import { MISTAKE_TYPES } from '@contexts/corrections/domain';
 
 export const correctionFeedbackJsonSchema = z
   .object({

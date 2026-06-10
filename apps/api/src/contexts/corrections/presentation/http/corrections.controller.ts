@@ -2,8 +2,8 @@ import { Body, Controller, Inject, Post } from '@nestjs/common';
 import {
   CORRECTIONS_COMMAND_BUS,
   type CorrectionsCommandBus,
-} from '../../application/command-bus.token';
-import { CreateCorrectionCommand } from '../../application/commands/create-correction/create-correction.command';
+} from '@contexts/corrections/application/command-bus.token';
+import { CreateCorrectionCommand } from '@contexts/corrections/application/commands/create-correction/create-correction.command';
 import { CreateCorrectionHttpErrorMapper } from './create-correction/error.mapper';
 import { CreateCorrectionHttpRequest } from './create-correction/request';
 import { type CreateCorrectionHttpResponse } from './create-correction/response';

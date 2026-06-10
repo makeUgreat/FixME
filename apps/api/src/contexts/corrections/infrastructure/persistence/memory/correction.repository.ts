@@ -4,8 +4,8 @@ import {
   type CorrectionRepository,
   type CorrectionRepositoryFindError,
   type CorrectionRepositorySaveError,
-} from '../../../application/ports';
-import { type Correction } from '../../../domain';
+} from '@contexts/corrections/application/ports';
+import { type Correction } from '@contexts/corrections/domain';
 
 @Injectable()
 export class CorrectionMemoryRepository implements CorrectionRepository {

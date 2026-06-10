@@ -2,10 +2,12 @@ import {
   INFRASTRUCTURE_ERROR_KIND,
   type InfrastructureErrorOf,
 } from '@layer-kernels/infrastructure';
-import { type CorrectionDomainError } from '../../../domain';
-import { type CorrectionFeedbackDomainError } from '../../../domain/correction-feedback.error';
-import { type CorrectionMetadataDomainError } from '../../../domain/correction-metadata.error';
-import { type MistakeDomainError } from '../../../domain/mistake.error';
+import {
+  type CorrectionDomainError,
+  type CorrectionFeedbackDomainError,
+  type CorrectionMetadataDomainError,
+  type MistakeDomainError,
+} from '@contexts/corrections/domain';
 
 type CorrectionPersistenceErrorSource = {
   readonly boundary: 'persistence';

@@ -1,10 +1,10 @@
-import { type CorrectionRepositorySaveError } from '../../ports';
+import { type CorrectionRepositorySaveError } from '@contexts/corrections/application/ports';
 import {
   type CorrectionDomainError,
   type CorrectionFeedbackDomainError,
   type CorrectionMetadataDomainError,
   type MistakeDomainError,
-} from '../../../domain';
+} from '@contexts/corrections/domain';
 
 export type CreateCorrectionDomainError =
   | CorrectionDomainError

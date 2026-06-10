@@ -38,12 +38,14 @@ describe('eslint.config.mjs (integration)', () => {
     expect(messages).toEqual([]);
   });
 
-  it('source 파일에는 적용된 ESLint 규칙이 없다', async () => {
+  it('source 파일에는 import path style 규칙이 적용된다', async () => {
     const config = await calculateConfigForFile(
       'src/contexts/corrections/domain/correction.aggregate.ts',
     );
 
-    expect(getConfiguredRules(config)).toEqual({});
+    expect(getConfiguredRules(config)).toMatchObject({
+      'api-local/import-path-style': [2],
+    });
   });
 
   it('test 파일에는 적용된 ESLint 규칙이 없다', async () => {
@@ -52,5 +54,44 @@ describe('eslint.config.mjs (integration)', () => {
     );
 
     expect(getConfiguredRules(config)).toEqual({});
+  });
+
+  it('source 파일에서 public boundary로 향하는 relative import를 금지한다', () => {
+    const messages = lintWithProjectConfig(
+      `
+        import { Correction } from '../../../domain';
+      `,
+      'src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction.repository.ts',
+    );
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.ruleId).toBe('api-local/import-path-style');
+    expect(messages[0]?.message).toContain('@contexts/corrections/domain');
+  });
+
+  it('source 파일에서 같은 local implementation area의 relative import는 허용한다', () => {
+    const messages = lintWithProjectConfig(
+      `
+        import { type CorrectionDomainError } from './correction.error';
+      `,
+      'src/contexts/corrections/domain/correction.aggregate.ts',
+    );
+
+    expect(messages).toEqual([]);
+  });
+
+  it('source 파일에서 같은 context의 다른 layer로 향하는 relative import를 금지한다', () => {
+    const messages = lintWithProjectConfig(
+      `
+        import { CreateCorrectionCommand } from '../../application/commands/create-correction/create-correction.command';
+      `,
+      'src/contexts/corrections/presentation/http/corrections.controller.ts',
+    );
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.ruleId).toBe('api-local/import-path-style');
+    expect(messages[0]?.message).toContain(
+      '@contexts/corrections/application/commands/create-correction/create-correction.command',
+    );
   });
 });

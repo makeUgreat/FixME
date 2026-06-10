@@ -90,6 +90,20 @@ application core -/-> bootstrap concrete types
 - Domain code는 `bootstrap`, NestJS, database, HTTP, SDK, infrastructure, presentation, application code를 import하면 안 된다. [`api-domain-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
 - Application core는 infrastructure implementation, presentation DTO, framework decorator, framework DI API, bootstrap concrete type을 import하면 안 된다. [`api-application-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
 
+## Import Path 정책
+
+- Project path alias는 [`apps/api/tsconfig.json`](../../tsconfig.json)에만 선언한다.
+- TypeScript, Vitest, dependency-cruiser는 project alias 의미를 다시 정의하지 말고 `tsconfig.json`을 사용해야 한다.
+- Path alias는 일반적인 path 단축 편의가 아니라 안정적인 architectural boundary를 표현한다.
+- Alias는 `@core/*`, `@layer-kernels/*`, `@contexts/*`, `@bootstrap/*` 같은 named source boundary로 제한한다.
+- `@api/*`, `@src/*`, `@/*` 같은 넓은 alias를 추가하지 않는다.
+- Production `src` import는 `@core/*`, `@layer-kernels/*`, `@contexts/*`, `@bootstrap/*`가 담당하는 source boundary를 넘을 때 alias import를 사용해야 한다. `api-local/import-path-style`이 강제한다.
+- 같은 local implementation area 내부에서는 relative import를 우선한다.
+- `index.ts` file은 의도적으로 export하는 contract의 public surface로 사용하며, 기본 folder decoration으로 만들지 않는다.
+- Cross-boundary import는 public surface가 있으면 그 public surface를 대상으로 삼는 것이 좋다.
+- Layer kernel, context domain code, application port로 들어가는 production import는 해당 public surface를 사용해야 한다. [`api-not-to-layer-kernel-internals`](../../dependency-cruiser/rules/source-dependency.cjs), [`api-not-to-domain-internals`](../../dependency-cruiser/rules/source-dependency.cjs), [`api-not-to-application-port-internals`](../../dependency-cruiser/rules/source-dependency.cjs)가 강제한다.
+- 다른 context 또는 layer internal로 들어가는 deep import는 이 문서가 해당 dependency를 명시적으로 허용하지 않는 한 금지한다.
+
 ## Core
 
 - `core`는 layer, framework, bounded context, business vocabulary가 없는 pure primitive를 담는다.

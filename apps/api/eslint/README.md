@@ -1,6 +1,9 @@
 # API ESLint Rules
 
-No project-specific or convention-enforcing ESLint rules are currently enabled.
+## Enabled Rules
 
-The ESLint configuration is kept runnable so rules can be added again later.
-No local rule implementations are currently kept in this directory.
+- `api-local/import-path-style`: requires production `src` imports to use configured tsconfig path aliases when crossing source boundaries.
+
+## Local Rule Implementations
+
+Local rule implementations live under `apps/api/eslint/rules/`.
