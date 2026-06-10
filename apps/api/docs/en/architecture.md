@@ -58,6 +58,7 @@ src/
       pipes/
   contexts/
     {context-name}/
+      {context-name}.module.ts
       domain/
       application/
       infrastructure/

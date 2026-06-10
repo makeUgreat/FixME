@@ -72,15 +72,17 @@ flowchart TB
 - Use `bootstrap` for NestJS root modules, bootstrap functions, runtime config loading, global filters, interceptors, guards, pipes, and app-level provider wiring.
 - `bootstrap` MAY depend on bounded contexts, adapters, layer kernels, `core`, frameworks, and external runtime libraries.
 - `bootstrap` MUST NOT contain business rules.
-- Production code outside `bootstrap` MUST NOT import `bootstrap`, except the thin `src/main.ts` entrypoint.
+- Production code outside `bootstrap` MUST NOT import `bootstrap`, except the thin `src/main.ts` entrypoint. Enforced by [`api-not-to-bootstrap-from-production`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 
 ## NestJS DI
 
 - NestJS DI MAY be used as runtime wiring in `bootstrap`, presentation adapters, or infrastructure adapters.
-- NestJS DI MUST NOT create a source dependency from domain or application core to NestJS.
+- NestJS DI MUST NOT create a source dependency from domain or application core to NestJS. Enforced by [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 - Use framework decorators and provider registration in `bootstrap`, presentation adapters, or infrastructure adapters, not in application core.
 - Use provider factories or equivalent wiring to create application use cases without adding framework imports to application core.
 - Application use cases SHOULD remain plain TypeScript classes constructed from explicit dependencies.
+- Bounded context root modules MAY compose that context's application, presentation, and infrastructure providers.
+- Prefer composing providers by bounded context or runtime boundary instead of mirroring every use case folder as a NestJS module.
 
 ## Port Binding
 
@@ -89,7 +91,7 @@ flowchart TB
 - Runtime wiring MAY connect outer implementations to inner ports without making the inner source file import the outer implementation.
 - Infrastructure adapters may implement application ports.
 - `bootstrap` or adapter wiring registers which implementation satisfies each port.
-- Do not use runtime wiring as a reason to add forbidden imports to domain or application core.
+- Do not use runtime wiring as a reason to add forbidden imports to domain or application core. Enforced by [`api-domain-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs), [`api-application-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs), and [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 
 ## Non-Port Contracts
 

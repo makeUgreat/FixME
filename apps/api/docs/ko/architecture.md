@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/architecture.md
-last_synced: 2026-06-08
+last_synced: 2026-06-10
 related:
   - ./error.md
   - ./ddd.md
@@ -59,6 +59,7 @@ src/
       pipes/
   contexts/
     {context-name}/
+      {context-name}.module.ts
       domain/
       application/
       infrastructure/

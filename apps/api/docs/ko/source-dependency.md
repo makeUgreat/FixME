@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/source-dependency.md
-last_synced: 2026-06-04
+last_synced: 2026-06-10
 related:
   - ./architecture.md
   - ./runtime-wiring.md
@@ -73,6 +73,7 @@ domain -/-> bootstrap
 application core -/-> infrastructure implementations
 application core -/-> presentation DTOs
 application core -/-> framework decorators
+application core -/-> framework DI APIs
 application core -/-> bootstrap concrete types
 ```
 
@@ -84,16 +85,17 @@ application core -/-> bootstrap concrete types
 - `application`은 `core`, `domain`, `layer-kernels/application`에 의존할 수 있다.
 - `infrastructure`는 adapter 구현 시 `core`, `domain`, `application`, `layer-kernels/infrastructure`, external library에 의존할 수 있다.
 - `presentation`은 external protocol 처리 시 `core`, `application`, `layer-kernels/presentation`, framework library에 의존할 수 있다.
-- 얇은 `src/main.ts` entrypoint를 제외한 `bootstrap` 외부의 production code는 `bootstrap`를 import하면 안 된다.
-- Domain code는 `bootstrap`, NestJS, database, HTTP, SDK, infrastructure, presentation, application code를 import하면 안 된다.
-- Application core는 infrastructure implementation, presentation DTO, framework decorator, framework DI API, bootstrap concrete type을 import하면 안 된다.
+- `contexts/{context-name}/{context-name}.module.ts` 같은 bounded context root module은 feature를 조립하기 위해 해당 context의 application, presentation, infrastructure code에 의존할 수 있다.
+- 얇은 `src/main.ts` entrypoint를 제외한 `bootstrap` 외부의 production code는 `bootstrap`를 import하면 안 된다. [`api-not-to-bootstrap-from-production`](../../dependency-cruiser/rules/runtime-wiring.cjs)이 강제한다.
+- Domain code는 `bootstrap`, NestJS, database, HTTP, SDK, infrastructure, presentation, application code를 import하면 안 된다. [`api-domain-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
+- Application core는 infrastructure implementation, presentation DTO, framework decorator, framework DI API, bootstrap concrete type을 import하면 안 된다. [`api-application-stays-inner`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
 
 ## Core
 
 - `core`는 layer, framework, bounded context, business vocabulary가 없는 pure primitive를 담는다.
 - 예: `Result`, `Option`, `BaseError`, `assertNever`, generic guard.
 - 모든 layer는 `core`에 의존할 수 있다.
-- `core`는 project layer, framework, external SDK, business concept에 의존하면 안 된다.
+- `core`는 project layer, framework, external SDK, business concept에 의존하면 안 된다. [`api-core-is-independent`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
 
 ## Domain Layer
 
@@ -107,10 +109,12 @@ application core -/-> bootstrap concrete types
 
 - application layer는 use case와 application flow를 표현한다.
 - command, query, use case handler, application service, application-owned port interface, transaction boundary, application error에 사용한다.
+- Application core는 use case flow와 contract를 뜻하며 NestJS module 또는 provider registration을 뜻하지 않는다.
 - Application code는 domain model을 사용해 user intent를 실행한다.
 - Application code는 infrastructure implementation detail을 알면 안 된다.
 - Application code는 presentation request 또는 response DTO shape를 알면 안 된다.
 - Application core는 framework decorator 또는 framework DI API에 의존하면 안 된다.
+- Application use case wiring용 NestJS module file은 `contexts/{context-name}/application` 아래가 아니라 bounded context root에 둔다.
 - Application code는 domain error와 port error를 application 또는 use case error으로 변환할 수 있다.
 - Application core는 `core`, domain code, `layer-kernels/application`에 의존할 수 있다.
 
@@ -121,13 +125,13 @@ application core -/-> bootstrap concrete types
 - Infrastructure code는 application-owned port 또는 domain/application contract를 구현한다.
 - Adapter code는 Prisma, TypeORM, HTTP client, SDK, Drizzle error 같은 technology-specific error를 port 또는 infrastructure error으로 변환한다.
 - Infrastructure code는 framework와 external library에 의존할 수 있다.
-- Infrastructure code는 presentation code를 알 필요가 없다.
+- Infrastructure code는 presentation code를 알 필요가 없다. [`api-infrastructure-not-to-presentation-or-bootstrap`](../../dependency-cruiser/rules/source-dependency.cjs)이 강제한다.
 
 ## Presentation Layer
 
 - presentation layer는 external request와 response의 entry point다.
 - controller, resolver, request DTO, response DTO, protocol mapper, HTTP error mapper에 사용한다.
-- Presentation code는 application use case를 호출한다.
+- Presentation code는 application use case를 호출한다. [`api-presentation-not-to-domain-infrastructure-or-bootstrap`](../../dependency-cruiser/rules/source-dependency.cjs)이 강제한다.
 - Presentation code는 application error을 protocol response로 변환하고 masking policy를 적용한다.
 - Presentation code는 domain 또는 infrastructure error을 client에 직접 노출하지 않는 것이 좋다.
 - Presentation code는 framework와 protocol library에 의존할 수 있다.
@@ -139,6 +143,6 @@ application core -/-> bootstrap concrete types
 - `layer-kernels/infrastructure`는 infrastructure 공통 adapter policy만 담는다.
 - `layer-kernels/presentation`은 presentation-layer 공통 policy만 담는다.
 - Layer-kernel directory는 `core`에 의존할 수 있다.
-- Layer-kernel directory는 bounded context, bootstrap code, framework code, outer layer에 의존하면 안 된다.
+- Layer-kernel directory는 bounded context, bootstrap code, framework code, outer layer에 의존하면 안 된다. [`api-layer-kernels-stay-in-layer`](../../dependency-cruiser/rules/source-dependency.cjs)와 [`api-inner-layers-not-to-frameworks`](../../dependency-cruiser/rules/runtime-wiring.cjs)가 강제한다.
 - Kernel directory는 generic utility bucket이 되면 안 된다.
 - Feature-specific policy는 소유 bounded context 내부에 둔다.

@@ -1,18 +1,30 @@
 /** @type {import('dependency-cruiser').IConfiguration} */
 const { join } = require('node:path');
 
+const runtimeWiringRules = require('./dependency-cruiser/rules/runtime-wiring.cjs');
+const sourceDependencyRules = require('./dependency-cruiser/rules/source-dependency.cjs');
+const staticAnalysisRules = require('./dependency-cruiser/rules/static-analysis.cjs');
+
 module.exports = {
   extends: '../../.dependency-cruiser.cjs',
-  forbidden: [],
+  forbidden: [
+    ...staticAnalysisRules,
+    ...runtimeWiringRules,
+    ...sourceDependencyRules,
+  ],
   options: {
     exclude: {
       path: [
         '^dist/',
-        '^node_modules/',
         '^coverage/',
       ],
     },
-    includeOnly: ['^src/', '^test/'],
+    includeOnly: [
+      '^src/',
+      '^test/',
+      '^node_modules/',
+      '^../../node_modules/',
+    ],
     tsConfig: {
       fileName: join(__dirname, 'tsconfig.json'),
     },

@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/ddd.md
-last_synced: 2026-06-04
+last_synced: 2026-06-10
 related:
   - ./architecture.md
 ---
@@ -20,7 +20,7 @@ DDD 용어는 단순한 folder name이 아니다.
 - bounded context는 특정 domain model과 ubiquitous language가 유효한 경계다.
 - 같은 단어라도 다른 bounded context에서는 다른 의미를 가질 수 있다.
 - bounded context 외부 코드는 context 내부 model을 직접 수정하면 안 된다.
-- bounded context 외부 코드는 context 내부 domain object에 의존하지 않는 것이 좋다.
+- bounded context 외부 코드는 context 내부 domain object에 의존하지 않는 것이 좋다. [`api-not-to-other-context-internals`](../../dependency-cruiser/rules/source-dependency.cjs)이 강제한다.
 - context는 ID, DTO, event, port, anti-corruption layer를 통해 통신한다.
 - bounded context는 folder name만이 아니라 model, language, responsibility boundary로 정의된다.
 
