@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/static-analysis.md
-last_synced: 2026-06-04
+last_synced: 2026-06-10
 related:
   - ./source-dependency.md
   - ./test.md
@@ -37,8 +37,9 @@ Static analysis check는 `apps/api` convention을 review 가능한 규칙으로 
 ## File Scope
 
 - `apps/api`의 기본 static analysis scope는 `apps/api/src`와 `apps/api/test`다.
-- Generated output, coverage output, installed dependency는 static analysis에서 제외한다.
-- 현재 표준 제외 대상은 `dist`, `coverage`, `node_modules`다.
+- Generated output과 coverage output은 static analysis에서 제외한다.
+- 현재 표준 제외 대상은 `dist`와 `coverage`다.
+- Framework 또는 package boundary를 검사해야 하는 rule이 있으면 dependency-cruiser는 `node_modules`를 follow하지 않는 dependency target으로 포함할 수 있다.
 - Production source와 test source는 서로 다른 rule override를 사용할 수 있지만, 둘 다 기본 checked scope에 포함한다.
 - Rule을 통과시키기 위해 checked file scope를 조용히 좁히면 안 된다. Convention 자체가 더 작은 valid boundary를 가질 때만 scope를 좁힌다.
 
@@ -68,7 +69,7 @@ Static analysis check는 `apps/api` convention을 review 가능한 규칙으로 
 
 - Test-specific static analysis exception은 test가 wiring, adapter, fixture, integration behavior를 검증할 때 허용된다.
 - Shared test support는 명시적으로 test-only이고 production source로 새지 않을 때만 여러 layer에 의존할 수 있다.
-- Production source는 `apps/api/test` 또는 test support directory에서 import하면 안 된다.
+- Production source는 `apps/api/test` 또는 test support directory에서 import하면 안 된다. [`api-not-to-tests-from-production`](../../dependency-cruiser/rules/static-analysis.cjs)이 강제한다.
 - Rule에서 모든 test를 제외하기보다 targeted override로 test exception을 두는 것을 선호한다.
 
 ## Exceptions

@@ -36,8 +36,9 @@ Use this document to decide where a check belongs, which files it should inspect
 ## File Scope
 
 - The default static analysis scope for `apps/api` is `apps/api/src` and `apps/api/test`.
-- Exclude generated output, coverage output, and installed dependencies from static analysis.
-- Current standard exclusions are `dist`, `coverage`, and `node_modules`.
+- Exclude generated output and coverage output from static analysis.
+- Current standard exclusions are `dist` and `coverage`.
+- dependency-cruiser may include `node_modules` as non-followed dependency targets when a rule needs to check framework or package boundaries.
 - Production source and test source may use different rule overrides, but both remain in the default checked scope.
 - Do not silently narrow the checked file scope to make a rule pass. Narrow scope only when the convention itself has a smaller valid boundary.
 
@@ -67,7 +68,7 @@ Use this document to decide where a check belongs, which files it should inspect
 
 - Test-specific static analysis exceptions are allowed when tests verify wiring, adapters, fixtures, or integration behavior.
 - Shared test support may depend on multiple layers only when it is explicitly test-only and does not leak into production source.
-- Production source MUST NOT import from `apps/api/test` or test support directories.
+- Production source MUST NOT import from `apps/api/test` or test support directories. Enforced by [`api-not-to-tests-from-production`](../../dependency-cruiser/rules/static-analysis.cjs).
 - Prefer targeted overrides for test exceptions instead of excluding all tests from a rule.
 
 ## Exceptions

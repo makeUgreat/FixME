@@ -19,7 +19,7 @@ They are not only folder names.
 - A bounded context is the boundary where a specific domain model and ubiquitous language are valid.
 - The same word may have a different meaning in a different bounded context.
 - Code outside a bounded context MUST NOT directly modify the context's internal model.
-- Code outside a bounded context SHOULD NOT depend on the context's internal domain objects.
+- Code outside a bounded context SHOULD NOT depend on the context's internal domain objects. Enforced by [`api-not-to-other-context-internals`](../../dependency-cruiser/rules/source-dependency.cjs).
 - Contexts communicate through IDs, DTOs, events, ports, or anti-corruption layers.
 - A bounded context is defined by model, language, and responsibility boundaries, not by a folder name alone.
 
