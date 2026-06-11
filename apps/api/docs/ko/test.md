@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/test.md
-last_synced: 2026-06-04
+last_synced: 2026-06-11
 related:
   - ./index.md
 ---
@@ -18,7 +18,7 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 
 ## 공통 리뷰 규칙
 
-- 테스트 종류에 맞는 표준 디렉터리를 사용한다. 단위 테스트는 대상 파일이 있는 디렉터리의 `__tests__` 아래에 두고, 통합 테스트는 `apps/api/test/{domain}/` 아래에 둔다.
+- 테스트 종류에 맞는 표준 디렉터리를 사용한다. 단위 테스트는 대상 파일이 있는 디렉터리의 `__tests__` 아래에 두고, 통합 테스트는 `apps/api/test/{context}/` 아래의 architecture path에 맞춰 둔다.
 - `describe()`에는 테스트 대상 이름을 사용한다.
 - 각 `it()`는 하나의 작업 단위를 호출하고 하나의 구체적인 동작 결과를 검증해야 한다.
 - 상태 코드, 본문, 헤더가 같은 실행 결과를 검증한다면 같은 `it()` 안에서 assertion한다.
@@ -49,11 +49,14 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 
 ## 통합 테스트
 
-- 통합 테스트는 `pnpm api:test:integration`으로 실행한다.
+- Postgres가 필요 없는 통합 테스트는 `pnpm api:test:integration`으로 실행한다.
+- Postgres 기반 통합 테스트는 `pnpm api:test:integration:postgres`로 실행한다.
+- 모든 통합 테스트는 `pnpm api:test:integration:all`로 실행한다.
 - config-to-rule wiring, dependency injection wiring, framework bootstrap, routing, controller response처럼 단위 테스트로 다룰 수 없는 상호작용을 검증할 때 통합 테스트를 사용한다.
 - 실제 네트워크, REST API, 시스템 시간, 파일 시스템, 데이터베이스처럼 통제하기 어려운 요소를 사용하는 테스트는 단위 테스트가 아니라 통합 테스트로 분리한다.
 - 통합 테스트는 외부 protocol 또는 persistence와 맞닿은 boundary adapter의 계약 테스트로 본다.
-- Integration spec file은 adapter target별로 분리한다. 예: HTTP controller adapter는 `corrections-http.controller.integration-spec.ts`, repository persistence adapter는 `correction.repository.memory.integration-spec.ts` 또는 `correction.repository.prisma.integration-spec.ts`를 사용한다.
+- Integration spec file은 context와 architecture layer별로 분리한다. 예: HTTP controller adapter는 `test/corrections/presentation/corrections-http.controller.integration-spec.ts`, memory repository adapter는 `test/corrections/infrastructure/persistence/correction.repository.memory.integration-spec.ts`, Postgres Drizzle repository adapter는 `test/corrections/infrastructure/persistence/correction.repository.postgres-drizzle.integration-spec.ts`를 사용한다.
+- `infrastructure/persistence` 아래에는 adapter별 추가 디렉터리를 만들지 않는다. Persistence adapter 이름은 spec file name에 넣는다.
 - 모든 domain 또는 application invariant를 통합 테스트에서 반복하지 않는다. 상세한 domain/application rule은 단위 테스트에 두고, 통합 테스트는 request/response shape, validation pipe 동작, dependency injection wiring, framework routing, repository save/find contract처럼 boundary에서 관찰 가능한 동작을 검증한다.
 - Nest 앱 통합 테스트는 표준 Fastify 요청 방식으로 `app.inject()`를 사용한다.
 - Nest 앱 통합 테스트 파일은 `beforeEach`에서 app을 만들고 `afterEach`에서 `app.close()`로 닫아야 한다.
@@ -63,15 +66,41 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 - 성공 응답, bad request, authentication/authorization failure, not found, server error처럼 HTTP 결과가 다르면 `it()` 블록을 나눈다.
 - HTTP 상태 코드, 응답 본문, 중요한 헤더를 함께 검증한다.
 
+## 통합 테스트 Fixture
+
+- 한 spec file에서만 사용하는 fixture builder는 spec file 안에서 시작한다.
+- 두 개 이상의 integration spec이 같은 valid aggregate, value object, command, request payload를 필요로 하면 반복되는 context-level fixture를 `apps/api/test/{context}/fixtures/`로 옮긴다.
+- Fixture builder 이름은 생성하는 object 기준으로 짓는다. 예: `createCorrectionFixture`.
+- Fixture builder는 기본적으로 valid object를 반환해야 하며, 테스트에서 중요한 field는 명시적으로 override할 수 있게 SHOULD 제공한다.
+- Fixture 기본값은 deterministic해야 한다. 테스트 케이스가 명시적으로 필요로 하지 않는 한 random value를 사용하지 않는다.
+- Domain aggregate fixture와 HTTP request payload fixture는 분리한다.
+- Fixture builder는 Nest app, repository, persistence client, container 또는 다른 external I/O에 의존하면 MUST NOT 된다.
+- Adapter setup helper는 context fixture directory가 아니라 `apps/api/test/support/` 아래에 둔다.
+
+## Persistence 통합 테스트
+
+- 데이터베이스가 필요한 persistence 통합 테스트는 테스트 러너가 관리하는 로컬 컨테이너를 MUST 사용한다.
+- Postgres 기반 persistence 통합 테스트는 `apps/api/test/{context}/infrastructure/persistence/` 아래에 MUST 두고, spec file name에 `.postgres`를 포함한다.
+- 일반적인 persistence 통합 테스트 실행에서 개발자가 데이터베이스를 미리 만들거나 `DATABASE_URL`을 설정하도록 요구하지 않는다.
+- 데이터베이스 컨테이너 이미지는 `latest` 같은 floating tag 대신 version을 고정한다.
+- Repository 테스트가 실행되기 전에 중앙화된 test support code에서 필요한 데이터베이스 schema를 생성한다.
+- Production migration file이 생기기 전까지는 spec에서 adapter table DDL을 중복하지 말고 disposable test database에 `drizzle-kit push --force`를 사용한다.
+- Production migration file이 도입되면 persistence 통합 테스트는 schema push 대신 test container에 migration을 적용하는 방식을 SHOULD 사용한다.
+- 테스트 케이스 사이에 persisted state를 정리한다. `afterEach`에서 adapter가 소유한 table을 truncate하는 방식을 선호한다.
+- 하나의 database container를 공유하는 persistence 통합 테스트는 각 spec이 isolated database 또는 schema를 사용하지 않는 한 file-level parallelism을 피해야 한다.
+- `pnpm api:test:integration:postgres`와 `pnpm api:test:integration:all`을 실행하려면 Docker 또는 호환 container runtime이 필요하다.
+
 ## 명령어
 
 ```bash
 pnpm api:lint:check       # 현재 ESLint 검사
 pnpm api:test:unit        # 단위 테스트
-pnpm api:test             # 모든 Vitest 테스트
-pnpm api:test:integration # 통합 테스트
+pnpm api:test             # 단위 테스트, 그 다음 통합 테스트
+pnpm api:test:integration # Postgres가 필요 없는 통합 테스트
+pnpm api:test:integration:postgres # Postgres 기반 통합 테스트
+pnpm api:test:integration:all # 모든 통합 테스트
 pnpm api:test:watch       # 단위 테스트 watch 모드
 pnpm api:test:cov         # 단위 테스트 커버리지
 ```
 
-PR을 열기 전에 변경 범위에 맞는 검사를 실행한다. 고립된 서비스나 함수만 변경했다면 `pnpm api:lint:check`와 `pnpm api:test:unit`을 실행한다. config wiring, route, module configuration, application bootstrap flow가 변경되었다면 `pnpm api:test:integration`도 실행한다.
+PR을 열기 전에 변경 범위에 맞는 검사를 실행한다. 고립된 서비스나 함수만 변경했다면 `pnpm api:lint:check`와 `pnpm api:test:unit`을 실행한다. config wiring, route, module configuration, application bootstrap flow가 변경되었다면 `pnpm api:test:integration`도 실행한다. Postgres persistence wiring 또는 repository behavior가 변경되었다면 `pnpm api:test:integration:postgres`를 실행한다.
