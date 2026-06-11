@@ -1,11 +1,13 @@
-import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { jsonb, pgSchema, text, timestamp } from 'drizzle-orm/pg-core';
 import {
   type CorrectionFeedbackJson,
   type MistakeJson,
   type ProviderMetadataJson,
 } from './correction-json.schema';
 
-export const corrections = pgTable('corrections', {
+export const correctionsSchema = pgSchema('corrections');
+
+export const corrections = correctionsSchema.table('corrections', {
   id: text('id').primaryKey(),
   originalText: text('original_text').notNull(),
   correctedText: text('corrected_text').notNull(),

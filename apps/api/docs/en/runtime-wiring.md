@@ -74,6 +74,16 @@ flowchart TB
 - `bootstrap` MUST NOT contain business rules.
 - Production code outside `bootstrap` MUST NOT import `bootstrap`, except the thin `src/main.ts` entrypoint. Enforced by [`api-not-to-bootstrap-from-production`](../../dependency-cruiser/rules/runtime-wiring.cjs).
 
+## Environment Configuration
+
+- Environment variable definitions belong to the boundary that uses them.
+- Local API runtime values live in `apps/api/.env`, which MUST NOT be committed.
+- The owner of an environment variable SHOULD define its schema, defaults, typed config mapper, and owner-specific validation rules.
+- `bootstrap` aggregates app-level and selection-level environment schemas and executes API runtime validation at process startup.
+- Adapter-specific required environment variables SHOULD be validated by the selected adapter when it creates its typed config.
+- Runtime wiring that must inspect raw `process.env`, such as conditional module registration, SHOULD call owner-provided selector helpers instead of duplicating string comparisons.
+- Production code SHOULD consume typed config providers or `ConfigService` values after validation, not read `process.env` directly.
+
 ## NestJS DI
 
 - NestJS DI MAY be used as runtime wiring in `bootstrap`, presentation adapters, or infrastructure adapters.
