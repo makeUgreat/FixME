@@ -22,11 +22,31 @@ For local API runtime values, copy `apps/api/.env.example` to `apps/api/.env`.
 selector and allows `local`, `development`, `test`, or `production`; it defaults
 to `local`.
 
+## Local Adapters
+
+Start local adapter dependencies from the repository root:
+
+```bash
+pnpm api:start:local
+```
+
+This starts local adapters, runs database migrations, and starts the API dev
+server. The local adapter Compose file starts Postgres on `127.0.0.1:5432` and
+initializes the corrections database roles used by `apps/api/.env.example`.
+
+Stop local adapter dependencies with:
+
+```bash
+pnpm api:stop:local
+```
+
 ## API Commands
 
 The root scripts are prefixed by app name, so these commands can be run from the repository root:
 
 ```bash
+pnpm api:start:local
+pnpm api:stop:local
 pnpm api:start:dev
 pnpm api:build
 pnpm api:typecheck

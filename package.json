@@ -12,6 +12,8 @@
     "api:start:dev": "pnpm --filter @fixme/api start:dev",
     "api:start:debug": "pnpm --filter @fixme/api start:debug",
     "api:start:prod": "pnpm --filter @fixme/api start:prod",
+    "api:start:local": "pnpm --filter @fixme/api start:local",
+    "api:stop:local": "pnpm --filter @fixme/api stop:local",
     "api:lint": "pnpm --filter @fixme/api lint",
     "api:lint:check": "pnpm --filter @fixme/api lint:check",
     "api:typecheck": "pnpm --filter @fixme/api typecheck",

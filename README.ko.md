@@ -22,11 +22,32 @@ Local API runtime value는 `apps/api/.env.example`을 `apps/api/.env`로 복사�
 selector이며, 허용 값은 `local`, `development`, `test`, `production`이고
 기본값은 `local`이다.
 
+## 로컬 어댑터
+
+저장소 루트에서 로컬 adapter dependency를 시작한다.
+
+```bash
+pnpm api:start:local
+```
+
+이 명령은 local adapter를 시작하고, database migration을 실행한 뒤, API dev
+server를 시작한다. Local adapter Compose file은 Postgres를 `127.0.0.1:5432`에서
+시작하고, `apps/api/.env.example`에서 사용하는 corrections database role을
+초기화한다.
+
+로컬 adapter dependency를 중지하려면 다음 명령을 실행한다.
+
+```bash
+pnpm api:stop:local
+```
+
 ## API 명령어
 
 루트 스크립트는 앱 이름을 접두어로 사용하므로, 저장소 루트에서 다음 명령을 실행할 수 있다.
 
 ```bash
+pnpm api:start:local
+pnpm api:stop:local
 pnpm api:start:dev
 pnpm api:build
 pnpm api:typecheck
