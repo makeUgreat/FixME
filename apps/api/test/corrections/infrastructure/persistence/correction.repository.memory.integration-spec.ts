@@ -1,45 +1,13 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../src/bootstrap/nest/app.module';
+import { AppModule } from '../../../../src/bootstrap/nest/app.module';
 import {
   CORRECTION_REPOSITORY,
   type CorrectionRepository,
-} from '../../src/contexts/corrections/application/ports';
-import {
-  Correction,
-  CorrectionFeedback,
-  Mistake,
-} from '../../src/contexts/corrections/domain';
-import { CorrectionMemoryRepository } from '../../src/contexts/corrections/infrastructure/persistence/memory/correction.repository';
-import { createTestNestApp } from '../support/create-test-nest-app';
-
-const createCorrection = (params?: {
-  id?: string;
-  correctedText?: string;
-}): Correction => {
-  const id = params?.id ?? 'correction-1';
-  const feedback = CorrectionFeedback.of({
-    inferredIntent: 'The user asks whether this is meant for concurrency.',
-    explanation: 'The corrected sentence uses a more natural phrase.',
-  })._unsafeUnwrap();
-  const mistake = Mistake.of({
-    types: ['naturalness'],
-    explanation: 'The original phrase is understandable but vague.',
-  })._unsafeUnwrap();
-
-  return Correction.create({
-    id,
-    originalText: 'Is this for concurrency?',
-    correctedText: params?.correctedText ?? 'Is this for handling concurrency?',
-    feedback,
-    mistakes: [mistake],
-    metadata: {
-      id: `${id}-metadata`,
-      model: 'gpt-5-mini',
-      providerMetadata: { providerRequestId: `${id}-request` },
-    },
-  })._unsafeUnwrap();
-};
+} from '../../../../src/contexts/corrections/application/ports';
+import { CorrectionMemoryRepository } from '../../../../src/contexts/corrections/infrastructure/persistence/memory/correction.repository';
+import { createCorrectionFixture } from '../../fixtures/correction.fixture';
+import { createTestNestApp } from '../../../support/create-test-nest-app';
 
 describe('CorrectionMemoryRepository (integration)', () => {
   let app: NestFastifyApplication;
@@ -60,7 +28,7 @@ describe('CorrectionMemoryRepository (integration)', () => {
 
   it('저장한 correction을 id로 조회하면 같은 aggregate를 반환한다', async () => {
     const repository = new CorrectionMemoryRepository();
-    const correction = createCorrection();
+    const correction = createCorrectionFixture();
 
     const saveResult = await repository.save(correction);
     const findResult = await repository.findById(correction.id);
@@ -87,8 +55,8 @@ describe('CorrectionMemoryRepository (integration)', () => {
 
   it('같은 id로 다시 저장하면 마지막 aggregate를 반환한다', async () => {
     const repository = new CorrectionMemoryRepository();
-    const first = createCorrection({ id: 'correction-1' });
-    const second = createCorrection({
+    const first = createCorrectionFixture({ id: 'correction-1' });
+    const second = createCorrectionFixture({
       id: 'correction-1',
       correctedText: 'Is this meant for handling concurrency?',
     });

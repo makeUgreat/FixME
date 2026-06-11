@@ -45,10 +45,13 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    fileParallelism: false,
     globals: false,
-    include: ['src/**/*.spec.ts', 'test/**/*.spec.ts'],
-    coverage: {
-      reportsDirectory: 'coverage',
-    },
+    globalSetup: './test/support/postgres-container.global-setup.ts',
+    include: [
+      'test/**/infrastructure/persistence/*.postgres*.integration-spec.ts',
+    ],
+    hookTimeout: 60_000,
+    testTimeout: 30_000,
   },
 });

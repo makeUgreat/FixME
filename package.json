@@ -21,6 +21,8 @@
     "api:test:cov": "pnpm --filter @fixme/api test:cov",
     "api:test:debug": "pnpm --filter @fixme/api test:debug",
     "api:test:integration": "pnpm --filter @fixme/api test:integration",
+    "api:test:integration:postgres": "pnpm --filter @fixme/api test:integration:postgres",
+    "api:test:integration:all": "pnpm --filter @fixme/api test:integration:all",
     "api:deps:check": "pnpm --filter @fixme/api deps:check",
     "api:db:generate": "pnpm --filter @fixme/api db:generate",
     "api:db:migrate": "pnpm --filter @fixme/api db:migrate",
