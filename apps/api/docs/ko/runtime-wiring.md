@@ -5,7 +5,7 @@ audience: both
 applies_to:
   - apps/api
 source: ../en/runtime-wiring.md
-last_synced: 2026-06-10
+last_synced: 2026-06-11
 related:
   - ./architecture.md
   - ./source-dependency.md
@@ -74,6 +74,18 @@ flowchart TB
 - `bootstrap`는 bounded context, adapter, layer kernel, `core`, framework, external runtime library에 의존할 수 있다.
 - `bootstrap`는 business rule을 담으면 안 된다.
 - 얇은 `src/main.ts` entrypoint를 제외한 `bootstrap` 외부의 production code는 `bootstrap`를 import하면 안 된다. [`api-not-to-bootstrap-from-production`](../../dependency-cruiser/rules/runtime-wiring.cjs)이 강제한다.
+
+## Environment Configuration
+
+- Environment variable definition은 그 값을 사용하는 boundary에 둔다.
+- Local API runtime value는 `apps/api/.env`에 두며, 이 파일은 commit하면 안 된다.
+- `NODE_ENV`는 Node runtime mode다. 허용 값은 `development`, `test`, `production`이고, 기본값은 `development`다.
+- `APP_ENV`는 API app environment selector다. 허용 값은 `local`, `development`, `test`, `production`이고, 기본값은 `local`이다.
+- Environment variable의 owner는 schema, default, typed config mapper, owner-specific validation rule을 정의하는 것이 좋다.
+- `bootstrap`는 app-level 및 selection-level environment schema를 집계하고 process startup 시점에 API runtime validation을 실행한다.
+- Adapter-specific required environment variable은 선택된 adapter가 typed config를 만들 때 검증하는 것이 좋다.
+- Conditional module registration처럼 raw `process.env`를 확인해야 하는 runtime wiring은 string comparison을 중복하지 말고 owner-provided selector helper를 호출하는 것이 좋다.
+- Production code는 validation 후 raw `process.env`를 직접 읽지 말고 typed config provider 또는 `ConfigService` value를 소비하는 것이 좋다.
 
 ## NestJS DI
 

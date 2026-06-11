@@ -1,10 +1,9 @@
 import {
   type DynamicModule,
   Module,
-  type ModuleMetadata,
   type OnApplicationShutdown,
 } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { CORRECTION_REPOSITORY } from '@contexts/corrections/application/ports';
@@ -28,13 +27,11 @@ class PostgresPoolShutdown implements OnApplicationShutdown {
 }
 
 @Module({
-  imports: [],
 })
 export class CorrectionPostgresDrizzlePersistenceModule {
-  static register(imports: ModuleMetadata['imports'] = []): DynamicModule {
+  static register(): DynamicModule {
     return {
       module: CorrectionPostgresDrizzlePersistenceModule,
-      imports: [...(imports ?? []), ConfigModule],
       providers: [
         {
           provide: CORRECTIONS_POSTGRES_DRIZZLE_CONFIG,

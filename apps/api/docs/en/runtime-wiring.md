@@ -78,6 +78,8 @@ flowchart TB
 
 - Environment variable definitions belong to the boundary that uses them.
 - Local API runtime values live in `apps/api/.env`, which MUST NOT be committed.
+- `NODE_ENV` is the Node runtime mode. Allowed values are `development`, `test`, and `production`; the default is `development`.
+- `APP_ENV` is the API app environment selector. Allowed values are `local`, `development`, `test`, and `production`; the default is `local`.
 - The owner of an environment variable SHOULD define its schema, defaults, typed config mapper, and owner-specific validation rules.
 - `bootstrap` aggregates app-level and selection-level environment schemas and executes API runtime validation at process startup.
 - Adapter-specific required environment variables SHOULD be validated by the selected adapter when it creates its typed config.

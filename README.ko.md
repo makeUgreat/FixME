@@ -16,6 +16,12 @@ docs/       # 저장소 전역 문서 컨벤션
 pnpm install
 ```
 
+Local API runtime value는 `apps/api/.env.example`을 `apps/api/.env`로 복사해
+둔다. `NODE_ENV`는 Node runtime mode이며, 허용 값은 `development`, `test`,
+`production`이고 기본값은 `development`다. `APP_ENV`는 API app environment
+selector이며, 허용 값은 `local`, `development`, `test`, `production`이고
+기본값은 `local`이다.
+
 ## API 명령어
 
 루트 스크립트는 앱 이름을 접두어로 사용하므로, 저장소 루트에서 다음 명령을 실행할 수 있다.

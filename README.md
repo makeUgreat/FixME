@@ -16,6 +16,12 @@ docs/       # Repository-wide documentation conventions
 pnpm install
 ```
 
+For local API runtime values, copy `apps/api/.env.example` to `apps/api/.env`.
+`NODE_ENV` is the Node runtime mode and allows `development`, `test`, or
+`production`; it defaults to `development`. `APP_ENV` is the API app environment
+selector and allows `local`, `development`, `test`, or `production`; it defaults
+to `local`.
+
 ## API Commands
 
 The root scripts are prefixed by app name, so these commands can be run from the repository root:

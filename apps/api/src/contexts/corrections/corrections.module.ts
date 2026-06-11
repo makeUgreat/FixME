@@ -59,7 +59,6 @@ const correctionsPresentationModule = CorrectionsPresentationModule.register([
 
 @Module({
   imports: [
-    correctionsInfrastructureModule,
     correctionsApplicationWiringModule,
     correctionsPresentationModule,
   ],
