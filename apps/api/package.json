@@ -12,6 +12,8 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "start:local": "docker compose --file ../../docker-compose.local-adapters.yml up --detach --wait && pnpm db:migrate && pnpm start:dev",
+    "stop:local": "docker compose --file ../../docker-compose.local-adapters.yml down",
     "lint": "eslint \"{src,test,drizzle}/**/*.ts\" --fix",
     "lint:check": "eslint \"{src,test,drizzle}/**/*.ts\"",
     "typecheck": "tsc --noEmit",

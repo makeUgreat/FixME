@@ -51,9 +51,7 @@ export default defineConfig({
     fileParallelism: false,
     globals: false,
     include: ['**/*.integration-spec.ts'],
-    exclude: [
-      'test/**/infrastructure/persistence/*.postgres*.integration-spec.ts',
-    ],
+    exclude: ['test/**/*.postgres*.integration-spec.ts'],
     hookTimeout: 60_000,
     testTimeout: 30_000,
   },
