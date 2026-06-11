@@ -9,12 +9,14 @@ import { AppModule } from './app.module';
 import { formatRuntimeConfigLog } from './config/runtime-config-log';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { HttpValidationErrorMapper } from './pipes/http-validation-error.mapper';
+import { StartupDependencyCheckService } from './startup-check/startup-dependency-check.service';
 
 export async function startNestApp() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+  app.enableShutdownHooks();
   const validationErrorMapper = new HttpValidationErrorMapper();
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,7 +31,7 @@ export async function startNestApp() {
   const configService = app.get(ConfigService);
   const port = configService.getOrThrow<number>('PORT');
 
-  await app.listen(port);
+  await listenAfterStartupDependencyCheck(app, port);
 
   Logger.log(
     formatRuntimeConfigLog({
@@ -43,4 +45,25 @@ export async function startNestApp() {
     }),
     'RuntimeConfig',
   );
+}
+
+export async function listenAfterStartupDependencyCheck(
+  app: NestFastifyApplication,
+  port: number,
+): Promise<void> {
+  try {
+    await app.get(StartupDependencyCheckService, { strict: false }).check();
+  } catch (error) {
+    Logger.error(
+      error instanceof Error
+        ? error.message
+        : 'Startup dependency check failed',
+      error instanceof Error ? error.stack : undefined,
+      'StartupDependencyCheck',
+    );
+    await app.close();
+    throw error;
+  }
+
+  await app.listen(port);
 }

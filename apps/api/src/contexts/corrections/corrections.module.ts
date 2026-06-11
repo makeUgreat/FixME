@@ -1,6 +1,6 @@
+import { Module } from '@nestjs/common';
 import {
   type DynamicModule,
-  Module,
   type ModuleMetadata,
 } from '@nestjs/common';
 import { InMemoryCommandBus } from '@layer-kernels/application';
@@ -17,51 +17,39 @@ import { CreateCorrectionCommandHandler } from '@contexts/corrections/applicatio
 import { CorrectionsInfrastructureModule } from '@contexts/corrections/infrastructure/infrastructure.module';
 import { CorrectionsPresentationModule } from '@contexts/corrections/presentation/presentation.module';
 
-@Module({})
-class CorrectionsApplicationWiringModule {
-  static register(imports: ModuleMetadata['imports'] = []): DynamicModule {
-    return {
-      module: CorrectionsApplicationWiringModule,
-      imports,
-      providers: [
-        {
-          provide: CreateCorrectionCommandHandler,
-          inject: [CORRECTION_REPOSITORY],
-          useFactory: (
-            correctionRepository: CorrectionRepository,
-          ): CreateCorrectionCommandHandler =>
-            new CreateCorrectionCommandHandler(correctionRepository),
-        },
-        {
-          provide: CORRECTIONS_COMMAND_BUS,
-          inject: [CreateCorrectionCommandHandler],
-          useFactory: (
-            createCorrectionHandler: CreateCorrectionCommandHandler,
-          ): CorrectionsCommandBus =>
-            new InMemoryCommandBus([
-              [CreateCorrectionCommand, createCorrectionHandler],
-            ]),
-        },
-      ],
-      exports: [CORRECTIONS_COMMAND_BUS],
-    };
-  }
-}
-
-const correctionsInfrastructureModule = CorrectionsInfrastructureModule.register();
-const correctionsApplicationWiringModule =
-  CorrectionsApplicationWiringModule.register([
-    correctionsInfrastructureModule,
-  ]);
-const correctionsPresentationModule = CorrectionsPresentationModule.register([
-  correctionsApplicationWiringModule,
-]);
+@Module({
+  imports: [CorrectionsInfrastructureModule],
+  providers: [
+    {
+      provide: CreateCorrectionCommandHandler,
+      inject: [CORRECTION_REPOSITORY],
+      useFactory: (
+        correctionRepository: CorrectionRepository,
+      ): CreateCorrectionCommandHandler =>
+        new CreateCorrectionCommandHandler(correctionRepository),
+    },
+    {
+      provide: CORRECTIONS_COMMAND_BUS,
+      inject: [CreateCorrectionCommandHandler],
+      useFactory: (
+        createCorrectionHandler: CreateCorrectionCommandHandler,
+      ): CorrectionsCommandBus =>
+        new InMemoryCommandBus([
+          [CreateCorrectionCommand, createCorrectionHandler],
+        ]),
+    },
+  ],
+  exports: [CORRECTIONS_COMMAND_BUS, CorrectionsInfrastructureModule],
+})
+class CorrectionsApplicationWiringModule {}
 
 @Module({
   imports: [
-    correctionsApplicationWiringModule,
-    correctionsPresentationModule,
+    CorrectionsApplicationWiringModule,
+    CorrectionsPresentationModule.register([
+      CorrectionsApplicationWiringModule,
+    ]),
   ],
-  exports: [correctionsApplicationWiringModule],
+  exports: [CorrectionsApplicationWiringModule],
 })
 export class CorrectionsModule {}

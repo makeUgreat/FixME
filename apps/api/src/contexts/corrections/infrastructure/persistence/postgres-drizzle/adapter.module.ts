@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { CORRECTION_REPOSITORY } from '@contexts/corrections/application/ports';
+import { CORRECTION_PERSISTENCE_HEALTH_CHECK } from '../ports';
 import {
   CORRECTIONS_DATABASE_URL_ENV_KEY,
   CORRECTIONS_POSTGRES_DRIZZLE_CONFIG,
@@ -15,6 +16,7 @@ import {
 } from './postgres-drizzle.config';
 import { CorrectionPersistenceMapper } from './correction-persistence.mapper';
 import { CorrectionPostgresDrizzleRepository } from './correction.repository';
+import { CorrectionPostgresDrizzlePersistenceHealthCheck } from './health-check.service';
 import { POSTGRES_DRIZZLE, POSTGRES_POOL } from './postgres.tokens';
 import { type PostgresDrizzle } from './postgres.type';
 
@@ -66,12 +68,17 @@ export class CorrectionPostgresDrizzlePersistenceModule {
         },
         CorrectionPersistenceMapper,
         CorrectionPostgresDrizzleRepository,
+        CorrectionPostgresDrizzlePersistenceHealthCheck,
         {
           provide: CORRECTION_REPOSITORY,
           useExisting: CorrectionPostgresDrizzleRepository,
         },
+        {
+          provide: CORRECTION_PERSISTENCE_HEALTH_CHECK,
+          useExisting: CorrectionPostgresDrizzlePersistenceHealthCheck,
+        },
       ],
-      exports: [CORRECTION_REPOSITORY],
+      exports: [CORRECTION_REPOSITORY, CORRECTION_PERSISTENCE_HEALTH_CHECK],
     };
   }
 }

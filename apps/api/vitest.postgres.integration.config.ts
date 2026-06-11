@@ -48,9 +48,7 @@ export default defineConfig({
     fileParallelism: false,
     globals: false,
     globalSetup: './test/support/postgres-container.global-setup.ts',
-    include: [
-      'test/**/infrastructure/persistence/*.postgres*.integration-spec.ts',
-    ],
+    include: ['test/**/*.postgres*.integration-spec.ts'],
     hookTimeout: 60_000,
     testTimeout: 30_000,
   },
