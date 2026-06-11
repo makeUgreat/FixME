@@ -11,6 +11,12 @@ function lintWithProjectConfig(code: string, filename: string) {
   return linter.verify(code, eslintConfig, { filename });
 }
 
+function fixWithProjectConfig(code: string, filename: string) {
+  const linter = new Linter();
+
+  return linter.verifyAndFix(code, eslintConfig, { filename });
+}
+
 function getConfiguredRules(config: unknown): Record<string, unknown> {
   return (config as { rules?: Record<string, unknown> }).rules ?? {};
 }
@@ -44,22 +50,42 @@ describe('eslint.config.mjs (integration)', () => {
     );
 
     expect(getConfiguredRules(config)).toMatchObject({
+      'unused-imports/no-unused-imports': [2],
       'api-local/import-path-style': [2],
     });
   });
 
-  it('test 파일에는 적용된 ESLint 규칙이 없다', async () => {
+  it('test 파일에는 unused import 규칙만 적용된다', async () => {
     const config = await calculateConfigForFile(
       'test/app/app.integration-spec.ts',
     );
 
-    expect(getConfiguredRules(config)).toEqual({});
+    expect(getConfiguredRules(config)).toEqual({
+      'unused-imports/no-unused-imports': [2],
+    });
+  });
+
+  it('unused import를 자동 제거한다', () => {
+    const result = fixWithProjectConfig(
+      `
+        import { readFileSync } from 'node:fs';
+
+        const value = 1;
+        console.log(value);
+      `,
+      'src/main.ts',
+    );
+
+    expect(result.fixed).toBe(true);
+    expect(result.output).not.toContain('readFileSync');
   });
 
   it('source 파일에서 public boundary로 향하는 relative import를 금지한다', () => {
     const messages = lintWithProjectConfig(
       `
         import { Correction } from '../../../domain';
+
+        type ImportedCorrection = Correction;
       `,
       'src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction.repository.ts',
     );
@@ -73,6 +99,8 @@ describe('eslint.config.mjs (integration)', () => {
     const messages = lintWithProjectConfig(
       `
         import { type CorrectionDomainError } from './correction.error';
+
+        type ImportedError = CorrectionDomainError;
       `,
       'src/contexts/corrections/domain/correction.aggregate.ts',
     );
@@ -84,6 +112,8 @@ describe('eslint.config.mjs (integration)', () => {
     const messages = lintWithProjectConfig(
       `
         import { CreateCorrectionCommand } from '../../application/commands/create-correction/create-correction.command';
+
+        const ImportedCommand = CreateCorrectionCommand;
       `,
       'src/contexts/corrections/presentation/http/corrections.controller.ts',
     );

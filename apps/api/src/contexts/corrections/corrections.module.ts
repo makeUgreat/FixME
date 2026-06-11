@@ -1,8 +1,4 @@
 import { Module } from '@nestjs/common';
-import {
-  type DynamicModule,
-  type ModuleMetadata,
-} from '@nestjs/common';
 import { InMemoryCommandBus } from '@layer-kernels/application';
 import {
   CORRECTION_REPOSITORY,
