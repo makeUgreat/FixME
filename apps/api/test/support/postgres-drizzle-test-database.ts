@@ -23,5 +23,5 @@ export function createPostgresDrizzleTestDatabase(
 export async function truncateCorrectionPersistenceTables(
   database: NodePgDatabase,
 ): Promise<void> {
-  await database.execute(sql`TRUNCATE TABLE corrections`);
+  await database.execute(sql`TRUNCATE TABLE corrections.corrections`);
 }

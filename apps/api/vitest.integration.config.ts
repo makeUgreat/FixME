@@ -45,6 +45,9 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    env: {
+      CORRECTION_PERSISTENCE: 'memory',
+    },
     fileParallelism: false,
     globals: false,
     include: ['**/*.integration-spec.ts'],

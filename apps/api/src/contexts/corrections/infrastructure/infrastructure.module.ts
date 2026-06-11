@@ -3,10 +3,8 @@ import { CorrectionPersistenceModule } from './persistence/persistence.module';
 
 @Module({})
 export class CorrectionsInfrastructureModule {
-  static register(
-    persistence = process.env.CORRECTION_PERSISTENCE,
-  ): DynamicModule {
-    const persistenceModule = CorrectionPersistenceModule.register(persistence);
+  static async register(): Promise<DynamicModule> {
+    const persistenceModule = await CorrectionPersistenceModule.register();
 
     return {
       module: CorrectionsInfrastructureModule,
