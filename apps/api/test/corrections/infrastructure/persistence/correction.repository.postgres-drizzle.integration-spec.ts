@@ -8,8 +8,8 @@ import {
   it,
 } from 'vitest';
 import { sql } from 'drizzle-orm';
-import { CorrectionPersistenceMapper } from '../../../../src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction-persistence.mapper';
-import { CorrectionPostgresDrizzleRepository } from '../../../../src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction.repository';
+import { CorrectionPersistenceMapper } from '../../../../src/contexts/corrections/infrastructure/persistence/postgres/drizzle/correction-persistence.mapper';
+import { CorrectionPostgresDrizzleRepository } from '../../../../src/contexts/corrections/infrastructure/persistence/postgres/drizzle/correction.repository';
 import { createCorrectionFixture } from '../../fixtures/correction.fixture';
 import {
   createPostgresDrizzleTestDatabase,

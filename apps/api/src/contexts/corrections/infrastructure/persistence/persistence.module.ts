@@ -2,7 +2,7 @@ import { type DynamicModule, Module } from '@nestjs/common';
 import { ConditionalModule } from '@nestjs/config';
 import { resolveCorrectionPersistence } from '../config/corrections.config';
 import { CorrectionMemoryPersistenceModule } from './memory/adapter.module';
-import { CorrectionPostgresDrizzlePersistenceModule } from './postgres-drizzle/adapter.module';
+import { CorrectionPostgresDrizzlePersistenceModule } from './postgres/drizzle/adapter.module';
 
 @Module({})
 export class CorrectionPersistenceModule {

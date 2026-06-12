@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { CORRECTION_REPOSITORY } from '@contexts/corrections/application/ports';
-import { CORRECTION_PERSISTENCE_HEALTH_CHECK } from '../ports';
+import { CORRECTION_PERSISTENCE_HEALTH_CHECK } from '../../ports';
 import {
   CORRECTIONS_DATABASE_URL_ENV_KEY,
   CORRECTIONS_POSTGRES_DRIZZLE_CONFIG,
@@ -28,8 +28,7 @@ class PostgresPoolShutdown implements OnApplicationShutdown {
   }
 }
 
-@Module({
-})
+@Module({})
 export class CorrectionPostgresDrizzlePersistenceModule {
   static register(): DynamicModule {
     return {
@@ -58,7 +57,8 @@ export class CorrectionPostgresDrizzlePersistenceModule {
         {
           provide: POSTGRES_DRIZZLE,
           inject: [POSTGRES_POOL],
-          useFactory: (pool: Pool): PostgresDrizzle => drizzle({ client: pool }),
+          useFactory: (pool: Pool): PostgresDrizzle =>
+            drizzle({ client: pool }),
         },
         {
           provide: PostgresPoolShutdown,
