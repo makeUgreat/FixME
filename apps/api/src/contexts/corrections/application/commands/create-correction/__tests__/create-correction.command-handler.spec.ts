@@ -241,7 +241,9 @@ describe('CreateCorrectionCommandHandler', () => {
 
       if (result.isErr()) {
         expect(result.error.kind).toBe('dependency_unavailable');
-        expect(result.error.code).toBe('correction_repository.save_unavailable');
+        expect(result.error.code).toBe(
+          'correction_repository.save_unavailable',
+        );
         expect(result.error.details).toEqual({});
       }
 

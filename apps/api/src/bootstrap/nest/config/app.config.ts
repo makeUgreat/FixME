@@ -15,11 +15,7 @@ export type AppEnvironment = (typeof APP_ENVIRONMENTS)[number];
 
 export const DEFAULT_APP_ENV: AppEnvironment = 'local';
 
-export const NODE_ENVIRONMENTS = [
-  'development',
-  'test',
-  'production',
-] as const;
+export const NODE_ENVIRONMENTS = ['development', 'test', 'production'] as const;
 
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 

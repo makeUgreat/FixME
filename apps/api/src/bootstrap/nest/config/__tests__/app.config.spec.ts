@@ -79,20 +79,18 @@ describe('parseApiEnv', () => {
   });
 
   it('adapter 필수 env는 root에서 검증하지 않는다', () => {
-    expect(
-      parseApiEnv({ CORRECTION_PERSISTENCE: 'postgres-drizzle' }),
-    ).toEqual({
-      APP_ENV: 'local',
-      NODE_ENV: 'development',
-      PORT: 3000,
-      CORRECTION_PERSISTENCE: 'postgres-drizzle',
-    });
+    expect(parseApiEnv({ CORRECTION_PERSISTENCE: 'postgres-drizzle' })).toEqual(
+      {
+        APP_ENV: 'local',
+        NODE_ENV: 'development',
+        PORT: 3000,
+        CORRECTION_PERSISTENCE: 'postgres-drizzle',
+      },
+    );
   });
 
   it('지원하지 않는 persistence adapter이면 실패한다', () => {
-    expect(() =>
-      parseApiEnv({ CORRECTION_PERSISTENCE: 'unknown' }),
-    ).toThrow(
+    expect(() => parseApiEnv({ CORRECTION_PERSISTENCE: 'unknown' })).toThrow(
       'Invalid api environment configuration: CORRECTION_PERSISTENCE:',
     );
   });

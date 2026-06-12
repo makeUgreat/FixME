@@ -7,6 +7,4 @@ export {
   type CorrectionRepositorySaveError,
   type CorrectionRepositorySaveUnavailableError,
 } from './correction-repository.error';
-export {
-  type CorrectionRepository,
-} from './correction.repository';
+export { type CorrectionRepository } from './correction.repository';

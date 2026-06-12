@@ -26,9 +26,10 @@
     "api:test:integration:postgres": "pnpm --filter @fixme/api test:integration:postgres",
     "api:test:integration:all": "pnpm --filter @fixme/api test:integration:all",
     "api:deps:check": "pnpm --filter @fixme/api deps:check",
-    "api:db:generate": "pnpm --filter @fixme/api db:generate",
+    "api:db:bootstrap": "pnpm --filter @fixme/api db:bootstrap",
+    "api:db:bootstrap:local": "pnpm --filter @fixme/api db:bootstrap:local",
+    "api:db:prepare:local": "pnpm --filter @fixme/api db:prepare:local",
     "api:db:migrate": "pnpm --filter @fixme/api db:migrate",
-    "api:db:studio": "pnpm --filter @fixme/api db:studio",
     "api:harness:local": "pnpm --filter @fixme/api harness:local",
     "api:harness:pr": "pnpm --filter @fixme/api harness:pr",
     "api:deps:graph": "pnpm --filter @fixme/api deps:graph"

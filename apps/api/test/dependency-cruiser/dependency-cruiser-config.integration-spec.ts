@@ -22,7 +22,7 @@ const apiRoot = process.cwd();
 const configPath = path.join(apiRoot, '.dependency-cruiser.cjs');
 
 const apiRuleNames = [
-  'api-not-to-tests-from-production',
+  'api-src-stays-inside-src',
   'api-not-to-bootstrap-from-production',
   'api-inner-layers-not-to-frameworks',
   'api-core-is-independent',
@@ -110,6 +110,14 @@ const invalidFiles: Record<string, string> = {
     import { testHelper } from '../../test/support/helper';
 
     export const value = testHelper;
+  `,
+  'src/core/uses-db-helper.ts': `
+    import { dbHelper } from '../../db/postgres/helper';
+
+    export const value = dbHelper;
+  `,
+  'db/postgres/helper.ts': `
+    export const dbHelper = 'db-helper';
   `,
   'src/core/uses-context.ts': `
     import { correction } from '../contexts/corrections/domain';

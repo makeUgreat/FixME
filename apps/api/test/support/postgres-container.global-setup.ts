@@ -1,8 +1,9 @@
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
-import { Pool } from 'pg';
+import { bootstrapPostgres } from '../../db/postgres/bootstrap/bootstrap-postgres';
+import { migratePostgres } from '../../db/postgres/migrations/migrate-postgres';
+import { correctionsPostgresContext } from '../../src/contexts/corrections/infrastructure/persistence/postgres/postgres-resources';
 
 const execFileAsync = promisify(execFile);
 
@@ -15,23 +16,19 @@ const POSTGRES_COMPOSE_ENVIRONMENT = {
   DB_PASSWORD: 'fixme',
 } as const;
 const CORRECTIONS_APP_DATABASE_ROLE = {
-  username: 'fixme_corrections_app',
-  password: 'fixme_corrections_app',
+  username: correctionsPostgresContext.roles.app,
+  password: correctionsPostgresContext.roles.app,
 } as const;
 const CORRECTIONS_WORKER_DATABASE_ROLE = {
-  username: 'fixme_corrections_worker',
-  password: 'fixme_corrections_worker',
+  username: correctionsPostgresContext.roles.worker,
+  password: correctionsPostgresContext.roles.worker,
 } as const;
 const CORRECTIONS_MIGRATOR_DATABASE_ROLE = {
-  username: 'fixme_corrections_migrator',
-  password: 'fixme_corrections_migrator',
+  username: correctionsPostgresContext.roles.migrator,
+  password: correctionsPostgresContext.roles.migrator,
 } as const;
 
 const appRootDirectory = resolve(__dirname, '../..');
-const adminBootstrapSqlPath = resolve(
-  appRootDirectory,
-  'drizzle/admin/0000_roles.sql',
-);
 const composeFilePath = resolve(__dirname, 'docker-compose.test-db.yml');
 const composeProjectName = `fixme-api-test-${process.pid}-${Date.now()}`;
 
@@ -98,11 +95,6 @@ export async function setup(project: GlobalSetupProject): Promise<void> {
       CORRECTIONS_MIGRATOR_DATABASE_ROLE.username,
       CORRECTIONS_MIGRATOR_DATABASE_ROLE.password,
     );
-    const databaseEnvironment = createDatabaseEnvironment(
-      composeEnvironment,
-      correctionsMigratorDatabaseUrl,
-    );
-
     logTestDatabaseInfo(
       `Using 127.0.0.1:${hostPort}/${POSTGRES_COMPOSE_ENVIRONMENT.DB_DATABASE} for integration tests`,
     );
@@ -114,12 +106,20 @@ export async function setup(project: GlobalSetupProject): Promise<void> {
         await waitForHealthyContainer(containerId, composeEnvironment);
       },
     );
-    await runTestDatabaseStep('setup', 'Apply admin role bootstrap', async () => {
-      await applyAdminBootstrap(adminDatabaseUrl);
-    });
-    await runTestDatabaseStep('setup', 'Apply Drizzle migrations', async () => {
-      await migrateDrizzleSchema(databaseEnvironment);
-    });
+    await runTestDatabaseStep(
+      'setup',
+      'Apply admin role bootstrap',
+      async () => {
+        await applyAdminBootstrap(adminDatabaseUrl);
+      },
+    );
+    await runTestDatabaseStep(
+      'setup',
+      'Apply Postgres migrations',
+      async () => {
+        await migratePostgres({ databaseUrl: correctionsMigratorDatabaseUrl });
+      },
+    );
 
     project.provide('postgresAdminConnectionUri', adminDatabaseUrl);
     project.provide('correctionsAppConnectionUri', correctionsAppDatabaseUrl);
@@ -288,37 +288,18 @@ function createConnectionUri(
   return `postgres://${username}:${password}@127.0.0.1:${port}/${POSTGRES_COMPOSE_ENVIRONMENT.DB_DATABASE}`;
 }
 
-function createDatabaseEnvironment(
-  composeEnvironment: NodeJS.ProcessEnv,
-  correctionsMigratorDatabaseUrl: string,
-): NodeJS.ProcessEnv {
-  return {
-    ...composeEnvironment,
-    CORRECTIONS_MIGRATOR_DATABASE_URL: correctionsMigratorDatabaseUrl,
-  };
-}
-
 async function applyAdminBootstrap(databaseUrl: string): Promise<void> {
-  const pool = new Pool({ connectionString: databaseUrl });
-
-  try {
-    await pool.query(await readFile(adminBootstrapSqlPath, 'utf8'));
-    await pool.query(
-      `ALTER ROLE "fixme_corrections_app" WITH PASSWORD '${CORRECTIONS_APP_DATABASE_ROLE.password}'`,
-    );
-    await pool.query(
-      `ALTER ROLE "fixme_corrections_worker" WITH PASSWORD '${CORRECTIONS_WORKER_DATABASE_ROLE.password}'`,
-    );
-    await pool.query(
-      `ALTER ROLE "fixme_corrections_migrator" WITH PASSWORD '${CORRECTIONS_MIGRATOR_DATABASE_ROLE.password}'`,
-    );
-  } finally {
-    await pool.end();
-  }
-}
-
-async function migrateDrizzleSchema(env: NodeJS.ProcessEnv): Promise<void> {
-  await execCommand('pnpm', ['exec', 'drizzle-kit', 'migrate'], env);
+  await bootstrapPostgres({
+    adminDatabaseUrl: databaseUrl,
+    rolePasswords: {
+      [CORRECTIONS_APP_DATABASE_ROLE.username]:
+        CORRECTIONS_APP_DATABASE_ROLE.password,
+      [CORRECTIONS_WORKER_DATABASE_ROLE.username]:
+        CORRECTIONS_WORKER_DATABASE_ROLE.password,
+      [CORRECTIONS_MIGRATOR_DATABASE_ROLE.username]:
+        CORRECTIONS_MIGRATOR_DATABASE_ROLE.password,
+    },
+  });
 }
 
 async function runTestDatabaseStep<T>(

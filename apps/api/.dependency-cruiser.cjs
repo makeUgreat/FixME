@@ -20,10 +20,11 @@ module.exports = {
       ],
     },
     includeOnly: [
-      '^src/',
-      '^test/',
-      '^node_modules/',
-      '^../../node_modules/',
+        '^src/',
+        '^test/',
+        '^db/',
+        '^node_modules/',
+        '^../../node_modules/',
     ],
     tsConfig: {
       fileName: join(__dirname, 'tsconfig.json'),

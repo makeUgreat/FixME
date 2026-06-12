@@ -73,7 +73,8 @@ export class InMemoryCommandBus implements CommandBus {
   async execute<TCommand extends Command<unknown>>(
     command: TCommand,
   ): Promise<Awaited<CommandResult<TCommand>>> {
-    const commandConstructor = command.constructor as CommandConstructor<TCommand>;
+    const commandConstructor =
+      command.constructor as CommandConstructor<TCommand>;
     const handler = this.handlers.get(commandConstructor) as
       | CommandHandler<TCommand>
       | undefined;

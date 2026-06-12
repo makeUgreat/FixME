@@ -5,6 +5,4 @@ export type {
   CorrectionPersistenceHealthCheckUnexpectedError,
   CorrectionPersistenceHealthCheckUnavailableError,
 } from './health-check.error';
-export type {
-  CorrectionPersistenceHealthCheck,
-} from './health-check.port';
+export type { CorrectionPersistenceHealthCheck } from './health-check.port';

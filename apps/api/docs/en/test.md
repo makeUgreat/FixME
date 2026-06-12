@@ -83,8 +83,7 @@ No test convention ESLint checks are currently enabled.
 - Do not require developers to pre-create a database or set `DATABASE_URL` for normal persistence integration test runs.
 - Pin database container image versions instead of using floating tags such as `latest`.
 - Create required database schema in centralized test support code before repository tests run.
-- Until production migration files exist, use `drizzle-kit push --force` against the disposable test database instead of duplicating adapter table DDL in specs.
-- When production migration files are introduced, persistence integration tests SHOULD apply those migrations to the test container instead of using schema push.
+- Persistence integration tests SHOULD apply production SQL migrations to the test container instead of duplicating adapter table DDL in specs.
 - Clean persisted state between test cases. Prefer truncating the adapter-owned tables in `afterEach`.
 - Persistence integration tests that share one database container MUST avoid file-level parallelism unless each spec uses isolated databases or schemas.
 - Docker or a compatible container runtime is required for `pnpm api:test:integration:postgres` and `pnpm api:test:integration:all`.

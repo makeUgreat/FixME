@@ -23,9 +23,7 @@ const PUBLIC_VALIDATION_MESSAGE_BY_PATH = {
 type PublicValidationPath = keyof typeof PUBLIC_VALIDATION_MESSAGE_BY_PATH;
 type PublicValidationField = ValidationFailedDetails['fields'][number];
 
-export class CreateCorrectionHttpErrorMapper extends PresentationHttpErrorMapper<
-  CreateCorrectionError
-> {
+export class CreateCorrectionHttpErrorMapper extends PresentationHttpErrorMapper<CreateCorrectionError> {
   protected override toDetails(
     error: CreateCorrectionError,
   ): ValidationFailedDetails | undefined {

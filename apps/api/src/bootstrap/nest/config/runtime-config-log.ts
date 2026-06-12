@@ -6,9 +6,7 @@ export interface RuntimeConfigLogValues {
   readonly serverUrl: string;
 }
 
-export function formatRuntimeConfigLog(
-  values: RuntimeConfigLogValues,
-): string {
+export function formatRuntimeConfigLog(values: RuntimeConfigLogValues): string {
   return [
     '',
     'Runtime configuration',
