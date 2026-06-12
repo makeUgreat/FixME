@@ -1,5 +1,9 @@
 import { type Result } from '@core/result';
-import { MISTAKE_TYPES, type CorrectionId, type MistakeType } from '@contexts/corrections/domain';
+import {
+  MISTAKE_TYPES,
+  type CorrectionId,
+  type MistakeType,
+} from '@contexts/corrections/domain';
 import { Command } from '@layer-kernels/application';
 import { type CreateCorrectionError } from './create-correction.error';
 

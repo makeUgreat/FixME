@@ -13,3 +13,7 @@ export {
   PersistenceAggregateMapper,
   type SafePersistenceParser,
 } from './persistence/aggregate-mapper.base';
+export type {
+  PostgresContextResources,
+  PostgresContextRoles,
+} from './postgres/context-resources.type';

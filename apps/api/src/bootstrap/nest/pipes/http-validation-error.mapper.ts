@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, type ValidationError } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  type ValidationError,
+} from '@nestjs/common';
 import {
   APPLICATION_ERROR_KIND,
   type ValidationFailedDetails,

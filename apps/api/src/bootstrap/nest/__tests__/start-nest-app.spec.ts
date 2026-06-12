@@ -36,9 +36,9 @@ describe('listenAfterStartupDependencyCheck', () => {
     };
     const app = createAppMock(startupHealthCheck);
 
-    await expect(
-      listenAfterStartupDependencyCheck(app, 3000),
-    ).rejects.toThrow(failure);
+    await expect(listenAfterStartupDependencyCheck(app, 3000)).rejects.toThrow(
+      failure,
+    );
 
     expect(app.listen).not.toHaveBeenCalled();
     expect(app.close).toHaveBeenCalledTimes(1);

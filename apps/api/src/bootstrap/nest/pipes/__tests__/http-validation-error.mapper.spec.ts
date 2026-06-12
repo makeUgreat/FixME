@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, type ValidationError } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  type ValidationError,
+} from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 import { HttpValidationErrorMapper } from '../http-validation-error.mapper';
 

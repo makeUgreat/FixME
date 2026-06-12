@@ -40,9 +40,7 @@ describe('Startup dependency check (integration)', () => {
     const [{ AppModule }, { StartupDependencyCheckService }] =
       await Promise.all([
         import('../../src/bootstrap/nest/app.module.js'),
-        import(
-          '../../src/bootstrap/nest/startup-check/startup-dependency-check.service.js'
-        ),
+        import('../../src/bootstrap/nest/startup-check/startup-dependency-check.service.js'),
       ]);
     app = await createTestNestApp(AppModule);
     const startupDependencyCheck = app.get(StartupDependencyCheckService, {

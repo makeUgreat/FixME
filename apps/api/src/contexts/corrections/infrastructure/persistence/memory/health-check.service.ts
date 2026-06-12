@@ -6,9 +6,7 @@ import {
 } from '../ports';
 
 @Injectable()
-export class CorrectionMemoryPersistenceHealthCheck
-  implements CorrectionPersistenceHealthCheck
-{
+export class CorrectionMemoryPersistenceHealthCheck implements CorrectionPersistenceHealthCheck {
   readonly adapter = 'memory' as const;
 
   async check(): Promise<Result<void, CorrectionPersistenceHealthCheckError>> {

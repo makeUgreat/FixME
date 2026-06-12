@@ -84,8 +84,7 @@ API 앱은 Vitest를 사용하며 단위 테스트와 통합 테스트를 분리
 - 일반적인 persistence 통합 테스트 실행에서 개발자가 데이터베이스를 미리 만들거나 `DATABASE_URL`을 설정하도록 요구하지 않는다.
 - 데이터베이스 컨테이너 이미지는 `latest` 같은 floating tag 대신 version을 고정한다.
 - Repository 테스트가 실행되기 전에 중앙화된 test support code에서 필요한 데이터베이스 schema를 생성한다.
-- Production migration file이 생기기 전까지는 spec에서 adapter table DDL을 중복하지 말고 disposable test database에 `drizzle-kit push --force`를 사용한다.
-- Production migration file이 도입되면 persistence 통합 테스트는 schema push 대신 test container에 migration을 적용하는 방식을 SHOULD 사용한다.
+- Persistence 통합 테스트는 spec에서 adapter table DDL을 중복하지 말고 production SQL migration을 test container에 적용하는 방식을 SHOULD 사용한다.
 - 테스트 케이스 사이에 persisted state를 정리한다. `afterEach`에서 adapter가 소유한 table을 truncate하는 방식을 선호한다.
 - 하나의 database container를 공유하는 persistence 통합 테스트는 각 spec이 isolated database 또는 schema를 사용하지 않는 한 file-level parallelism을 피해야 한다.
 - `pnpm api:test:integration:postgres`와 `pnpm api:test:integration:all`을 실행하려면 Docker 또는 호환 container runtime이 필요하다.

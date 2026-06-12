@@ -5,7 +5,7 @@ import {
   CorrectionFeedback,
   type CreateCorrectionProps,
   Mistake,
-} from '../../../../domain';
+} from '../../../../../domain';
 import { CorrectionPersistenceMapper } from '../correction-persistence.mapper';
 import { type CorrectionRow } from '../correction.table';
 

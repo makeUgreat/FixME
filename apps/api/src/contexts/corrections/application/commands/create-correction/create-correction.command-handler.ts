@@ -13,12 +13,8 @@ import {
 } from './create-correction.command';
 import { type CreateCorrectionError } from './create-correction.error';
 
-export class CreateCorrectionCommandHandler
-  implements CommandHandler<CreateCorrectionCommand>
-{
-  constructor(
-    private readonly correctionRepository: CorrectionRepository,
-  ) {}
+export class CreateCorrectionCommandHandler implements CommandHandler<CreateCorrectionCommand> {
+  constructor(private readonly correctionRepository: CorrectionRepository) {}
 
   async execute(
     command: CreateCorrectionCommand,

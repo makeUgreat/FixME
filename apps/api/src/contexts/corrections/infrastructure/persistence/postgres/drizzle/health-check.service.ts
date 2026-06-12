@@ -6,15 +6,13 @@ import { INFRASTRUCTURE_ERROR_KIND } from '@layer-kernels/infrastructure';
 import {
   type CorrectionPersistenceHealthCheck,
   type CorrectionPersistenceHealthCheckError,
-} from '../ports';
+} from '../../ports';
 import { POSTGRES_POOL } from './postgres.tokens';
 
 const POSTGRES_HEALTH_QUERY_TIMEOUT_MS = 1_000;
 
 @Injectable()
-export class CorrectionPostgresDrizzlePersistenceHealthCheck
-  implements CorrectionPersistenceHealthCheck
-{
+export class CorrectionPostgresDrizzlePersistenceHealthCheck implements CorrectionPersistenceHealthCheck {
   private static readonly healthCheckTimeout = Symbol(
     'postgres_health_check_timeout',
   );

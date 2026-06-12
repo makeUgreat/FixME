@@ -15,9 +15,9 @@ export const DEFAULT_CORRECTION_PERSISTENCE: CorrectionPersistenceAdapter =
 export const correctionsEnvSchema = z.object({
   CORRECTION_PERSISTENCE: z.preprocess(
     emptyStringToUndefined,
-    z.enum(CORRECTION_PERSISTENCE_ADAPTERS).default(
-      DEFAULT_CORRECTION_PERSISTENCE,
-    ),
+    z
+      .enum(CORRECTION_PERSISTENCE_ADAPTERS)
+      .default(DEFAULT_CORRECTION_PERSISTENCE),
   ),
 });
 

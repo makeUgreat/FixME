@@ -83,11 +83,11 @@ describe('eslint.config.mjs (integration)', () => {
   it('source 파일에서 public boundary로 향하는 relative import를 금지한다', () => {
     const messages = lintWithProjectConfig(
       `
-        import { Correction } from '../../../domain';
+        import { Correction } from '../../../../domain';
 
         type ImportedCorrection = Correction;
       `,
-      'src/contexts/corrections/infrastructure/persistence/postgres-drizzle/correction.repository.ts',
+      'src/contexts/corrections/infrastructure/persistence/postgres/drizzle/correction.repository.ts',
     );
 
     expect(messages).toHaveLength(1);

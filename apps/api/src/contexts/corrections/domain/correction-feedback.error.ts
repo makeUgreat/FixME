@@ -1,7 +1,4 @@
-import {
-  DOMAIN_ERROR_KIND,
-  type DomainErrorOf,
-} from '@layer-kernels/domain';
+import { DOMAIN_ERROR_KIND, type DomainErrorOf } from '@layer-kernels/domain';
 
 export type CorrectionFeedbackDomainError =
   | DomainErrorOf<

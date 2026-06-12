@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { emptyStringToUndefined } from '@core/env';
+import { correctionsPostgresContext } from '../postgres-resources';
 
 export const CORRECTIONS_POSTGRES_DRIZZLE_CONFIG = Symbol(
   'corrections_postgres_drizzle_config',
@@ -9,7 +10,8 @@ export interface CorrectionsPostgresDrizzleConfig {
   readonly databaseUrl: string;
 }
 
-export const CORRECTIONS_DATABASE_URL_ENV_KEY = 'CORRECTIONS_DATABASE_URL';
+export const CORRECTIONS_DATABASE_URL_ENV_KEY =
+  correctionsPostgresContext.runtimeDatabaseUrlEnvKey;
 
 export const CORRECTIONS_POSTGRES_DRIZZLE_REQUIRED_ENV_KEYS = [
   CORRECTIONS_DATABASE_URL_ENV_KEY,
@@ -30,7 +32,9 @@ export type CorrectionsPostgresDrizzleEnv = z.infer<
 >;
 
 export function createCorrectionsPostgresDrizzleConfig(
-  env: Partial<Record<CorrectionsPostgresDrizzleRequiredEnvKey, string | undefined>>,
+  env: Partial<
+    Record<CorrectionsPostgresDrizzleRequiredEnvKey, string | undefined>
+  >,
 ): CorrectionsPostgresDrizzleConfig {
   const parsed = correctionsPostgresDrizzleEnvSchema.safeParse(env);
 

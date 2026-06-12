@@ -68,7 +68,7 @@ Use this document to decide where a check belongs, which files it should inspect
 
 - Test-specific static analysis exceptions are allowed when tests verify wiring, adapters, fixtures, or integration behavior.
 - Shared test support may depend on multiple layers only when it is explicitly test-only and does not leak into production source.
-- Production source MUST NOT import from `apps/api/test` or test support directories. Enforced by [`api-not-to-tests-from-production`](../../dependency-cruiser/rules/static-analysis.cjs).
+- Production source MUST NOT import files outside `apps/api/src`; build output only includes `src`, so reusable production code must live under `src`. Enforced by [`api-src-stays-inside-src`](../../dependency-cruiser/rules/static-analysis.cjs).
 - Prefer targeted overrides for test exceptions instead of excluding all tests from a rule.
 
 ## Exceptions

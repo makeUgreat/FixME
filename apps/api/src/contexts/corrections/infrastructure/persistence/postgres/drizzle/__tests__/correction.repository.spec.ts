@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { APPLICATION_ERROR_KIND } from '@layer-kernels/application';
-import { Correction, CorrectionFeedback, Mistake } from '../../../../domain';
+import { Correction, CorrectionFeedback, Mistake } from '../../../../../domain';
 import { type PostgresDrizzle } from '../postgres.type';
 import { CorrectionPersistenceMapper } from '../correction-persistence.mapper';
 import { CorrectionPostgresDrizzleRepository } from '../correction.repository';
