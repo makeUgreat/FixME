@@ -1,10 +1,9 @@
 export interface PostgresContextResources {
   readonly contextName: string;
+  readonly databaseName: string;
   readonly schemaName: string;
   readonly tableNames: Readonly<Record<string, string>>;
   readonly roles: PostgresContextRoles;
-  readonly runtimeDatabaseUrlEnvKey: string;
-  readonly migratorDatabaseUrlEnvKey: string;
 }
 
 export interface PostgresContextRoles {

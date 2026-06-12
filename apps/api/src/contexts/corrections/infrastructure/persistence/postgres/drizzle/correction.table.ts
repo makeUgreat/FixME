@@ -1,4 +1,4 @@
-import { jsonb, pgSchema, text, timestamp } from 'drizzle-orm/pg-core';
+import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import {
   type CorrectionFeedbackJson,
   type MistakeJson,
@@ -6,11 +6,7 @@ import {
 } from './correction-json.schema';
 import { correctionsPostgresContext } from '../postgres-resources';
 
-export const correctionsSchema = pgSchema(
-  correctionsPostgresContext.schemaName,
-);
-
-export const corrections = correctionsSchema.table(
+export const corrections = pgTable(
   correctionsPostgresContext.tableNames.corrections,
   {
     id: text('id').primaryKey(),

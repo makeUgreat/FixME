@@ -2,7 +2,8 @@ import { type PostgresContextResources } from '@layer-kernels/infrastructure';
 
 export const correctionsPostgresContext = {
   contextName: 'corrections',
-  schemaName: 'corrections',
+  databaseName: 'fixme_corrections',
+  schemaName: 'public',
   tableNames: {
     corrections: 'corrections',
   },
@@ -14,6 +15,4 @@ export const correctionsPostgresContext = {
     worker: 'fixme_corrections_worker',
     migrator: 'fixme_corrections_migrator',
   },
-  runtimeDatabaseUrlEnvKey: 'CORRECTIONS_DATABASE_URL',
-  migratorDatabaseUrlEnvKey: 'CORRECTIONS_MIGRATOR_DATABASE_URL',
 } as const satisfies PostgresContextResources;
